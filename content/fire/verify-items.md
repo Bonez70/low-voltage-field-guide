@@ -112,51 +112,61 @@ Chapter references are to NFPA 72 (2019 and 2022 editions) from general industry
 **Proposed:** smooth flat ceiling: 30 ft nominal spacing, no more than 15 ft from a wall, every point on the ceiling within 21 ft (0.7 × 30 ft) of a detector.
 **Source:** NFPA 72 Ch. 17 (spot-type smoke detector spacing).
 **Cite:** NFPA 72 Ch. 17
+**Status:** signed off by David 2026-10-04
 
 ### smoke-mount: Smoke detector mounting
 **Proposed:** commercial detectors on the ceiling, or on a sidewall with the top of the detector within 12 in of the ceiling. Household smoke alarms keep the 4 in rule: on the ceiling at least 4 in from the wall, or on the wall 4 to 12 in below the ceiling.
 **Source:** NFPA 72 Ch. 17 (commercial) and Ch. 29 (household). The 4 in rule was dropped from Ch. 17 in recent editions.
 **Cite:** NFPA 72 Ch. 17 and 29
+**Status:** signed off by David 2026-10-04
 
 ### smoke-hvac: Smoke detectors near HVAC
 **Proposed:** at least 3 ft from supply air diffusers and return air openings.
 **Source:** NFPA 72 Ch. 17 and Ch. 29.
 **Cite:** NFPA 72 Ch. 17 and 29
+**Status:** signed off by David 2026-10-04
 
 ### heat-spacing: Heat detector spacing
 **Proposed:** use the listed spacing (for example 50 × 50 ft), reduced for ceilings above about 10 ft; every point within 0.7 × the listed spacing.
 **Source:** NFPA 72 Ch. 17 (heat detector spacing and high ceiling reduction table).
 **Cite:** NFPA 72 Ch. 17
+**Status:** signed off by David 2026-10-04
 
 ### duct-cfm: Where duct detectors are required
 **Proposed:** commonly required on supply systems over 2,000 CFM, downstream of the filters; larger systems (commonly over 15,000 CFM) may also need return-side detection.
 **Source:** NFPA 90A and the International Mechanical Code. Thresholds and locations differ between them.
 **Cite:** NFPA 90A; IMC
+**Status:** signed off by David 2026-10-04
 
 ### duct-supervisory: Duct detector signal type
 **Proposed:** usually a supervisory signal that shuts down the fan, unless the AHJ or design calls for an alarm.
 **Source:** NFPA 72 Ch. 17/21 and NFPA 90A. Some AHJs require alarm.
 **Cite:** NFPA 72 Ch. 17 and 21; NFPA 90A
+**Status:** signed off by David 2026-10-04
 
 ### duct-remote: Duct detector remote test station
 **Proposed:** remote test station or indicator required where the detector isn't readily visible or accessible.
 **Source:** NFPA 72 Ch. 17 and manufacturer instructions.
 **Cite:** NFPA 72 Ch. 17
+**Status:** signed off by David 2026-10-04
 
 ### elevator-recall: Elevator recall detectors
 **Proposed:** smoke detectors in each elevator lobby, the machine room, and the hoistway (when required) recall elevators to the main floor, or to an alternate floor when the main lobby detector is in alarm.
 **Source:** NFPA 72 Ch. 21 and ASME A17.1.
 **Cite:** NFPA 72 Ch. 21; ASME A17.1
+**Status:** signed off by David 2026-10-04
 
 ### elevator-shunt: Shunt trip heat detectors
 **Proposed:** where sprinklers are in an elevator machine room or hoistway, heat detectors within 2 ft of each sprinkler head, with a lower temperature rating and faster response than the sprinkler, cut elevator power before water flows.
 **Source:** NFPA 72 Ch. 21 (elevator power shutdown).
 **Cite:** NFPA 72 Ch. 21
+**Status:** signed off by David 2026-10-04
 
 ### construction-dust: Detectors during construction
 **Proposed:** don't install smoke detectors until construction cleanup is complete, or protect them with dust covers and remove every cover before the system goes into service.
 **Source:** NFPA 72 Ch. 17 (protection during construction).
 **Cite:** NFPA 72 Ch. 17
+**Status:** signed off by David 2026-10-04
 
 ## Notification
 
@@ -164,46 +174,55 @@ Chapter references are to NFPA 72 (2019 and 2022 editions) from general industry
 **Proposed:** temporal-3 fire evacuation: three ½-second pulses with ½-second gaps, then 1½ seconds off, repeating every 4 seconds. CO uses temporal-4: four short pulses, then a pause.
 **Source:** NFPA 72 Ch. 18 and ANSI/ASA S3.41 (temporal-3); UL 2075 / NFPA 72 (temporal-4 for CO).
 **Cite:** NFPA 72 Ch. 18; ANSI/ASA S3.41
+**Status:** signed off by David 2026-10-04
 
 ### audibility: Audibility levels
 **Proposed:** measured 5 ft above the floor in dBA. Public mode: 15 dB above average ambient, or 5 dB above the maximum lasting 60 s or more, whichever is greater. Private mode: 10 dB above average ambient, or 5 dB above the 60 s maximum. Maximum 110 dBA.
 **Source:** NFPA 72 Ch. 18 (audible characteristics).
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### sleeping: Sleeping area audibility and tone
 **Proposed:** greater of 15 dB above average ambient, 5 dB above the 60 s maximum, or 75 dBA at the pillow; low-frequency 520 Hz tone.
 **Source:** NFPA 72 Ch. 18 (sleeping areas). The 520 Hz rule took effect for new installs starting in 2014.
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### strobe-mount: Strobe height and flash rate
 **Proposed:** wall-mounted strobes with the entire lens between 80 and 96 in above the floor; flash rate 1 to 2 per second.
 **Source:** NFPA 72 Ch. 18 (visible characteristics, wall mounting).
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### strobe-room-table: Strobe candela by room size
 **Proposed:** one wall-mounted strobe: 20 × 20 ft 15 cd, 28 × 28 ft 30 cd, 40 × 40 ft 60 cd, 45 × 45 ft 75 cd, 54 × 54 ft 95 cd, 55 × 55 ft 115 cd.
 **Source:** NFPA 72 Ch. 18 room spacing table for wall-mounted visible appliances.
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### strobe-corridor: Corridor strobes
 **Proposed:** corridors 20 ft wide or less: 15 cd minimum, within 15 ft of each end, no more than 100 ft apart.
 **Source:** NFPA 72 Ch. 18 (corridor spacing).
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### strobe-sleeping: Sleeping room strobes
 **Proposed:** 177 cd if within 24 in of the ceiling, 110 cd if 24 in or more below the ceiling.
 **Source:** NFPA 72 Ch. 18 (sleeping area visible appliances).
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### strobe-sync: Strobe synchronization
 **Proposed:** when more than two strobes can be seen from one spot, they must flash in sync.
 **Source:** NFPA 72 Ch. 18 (synchronization within a field of view).
 **Cite:** NFPA 72 Ch. 18
+**Status:** signed off by David 2026-10-04
 
 ### speaker-volts: Voice speaker circuits
 **Proposed:** voice evacuation speakers run on 25 V or 70.7 V audio circuits with wattage taps (such as ¼, ½, 1, 2 W).
 **Source:** typical amplifier and speaker spec sheets.
 **Cite:** Manufacturer spec sheets
+**Status:** signed off by David 2026-10-04
 
 ## Power
 
@@ -211,71 +230,85 @@ Chapter references are to NFPA 72 (2019 and 2022 editions) from general industry
 **Proposed:** primary power from a dedicated branch circuit that feeds only fire alarm equipment.
 **Source:** NFPA 72 Ch. 10 (primary power supply) and NEC 760.41/760.121.
 **Cite:** NFPA 72 Ch. 10; NEC 760
+**Status:** signed off by David 2026-10-04
 
 ### primary-marking: Breaker marking and locking
 **Proposed:** breaker marked red and identified "FIRE ALARM CIRCUIT", locked or protected and accessible only to authorized people, with its location recorded at the control unit.
 **Source:** NFPA 72 Ch. 10 and NEC 760.41/760.121.
 **Cite:** NFPA 72 Ch. 10; NEC 760
+**Status:** signed off by David 2026-10-04
 
 ### primary-no-gfci: No GFCI or AFCI
 **Proposed:** no GFCI or AFCI protection on the fire alarm branch circuit unless the manufacturer and AHJ allow it.
 **Source:** NEC 760.41(B)/760.121(B).
 **Cite:** NEC 760
+**Status:** signed off by David 2026-10-04
 
 ### ac-delay: AC loss reporting delay
 **Proposed:** AC loss shows locally right away; transmission to the monitoring center is delayed, commonly 1 to 3 hours.
 **Source:** NFPA 72 Ch. 10 (power supervision).
 **Cite:** NFPA 72 Ch. 10
+**Status:** signed off by David 2026-10-04
 
 ### batt-standby: Standby time
 **Proposed:** 24 hours of standby.
 **Source:** NFPA 72 Ch. 10 (secondary power capacity).
 **Cite:** NFPA 72 Ch. 10
+**Status:** signed off by David 2026-10-04
 
 ### batt-alarm-time: Alarm time on battery
 **Proposed:** after standby, 5 minutes of alarm with every notification appliance operating; 15 minutes at maximum connected load for voice evacuation.
 **Source:** NFPA 72 Ch. 10.
 **Cite:** NFPA 72 Ch. 10
+**Status:** signed off by David 2026-10-04
 
 ### batt-margin: 20% battery safety margin
 **Proposed:** battery calculations add a 20% safety margin.
 **Source:** NFPA 72 Ch. 10 (added in the 2016 edition, as I understand it). Manufacturers' battery worksheets also use it.
 **Cite:** NFPA 72 Ch. 10
+**Status:** signed off by David 2026-10-04
 
 ### batt-generator: Batteries with a generator
 **Proposed:** a generator can supplement batteries, but the batteries must still carry the system for at least the transfer time; how much battery standby is required with a generator depends on the edition and AHJ.
 **Source:** NFPA 72 Ch. 10 (secondary power with generator, commonly 4 h of battery in that case).
 **Cite:** NFPA 72 Ch. 10
+**Status:** signed off by David 2026-10-04
 
 ### batt-replace: Battery dating and replacement
 **Proposed:** mark every battery with the month and year of manufacture (or install); replace sealed lead-acid batteries about every 5 years or sooner per the manufacturer or test results.
 **Source:** NFPA 72 Ch. 10 (marking) and Ch. 14 (replacement).
 **Cite:** NFPA 72 Ch. 10 and 14
+**Status:** signed off by David 2026-10-04
 
 ### batt-recharge: Charger capacity
 **Proposed:** the charger recharges fully discharged batteries within 48 hours.
 **Source:** NFPA 72 Ch. 10.
 **Cite:** NFPA 72 Ch. 10
+**Status:** signed off by David 2026-10-04
 
 ### batt-test: Battery testing
 **Proposed:** batteries checked visually, voltage-checked under load, and load or capacity tested on the NFPA 72 schedule; a battery can read full voltage with no load and still collapse under load.
 **Source:** NFPA 72 Ch. 14 (battery test methods).
 **Cite:** NFPA 72 Ch. 14
+**Status:** signed off by David 2026-10-04
 
 ### nac-rating: NAC current rating
 **Proposed:** NAC outputs are commonly rated 1.5 to 3 A per circuit; check the panel.
 **Source:** typical panel and NAC extender spec sheets.
 **Cite:** Manufacturer spec sheets
+**Status:** signed off by David 2026-10-04
 
 ### nac-min-volts: Appliance minimum voltage
 **Proposed:** appliances listed for regulated 24 VDC typically operate down to 16 VDC.
 **Source:** UL 1971 / UL 464 regulated 24 V operating range (16 to 33 V) on appliance spec sheets.
 **Cite:** UL 1971 / UL 464
+**Status:** signed off by David 2026-10-04
 
 ### nac-start-volts: NAC calculation starting voltage
 **Proposed:** calculate NAC voltage drop from 20.4 VDC (85% of 24 V, battery at end of standby), not 24 V.
 **Source:** common manufacturer voltage drop worksheets. Some manufacturers use a different value; their method wins.
 **Cite:** Manufacturer worksheets
+**Status:** signed off by David 2026-10-04
 
 ## Monitoring
 
@@ -283,11 +316,13 @@ Chapter references are to NFPA 72 (2019 and 2022 editions) from general industry
 **Proposed:** DACTs traditionally need two separate paths; many single-path cellular or IP communicators are now listed as an acceptable sole means when the path itself is supervised. Test signals go to the monitoring center on a regular schedule (commonly at least every 24 h).
 **Source:** NFPA 72 Ch. 26 (supervising station communication methods).
 **Cite:** NFPA 72 Ch. 26
+**Status:** signed off by David 2026-10-04
 
 ### cid-fire: Contact ID fire codes
 **Proposed:** 110 fire, 111 smoke, 113 waterflow, 114 heat, 115 pull station, 116 duct, 200 fire supervisory, 203 gate valve, 301 AC loss, 302 low battery, 373 fire trouble, 602 periodic test.
 **Source:** SIA DC-05 Contact ID event code list.
 **Cite:** SIA DC-05
+**Status:** signed off by David 2026-10-04
 
 ## Testing, impairments, and documentation
 

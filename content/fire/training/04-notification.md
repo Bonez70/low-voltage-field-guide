@@ -12,27 +12,27 @@ Every fire evacuation signal in the US uses the same rhythm so people recognize 
 ON ½s · off ½s · ON ½s · off ½s · ON ½s · off 1½s · repeat
 ```
 
-Three half-second pulses, then a pause, repeating every 4 seconds. [VERIFY:temporal]
+Three half-second pulses, then a pause, repeating every 4 seconds. [SRC:temporal]
 
 - **Horns** produce the pattern from the NAC (the panel or a sync module sets the rhythm).
 - **Chimes and bells** are used in some occupancies; they still follow the evacuation pattern.
-- **Carbon monoxide** uses a different pattern, **temporal-4** (four short beeps, then a pause), so people can tell CO from fire. [VERIFY:temporal]
+- **Carbon monoxide** uses a different pattern, **temporal-4** (four short beeps, then a pause), so people can tell CO from fire. [SRC:temporal]
 
 ---
 
 ## Lesson 4.2: How loud is loud enough
 
-Audibility is measured in **dBA** with a sound meter, **5 feet above the floor**. [VERIFY:audibility]
+Audibility is measured in **dBA** with a sound meter, **5 feet above the floor**. [SRC:audibility]
 
 | Mode | Requirement |
 |---|---|
-| **Public mode** (everyone evacuates) | At least **15 dB above the average ambient** sound level, or **5 dB above the maximum** sound level lasting 60 seconds or more, whichever is greater [VERIFY:audibility] |
-| **Private mode** (staff only, such as a hospital) | At least **10 dB above average ambient**, or 5 dB above the maximum lasting 60 seconds [VERIFY:audibility] |
-| **Maximum** | No more than **110 dBA** at the minimum hearing distance [VERIFY:audibility] |
+| **Public mode** (everyone evacuates) | At least **15 dB above the average ambient** sound level, or **5 dB above the maximum** sound level lasting 60 seconds or more, whichever is greater [SRC:audibility] |
+| **Private mode** (staff only, such as a hospital) | At least **10 dB above average ambient**, or 5 dB above the maximum lasting 60 seconds [SRC:audibility] |
+| **Maximum** | No more than **110 dBA** at the minimum hearing distance [SRC:audibility] |
 
 **Sleeping areas** (hotels, dorms, apartments) need more:
-- At least 15 dB above average ambient, 5 dB above the maximum lasting 60 seconds, or **75 dBA at the pillow**, whichever is greater. [VERIFY:sleeping]
-- A **low-frequency (520 Hz) tone**, because it wakes sleeping people, including those with some hearing loss, far better than a high-pitched horn. [VERIFY:sleeping]
+- At least 15 dB above average ambient, 5 dB above the maximum lasting 60 seconds, or **75 dBA at the pillow**, whichever is greater. [SRC:sleeping]
+- A **low-frequency (520 Hz) tone**, because it wakes sleeping people, including those with some hearing loss, far better than a high-pitched horn. [SRC:sleeping]
 
 Doors, carpets, and walls cut sound a lot. A horn in the corridor rarely gets 75 dBA to a pillow behind a closed door, so sleeping rooms usually get their own appliance.
 
@@ -44,9 +44,9 @@ Doors, carpets, and walls cut sound a lot. A horn in the corridor rarely gets 75
 
 Strobes (visible notification) alert people who are deaf or hard of hearing, and anyone in a noisy space. Brightness is rated in **candela (cd)**. Many strobes are **multi-candela**: you set 15, 30, 75, 110, and so on with a switch, and the current draw goes up with the setting.
 
-**Wall mounting:** the **entire lens** between **80 and 96 inches** above the floor. [VERIFY:strobe-mount]
+**Wall mounting:** the **entire lens** between **80 and 96 inches** above the floor. [SRC:strobe-mount]
 
-**Flash rate:** between **1 and 2 flashes per second**. [VERIFY:strobe-mount]
+**Flash rate:** between **1 and 2 flashes per second**. [SRC:strobe-mount]
 
 **Room spacing (one wall-mounted strobe per room, centered on a wall):**
 
@@ -59,19 +59,19 @@ Strobes (visible notification) alert people who are deaf or hard of hearing, and
 | 54 × 54 ft | 95 cd |
 | 55 × 55 ft | 115 cd |
 
-[VERIFY:strobe-room-table]
+[SRC:strobe-room-table]
 
 Ceiling-mounted strobes have their own table that depends on ceiling height. Two or more strobes can cover a larger room. **Use the values on the approved drawings.**
 
-**Corridors** (20 ft wide or less): strobes within **15 ft of each end** and no more than **100 ft apart**, with a minimum of 15 cd. [VERIFY:strobe-corridor]
+**Corridors** (20 ft wide or less): strobes within **15 ft of each end** and no more than **100 ft apart**, with a minimum of 15 cd. [SRC:strobe-corridor]
 
-**Sleeping rooms:** **177 cd** if the strobe is within 24 inches of the ceiling, **110 cd** if it's 24 inches or more below the ceiling. [VERIFY:strobe-sleeping]
+**Sleeping rooms:** **177 cd** if the strobe is within 24 inches of the ceiling, **110 cd** if it's 24 inches or more below the ceiling. [SRC:strobe-sleeping]
 
 ---
 
 ## Lesson 4.4: Synchronization
 
-Flashing strobes out of step can trigger seizures in people with photosensitive epilepsy. When **more than two strobes** can be seen from any one spot, they must flash **in sync**. [VERIFY:strobe-sync]
+Flashing strobes out of step can trigger seizures in people with photosensitive epilepsy. When **more than two strobes** can be seen from any one spot, they must flash **in sync**. [SRC:strobe-sync]
 
 - Sync comes from the panel's NAC (built-in sync protocol) or from a **sync module**.
 - Strobes and horns from **different manufacturers** usually don't sync with each other. Match the sync protocol to the appliances.
@@ -85,9 +85,9 @@ Flashing strobes out of step can trigger seizures in people with photosensitive 
 **Emergency voice/alarm communication systems (EVACS)** use speakers instead of horns. They play the temporal-3 tone, then a recorded message ("A fire emergency has been reported in the building. Please leave by the nearest exit..."). Firefighters can also make live announcements.
 
 - Required in many high-rises, assembly occupancies, and some schools, per the building code.
-- Speakers run on **25 V or 70.7 V** audio circuits from an amplifier, with taps (such as ¼, ½, 1, 2 W) that set loudness. [VERIFY:speaker-volts]
+- Speakers run on **25 V or 70.7 V** audio circuits from an amplifier, with taps (such as ¼, ½, 1, 2 W) that set loudness. [SRC:speaker-volts]
 - **Intelligibility** matters, not just loudness: people must understand the words. Echoes and hard surfaces make that hard, so speaker layout is engineered.
-- Voice systems need more battery: **15 minutes** of alarm at full load instead of 5. [VERIFY:batt-alarm-time]
+- Voice systems need more battery: **15 minutes** of alarm at full load instead of 5. [SRC:batt-alarm-time]
 - Some voice systems are **mass notification systems (MNS)** that can also announce weather, lockdown, or other emergencies.
 
 ---

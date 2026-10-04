@@ -67,13 +67,13 @@ Circuit **disconnected** from the panel, panel and account on test.
 
 Smooth flat ceiling, spot-type. Follow the drawings for beams, slopes, and high ceilings.
 
-- 30 ft nominal spacing, no more than 15 ft from a wall [VERIFY:smoke-spacing]
-- Every ceiling point within 21 ft of a detector [VERIFY:smoke-spacing]
-- Ceiling, or sidewall with the top of detector within 12 in of the ceiling [VERIFY:smoke-mount]
-- Household smoke alarms: 4 in from the wall on the ceiling, or 4 to 12 in down on the wall [VERIFY:smoke-mount]
-- At least 3 ft from supply diffusers and return openings [VERIFY:smoke-hvac]
+- 30 ft nominal spacing, no more than 15 ft from a wall [SRC:smoke-spacing]
+- Every ceiling point within 21 ft of a detector [SRC:smoke-spacing]
+- Ceiling, or sidewall with the top of detector within 12 in of the ceiling [SRC:smoke-mount]
+- Household smoke alarms: 4 in from the wall on the ceiling, or 4 to 12 in down on the wall [SRC:smoke-mount]
+- At least 3 ft from supply diffusers and return openings [SRC:smoke-hvac]
 - Not in kitchens, showers, garages, dusty spaces, or outside the listed range (commonly 32 to 100 °F, up to 93% humidity) [SRC:smoke-environment]
-- Dust covers during construction; remove every one before service [VERIFY:construction-dust]
+- Dust covers during construction; remove every one before service [SRC:construction-dust]
 
 ---
 
@@ -82,8 +82,8 @@ Smooth flat ceiling, spot-type. Follow the drawings for beams, slopes, and high 
 - Rating at least 20 °F above the hottest normal ceiling temperature [SRC:heat-ambient]
 - Common ratings: 135 °F ordinary, 194 °F hot spaces [SRC:heat-types]
 - Rate-of-rise: commonly about 15 °F per minute [SRC:heat-types]
-- Use the **listed spacing**; reduce it above about 10 ft ceilings [VERIFY:heat-spacing]
-- Every point within 0.7 × listed spacing [VERIFY:heat-spacing]
+- Use the **listed spacing**; reduce it above about 10 ft ceilings [SRC:heat-spacing]
+- Every point within 0.7 × listed spacing [SRC:heat-spacing]
 - Non-restorable heads can't be heat tested
 - Heat detectors are property protection, not a substitute for required smoke detection
 
@@ -109,9 +109,9 @@ Smooth flat ceiling, spot-type. Follow the drawings for beams, slopes, and high 
 
 ## Card: Strobe candela and placement
 
-- Wall mount: entire lens 80 to 96 in above the floor [VERIFY:strobe-mount]
-- Flash rate 1 to 2 per second [VERIFY:strobe-mount]
-- More than 2 visible from one spot: must be synchronized [VERIFY:strobe-sync]
+- Wall mount: entire lens 80 to 96 in above the floor [SRC:strobe-mount]
+- Flash rate 1 to 2 per second [SRC:strobe-mount]
+- More than 2 visible from one spot: must be synchronized [SRC:strobe-sync]
 
 | Room (one wall strobe) | Minimum cd |
 |---|---|
@@ -122,23 +122,23 @@ Smooth flat ceiling, spot-type. Follow the drawings for beams, slopes, and high 
 | 54 × 54 ft | 95 |
 | 55 × 55 ft | 115 |
 
-[VERIFY:strobe-room-table]
+[SRC:strobe-room-table]
 
-- Corridors up to 20 ft wide: 15 cd minimum, within 15 ft of each end, no more than 100 ft apart [VERIFY:strobe-corridor]
-- Sleeping rooms: 177 cd within 24 in of the ceiling, 110 cd if 24 in or more below [VERIFY:strobe-sleeping]
+- Corridors up to 20 ft wide: 15 cd minimum, within 15 ft of each end, no more than 100 ft apart [SRC:strobe-corridor]
+- Sleeping rooms: 177 cd within 24 in of the ceiling, 110 cd if 24 in or more below [SRC:strobe-sleeping]
 
 ---
 
 ## Card: Audibility and tones
 
-Measured in dBA, 5 ft above the floor. [VERIFY:audibility]
+Measured in dBA, 5 ft above the floor. [SRC:audibility]
 
 | Mode | Minimum |
 |---|---|
-| Public | 15 dB over average ambient, or 5 dB over 60 s max (greater) [VERIFY:audibility] |
-| Private | 10 dB over average ambient, or 5 dB over 60 s max [VERIFY:audibility] |
-| Sleeping | Greater of 15 dB over ambient, 5 dB over max, or 75 dBA at the pillow; 520 Hz low-frequency tone [VERIFY:sleeping] |
-| Maximum | 110 dBA [VERIFY:audibility] |
+| Public | 15 dB over average ambient, or 5 dB over 60 s max (greater) [SRC:audibility] |
+| Private | 10 dB over average ambient, or 5 dB over 60 s max [SRC:audibility] |
+| Sleeping | Greater of 15 dB over ambient, 5 dB over max, or 75 dBA at the pillow; 520 Hz low-frequency tone [SRC:sleeping] |
+| Maximum | 110 dBA [SRC:audibility] |
 
 ```
 Temporal-3 (fire evacuation)
@@ -150,7 +150,7 @@ Temporal-4 (carbon monoxide)
 4 short pulses, then a pause
 ```
 
-[VERIFY:temporal]
+[SRC:temporal]
 
 ---
 
@@ -160,12 +160,12 @@ Temporal-4 (carbon monoxide)
 
 | Item | Value |
 |---|---|
-| Standby | 24 h [VERIFY:batt-standby] |
-| Alarm, horns/strobes | 5 min (0.083 h) [VERIFY:batt-alarm-time] |
-| Alarm, voice evacuation | 15 min (0.25 h) [VERIFY:batt-alarm-time] |
-| Safety margin | 20% [VERIFY:batt-margin] |
-| Replace sealed lead-acid | About every 5 years, date every battery [VERIFY:batt-replace] |
-| Recharge time | Within 48 h [VERIFY:batt-recharge] |
+| Standby | 24 h [SRC:batt-standby] |
+| Alarm, horns/strobes | 5 min (0.083 h) [SRC:batt-alarm-time] |
+| Alarm, voice evacuation | 15 min (0.25 h) [SRC:batt-alarm-time] |
+| Safety margin | 20% [SRC:batt-margin] |
+| Replace sealed lead-acid | About every 5 years, date every battery [SRC:batt-replace] |
+| Recharge time | Within 48 h [SRC:batt-recharge] |
 
 - Two 12 V batteries in series for 24 V; same size, age, and brand
 - Check the panel's maximum battery size and charger capability
@@ -177,10 +177,10 @@ Use the Fire Battery calculator.
 
 ## Card: NAC voltage drop
 
-- Start from **20.4 V** (battery at end of standby), not 24 V [VERIFY:nac-start-volts]
-- Regulated 24 V appliances commonly work down to **16 V** [VERIFY:nac-min-volts]
+- Start from **20.4 V** (battery at end of standby), not 24 V [SRC:nac-start-volts]
+- Regulated 24 V appliances commonly work down to **16 V** [SRC:nac-min-volts]
 - Use appliance current at minimum voltage when listed
-- NAC rating commonly 1.5 to 3 A per circuit; check the panel [VERIFY:nac-rating]
+- NAC rating commonly 1.5 to 3 A per circuit; check the panel [SRC:nac-rating]
 
 **Drop = 2 × one-way length (ft) × total current (A) × Ω per foot**
 
@@ -199,10 +199,10 @@ Use the NAC Voltage Drop calculator.
 
 ## Card: Primary power
 
-- Dedicated branch circuit, fire alarm only [VERIFY:primary-dedicated]
-- Breaker marked red, "FIRE ALARM CIRCUIT", locked, location recorded at the panel [VERIFY:primary-marking]
-- No GFCI or AFCI unless the manufacturer and AHJ allow [VERIFY:primary-no-gfci]
-- AC loss to monitoring delayed, commonly 1 to 3 h [VERIFY:ac-delay]
+- Dedicated branch circuit, fire alarm only [SRC:primary-dedicated]
+- Breaker marked red, "FIRE ALARM CIRCUIT", locked, location recorded at the panel [SRC:primary-marking]
+- No GFCI or AFCI unless the manufacturer and AHJ allow [SRC:primary-no-gfci]
+- AC loss to monitoring delayed, commonly 1 to 3 h [SRC:ac-delay]
 
 ---
 
@@ -253,7 +253,7 @@ Use the NAC Voltage Drop calculator.
 | 373 | Fire trouble |
 | 602 | Periodic test |
 
-[VERIFY:cid-fire]
+[SRC:cid-fire]
 
 Qualifier 1 = new event, 3 = restore. Confirm the panel reports the specific code, not just 110, if the monitoring center needs device type.
 

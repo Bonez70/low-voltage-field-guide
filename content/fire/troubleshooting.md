@@ -61,10 +61,10 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 2. **Some appliances work, some don't:**
    - All the dead ones past one point → open or bad splice between the last working and first dead appliance.
    - Random dead ones → bad appliance, appliance wired backward (polarity), or a loose terminal.
-3. **Strobes dim, slow, or not flashing at the far end:** voltage drop. Measure voltage at the last appliance **during alarm**. Compare to the appliance's minimum (commonly 16 V). [VERIFY:nac-min-volts] Use the NAC Voltage Drop calculator to confirm and fix (heavier wire, split the circuit, or add an extender).
-4. **Strobes flashing out of sync:** sync protocol mismatch between panel, extender, or appliance brands; an extender not set to follow the panel; or mixed appliance models. [VERIFY:strobe-sync]
+3. **Strobes dim, slow, or not flashing at the far end:** voltage drop. Measure voltage at the last appliance **during alarm**. Compare to the appliance's minimum (commonly 16 V). [SRC:nac-min-volts] Use the NAC Voltage Drop calculator to confirm and fix (heavier wire, split the circuit, or add an extender).
+4. **Strobes flashing out of sync:** sync protocol mismatch between panel, extender, or appliance brands; an extender not set to follow the panel; or mixed appliance models. [SRC:strobe-sync]
 5. **NAC extender circuits dead:** check the extender's AC, batteries, and trouble LEDs, and the trigger wiring from the panel.
-6. **Panel shuts down the NAC:** total current over the NAC rating. Add up every appliance at its setting. [VERIFY:nac-rating]
+6. **Panel shuts down the NAC:** total current over the NAC rating. Add up every appliance at its setting. [SRC:nac-rating]
 7. Retest every appliance on the circuit after the fix.
 
 ---
@@ -73,14 +73,14 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 
 **Symptom:** panel shows AC loss, low battery, battery trouble, or charger trouble.
 
-1. **AC loss:** check the fire alarm breaker (it should be red-marked and locked). Tripped or turned off? → Find out why before resetting. Then check the panel's AC fuse and terminal connections. [VERIFY:primary-marking]
+1. **AC loss:** check the fire alarm breaker (it should be red-marked and locked). Tripped or turned off? → Find out why before resetting. Then check the panel's AC fuse and terminal connections. [SRC:primary-marking]
 2. **AC good but low battery:** measure battery voltage with the batteries on the charger, then under load (disconnect AC for a short test, or use a battery load tester).
    - Low with AC on for more than a couple of days → charger problem or a dead battery.
    - Good with no load, collapses under load → battery is failing. Replace both.
-3. Check the date on the batteries. Older than about 5 years → replace both. [VERIFY:batt-replace]
+3. Check the date on the batteries. Older than about 5 years → replace both. [SRC:batt-replace]
 4. **Battery trouble / missing:** loose lead, blown battery fuse, corroded terminals, or a jumper missing between the two batteries.
 5. **Batteries keep dying:** run a battery calculation (Fire Battery calculator) against actual current. Too much load for the battery size, or a battery bigger than the charger can recharge.
-6. Date the new batteries and confirm the trouble clears. [VERIFY:batt-replace]
+6. Date the new batteries and confirm the trouble clears. [SRC:batt-replace]
 
 ---
 
@@ -91,8 +91,8 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 1. Pull the history: same device each time? Same time of day? (Cooking, cleaning, HVAC cycling, shift change, sprinkler testing.)
 2. **Addressable:** check the detector's sensitivity and dirty or maintenance alert on the panel. Dirty → clean per manufacturer or replace.
 3. Look at the environment: steam (showers, kitchens), dust (construction, warehouses), insects, exhaust, aerosol sprays, humidity, or temperature outside the listed range. [SRC:smoke-environment]
-4. Check the location: within 3 ft of a supply diffuser or return? Air drawing dust into it or blowing across it? [VERIFY:smoke-hvac]
-5. Construction dust? Clean or replace, and make sure dust covers are used next time. [VERIFY:construction-dust]
+4. Check the location: within 3 ft of a supply diffuser or return? Air drawing dust into it or blowing across it? [SRC:smoke-hvac]
+5. Construction dust? Clean or replace, and make sure dust covers are used next time. [SRC:construction-dust]
 6. Fix the cause: clean, replace, or relocate or change the detector type **with the designer's or AHJ's approval**. Don't change device types on your own.
 7. **Never leave a nuisance detector disabled** without notifying the owner and AHJ and documenting the impairment. [VERIFY:impairment-4h]
 
@@ -162,7 +162,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 2. Check the relay or control module: does it change state when the input is activated? Listen and meter the contact.
 3. Check the wiring from the relay to the other trade's equipment. The relay should be within 3 ft of the controlled device with a supervised circuit to it. [SRC:relay-3ft]
 4. Check the programming against the sequence of operations: is the input mapped to that output?
-5. **Elevators:** confirm lobby detector, machine room, and hoistway signals go to the right recall input (primary or alternate floor). Test with the elevator contractor present. [VERIFY:elevator-recall]
+5. **Elevators:** confirm lobby detector, machine room, and hoistway signals go to the right recall input (primary or alternate floor). Test with the elevator contractor present. [SRC:elevator-recall]
 6. Retest the full sequence after the fix and document it.
 
 ---

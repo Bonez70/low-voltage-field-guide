@@ -109,9 +109,9 @@ A single ground fault usually doesn't stop the system from working, but a second
 
 NACs carry the heaviest current on the system. Strobes draw the most, especially at high candela settings.
 
-- Each NAC has a **maximum current rating** (often 1.5 to 3 A per circuit). Add up every appliance on the circuit at its listed current. [VERIFY:nac-rating]
-- **Voltage drop** matters more on NACs than anywhere else. Appliances listed for "regulated 24 VDC" typically work down to about **16 VDC**. [VERIFY:nac-min-volts]
-- Calculate drop from the **battery voltage at the end of standby**, not a fresh 24 or 27 V. A common starting value is **20.4 VDC** (85% of 24 V). [VERIFY:nac-start-volts]
+- Each NAC has a **maximum current rating** (often 1.5 to 3 A per circuit). Add up every appliance on the circuit at its listed current. [SRC:nac-rating]
+- **Voltage drop** matters more on NACs than anywhere else. Appliances listed for "regulated 24 VDC" typically work down to about **16 VDC**. [SRC:nac-min-volts]
+- Calculate drop from the **battery voltage at the end of standby**, not a fresh 24 or 27 V. A common starting value is **20.4 VDC** (85% of 24 V). [SRC:nac-start-volts]
 - Use the appliance's current at its **minimum operating voltage** if the manufacturer lists it. Strobes draw more current as voltage drops.
 - When a NAC is too long or too loaded: use heavier wire, split the circuit, or add a **NAC power extender** near the appliances. Extenders have their own batteries and must be supervised by the panel.
 

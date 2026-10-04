@@ -76,10 +76,10 @@ Silencing the horns does **not** reset the system. The panel stays in alarm unti
 Most commercial fire systems are monitored by a **supervising station**: a central station, a proprietary station (owned by the building), or a remote station.
 
 - **DACT** (digital alarm communicator transmitter): sends signals over phone lines. Traditionally needs **two** separate communication paths.
-- **Cellular and IP communicators:** increasingly the primary path as copper phone lines disappear. Many single-path cellular or IP communicators are now listed as an acceptable sole means when the path itself is supervised. [VERIFY:comm]
+- **Cellular and IP communicators:** increasingly the primary path as copper phone lines disappear. Many single-path cellular or IP communicators are now listed as an acceptable sole means when the path itself is supervised. [SRC:comm]
 - **Radio:** private radio networks in some areas.
 
-The panel must **supervise its communication path** and report a trouble if it can't get through. Test signals go to the monitoring center on a regular schedule so a dead path gets noticed. [VERIFY:comm]
+The panel must **supervise its communication path** and report a trouble if it can't get through. Test signals go to the monitoring center on a regular schedule (commonly at least every 24 hours) so a dead path gets noticed. [SRC:comm]
 
 ---
 
