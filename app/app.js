@@ -6,6 +6,7 @@
   'use strict';
   var PACKS = window.SLV_PACKS || [];
   var UPCOMING = window.SLV_UPCOMING || [];
+  var CODES = window.SLV_CODES && window.SLV_CODES.count ? window.SLV_CODES : null;
   var CALC = window.SLVCalcUI;
   var TABS = { learn: 'Learn', reference: 'Reference', calculators: 'Calculators', troubleshoot: 'Troubleshoot' };
   var DISCLAIMER = '<p class="disclaimer">Training aid only. It doesn\'t replace manufacturer instructions, the applicable codes, or the AHJ.</p>';
@@ -58,7 +59,7 @@
   function setHeader(title, parent) {
     $('page-title').textContent = title;
     state.title = title;
-    var home = state.tab === 'home';
+    var home = state.tab === 'home' || state.tab === 'codes';
     $('brand').hidden = !home;
     sys.parentNode.hidden = home;
     document.title = title + ' · Low Voltage Field Guide';
@@ -93,6 +94,15 @@
     }
     state.route = route;
     closeSearchIfEmpty();
+
+    if (parts[0] === 'codes') {
+      state.tab = 'codes';
+      setTabs(lastPack(), '');
+      view.innerHTML = viewCodes(decodeURIComponent(parts[1] || ''));
+      if (!parts[1]) filterCodes();
+      window.scrollTo(0, scrolls[route] || 0);
+      return;
+    }
 
     if (parts[0] === 'home') {
       state.tab = 'home';
@@ -176,6 +186,8 @@
       '<span>Search lessons, cards, guides</span></button>' +
       cont +
       '<h2 class="group-h">Systems</h2><div class="sys-grid">' + tiles + '</div>' +
+      (CODES ? '<a class="code-tile" href="#/codes">' + BOOK_ICON + '<span class="t"><b>Code Finder</b><small>Where to look in NFPA 72, the NEC, NFPA 101 and the IBC, by topic</small></span>' +
+        '<span class="meta">' + plural(CODES.count, 'topic') + '</span>' + chev + '</a>' : '') +
       (calcs.length ? '<h2 class="group-h">Calculators</h2><div class="tool-grid">' + calcs.join('') + '</div>' : '') +
       '<h2 class="group-h">Troubleshoot</h2><ul class="rows">' + fixes + '</ul>' +
       installCard() + DISCLAIMER;
@@ -193,6 +205,85 @@
       '<p>This system pack will have the same four tabs: lessons, reference cards, calculators, and troubleshooting guides.</p>' +
       '<p>' + PACKS.map(function (p) { return '<a href="#/' + p.id + '/' + tab + '">Open ' + esc(p.name) + '</a>'; }).join(' · ') + '</p></div>';
   }
+
+  /* ---------- Code Finder ---------- */
+  var BOOK_ICON = '<svg class="book" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 7.5h6M9 11h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  var codesFilter = { q: '', sys: '' };
+  function codeEntries() { return CODES.groups.reduce(function (a, g) { return a.concat(g.entries); }, []); }
+  function verifyMark(e) { return e.pending ? ' <mark class="verify" title="Waiting on sign-off">Verify #' + e.num + '</mark>' : ''; }
+  function sysName(id) { var p = packById(id) || upcomingById(id); return p ? p.name : id; }
+
+  function viewCodes(key) {
+    if (!CODES) return viewMissing();
+    if (key) return viewCode(key);
+    setHeader('Code Finder', '/home');
+    var pending = codeEntries().some(function (e) { return e.pending; });
+    var chips = [''].concat(PACKS.map(function (p) { return p.id; })).map(function (id) {
+      return '<button type="button" class="chip" data-sys="' + id + '" aria-pressed="' + (codesFilter.sys === id) + '">' + (id ? esc(sysName(id)) : 'All') + '</button>';
+    }).join('');
+    return '<div class="page-h"><p class="eyebrow">Code sections by topic</p><h2>Code Finder</h2></div>' +
+      (pending ? '<p class="draft-note"><strong>Draft for review.</strong> Section numbers marked Verify # are waiting on sign-off.</p>' : '') +
+      '<div class="code-filter"><input id="codes-q" type="search" placeholder="Filter: spacing, mag lock, plenum…" autocomplete="off" aria-label="Filter topics" value="' + esc(codesFilter.q) + '">' +
+      '<div class="chips" role="group" aria-label="System">' + chips + '</div></div>' +
+      '<details class="prose code-intro"><summary>About these entries</summary>' + CODES.introHtml + '</details>' +
+      CODES.groups.map(function (g) {
+        return '<section class="code-group"><h2 class="group-h">' + esc(g.name) + '</h2><ul class="rows code-rows">' + g.entries.map(function (e) {
+          return '<li data-key="' + esc(e.key) + '"><a href="#/codes/' + esc(e.key) + '"><span class="t"><span class="cite">' + esc(e.code) + '</span><b>' + esc(e.title) + verifyMark(e) + '</b>' +
+            '<small>' + e.summaryHtml + '</small></span>' + chev + '</a></li>';
+        }).join('') + '</ul></section>';
+      }).join('') +
+      '<p class="empty" id="codes-none" hidden>No topics match. Try a shorter word, or pick All.</p>' + DISCLAIMER;
+  }
+
+  function viewCode(key) {
+    var all = codeEntries(), i = -1;
+    all.forEach(function (e, j) { if (e.key === key) i = j; });
+    if (i < 0) return viewMissing();
+    var e = all[i], prev = all[i - 1], next = all[i + 1];
+    var group = CODES.groups.filter(function (g) { return g.entries.indexOf(e) >= 0; })[0];
+    setHeader('Code Finder', '/codes');
+    var used = e.used.length ? '<h2 class="group-h">In this app</h2><ul class="rows">' + e.used.map(function (u) {
+      return '<li><a href="#/' + u.pack + '/' + u.href + '"><span class="n sm" aria-hidden="true">' + sysIcon(u.pack).replace('width="30" height="30"', 'width="20" height="20"') + '</span>' +
+        '<span class="t"><b>' + esc(u.title) + '</b><small>' + esc(u.packName) + ' · ' + esc(u.kind) + '</small></span>' + chev + '</a></li>';
+    }).join('') + '</ul>' : '';
+    return '<div class="page-h"><p class="eyebrow">' + esc(group.name) + '</p><h2>' + esc(e.title) + '</h2></div>' +
+      '<div class="code-card"><span class="eyebrow">Open the book to</span><b>' + esc(e.code) + '</b>' + verifyMark(e) + '</div>' +
+      '<div class="prose"><h3>In short</h3><p>' + e.summaryHtml + '</p>' +
+      (e.lookHtml ? '<h3>What to look for</h3><p>' + e.lookHtml.charAt(0).toUpperCase() + e.lookHtml.slice(1) + '</p>' : '') +
+      '<p class="src">Applies to: ' + e.systems.map(function (s) { return esc(sysName(s)); }).join(', ') + '</p></div>' +
+      used +
+      '<div class="pager">' + (prev ? '<a href="#/codes/' + prev.key + '"><small>Previous</small><b>' + esc(prev.title) + '</b></a>' : '') +
+      (next ? '<a class="next" href="#/codes/' + next.key + '"><small>Next</small><b>' + esc(next.title) + '</b></a>' : '') + '</div>' +
+      '<p class="disclaimer">Summary in our own words, not the code text. Read the section in your copy of the book, and check the edition your AHJ has adopted.</p>';
+  }
+
+  function filterCodes() {
+    var terms = codesFilter.q.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
+    var byKey = {};
+    codeEntries().forEach(function (e) { byKey[e.key] = e; });
+    Array.prototype.forEach.call(view.querySelectorAll('.code-group'), function (sec) {
+      var any = false;
+      Array.prototype.forEach.call(sec.querySelectorAll('li[data-key]'), function (li) {
+        var e = byKey[li.dataset.key], hay = (e.title + ' ' + e.text).toLowerCase();
+        var ok = (!codesFilter.sys || e.systems.indexOf(codesFilter.sys) >= 0) && terms.every(function (t) { return hay.indexOf(t) >= 0; });
+        li.hidden = !ok; if (ok) { any = true; shown++; }
+      });
+      sec.hidden = !any;
+    });
+    var none = $('codes-none'); if (none) none.hidden = shown > 0;
+    var intro = view.querySelector('.code-intro'); if (intro) intro.hidden = !!(terms.length || codesFilter.sys);
+  }
+  view.addEventListener('input', function (e) {
+    if (e.target.id !== 'codes-q') return;
+    codesFilter.q = e.target.value; filterCodes();
+  });
+  view.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip[data-sys]');
+    if (!b) return;
+    codesFilter.sys = b.dataset.sys;
+    Array.prototype.forEach.call(view.querySelectorAll('.chip[data-sys]'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    filterCodes();
+  });
 
   /* ---------- Learn ---------- */
   function viewLearn(pack, modNum, sub) {
@@ -373,6 +464,15 @@
         if (it.kind === 'Glossary') score += 2;
         hits.push({ it: it, pack: p, score: score });
       });
+    });
+    if (CODES) codeEntries().forEach(function (e) {
+      var title = e.title.toLowerCase(), text = e.text.toLowerCase(), score = 0;
+      for (var i = 0; i < terms.length; i++) {
+        var t = terms[i], inT = title.indexOf(t) >= 0, inX = text.indexOf(t) >= 0;
+        if (!inT && !inX) return;
+        score += (inT ? 10 : 0) + (inX ? 1 : 0);
+      }
+      hits.push({ it: { kind: 'Code', where: e.code, title: e.title, href: e.key, text: e.text.replace(/^.*?§[\d.]+\S*\s*/, '') }, pack: { id: 'codes' }, score: score });
     });
     hits.sort(function (a, b) { return b.score - a.score; });
     view.innerHTML = hits.length ? '<p class="eyebrow">' + hits.length + ' result' + (hits.length === 1 ? '' : 's') + '</p><div class="hits">' + hits.slice(0, 40).map(function (h) {

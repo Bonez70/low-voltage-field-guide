@@ -3,6 +3,7 @@
  * Verify sheet for a system pack's draft content.
  *
  *   node verify-sheet.js fire     writes content/fire/VERIFY-SHEET.md
+ *   node verify-sheet.js codes    writes content/codes/VERIFY-SHEET.md (Code Finder entries)
  *
  * Code values and safety steps in draft content are tagged [VERIFY:key]. Each key is
  * described once in content/<pack>/verify-items.md (### key: title, **Proposed:**, **Source:**)
@@ -189,11 +190,76 @@ function ranges(nums) {
   return r.map(([a, b]) => a === b ? String(a) : `${a} to ${b}`).join(', ');
 }
 
-module.exports = { loadItems, numbers, cites, check, sheet, TAG, ANY };
+/* ---------- Code Finder (content/codes/codes.md) ----------
+ * Each entry is its own verify item: ### key: Topic, then **Code:**, **Systems:**, **Summary:**, **Look for:**,
+ * **Search:**, **Related:** (pack:key of [SRC] tags), and **Status:** once signed off. Numbered in file order. */
+const CODE_FIELDS = { 'code': 'code', 'systems': 'systems', 'summary': 'summary', 'look for': 'look', 'search': 'search', 'related': 'related', 'status': 'status' };
+
+function loadCodes() {
+  const f = path.join(CONTENT, 'codes', 'codes.md');
+  if (!fs.existsSync(f)) return null;
+  const res = { intro: [], entries: [] };
+  let group = '', cur = null;
+  fs.readFileSync(f, 'utf8').replace(/\r/g, '').split('\n').forEach(l => {
+    let m;
+    if (/^#\s/.test(l)) return;
+    if ((m = l.match(/^##\s+(.*)$/))) { group = m[1].trim(); cur = null; }
+    else if ((m = l.match(/^###\s+([a-z0-9-]+):\s*(.*)$/))) {
+      cur = { key: m[1], title: m[2].trim(), group, code: '', systems: '', summary: '', look: '', search: '', related: '', status: '' };
+      res.entries.push(cur);
+    } else if (cur && (m = l.match(/^\*\*([A-Za-z ]+):\*\*\s*(.*)$/)) && CODE_FIELDS[m[1].toLowerCase()]) cur[CODE_FIELDS[m[1].toLowerCase()]] = m[2].trim();
+    else if (!group) res.intro.push(l);
+  });
+  const seen = new Set();
+  res.entries.forEach((e, i) => {
+    if (seen.has(e.key)) throw new Error('codes.md: duplicate key ' + e.key);
+    seen.add(e.key);
+    e.num = i + 1;
+    e.systems = e.systems.split(/[,\s]+/).filter(Boolean);
+    e.related = e.related.split(/[,\s]+/).filter(Boolean).map(r => { const [pack, key] = r.split(':'); return { pack, key }; });
+    ['code', 'summary'].forEach(k => { if (!e[k]) throw new Error(`codes.md: ${e.key} has no **${k[0].toUpperCase() + k.slice(1)}:**`); });
+  });
+  // The format note for editors stays in the file, not in the app.
+  res.intro = res.intro.filter(l => !/^Format of each entry/.test(l)).join('\n').trim();
+  return res;
+}
+
+function codesSheet() {
+  const { entries } = loadCodes();
+  const pending = entries.filter(e => !e.status), done = entries.filter(e => e.status);
+  const out = ['# Verify Sheet: Code Finder', ''];
+  out.push(pending.length
+    ? `**Status: ${done.length} of ${entries.length} signed off, ${pending.length} waiting on David** (items ${ranges(pending.map(e => e.num))}). Only signed-off entries show in the live app.`
+    : `**Status: all ${entries.length} entries signed off.**`, '');
+  out.push('Each entry points a tech to a section of NFPA 72-2022, NFPA 70-2020 (NEC), NFPA 101-2021, or IBC 2021, with a short summary in our own words. Please check two things against your books: **the section number is right for that edition**, and **the summary says what the section says** (and quotes nothing).', '');
+  out.push('**How to answer:** reply with the item number and your call, for example:', '`1 ok, 4 is 17.7.3.2.4, 13 summary should say 10 ft not 3 ft, 18 remove`', '`all ok except 7, 22`', '');
+  out.push('"Section" and "Summary" are from general industry knowledge, not checked against the books, so treat every number as a guess until you confirm it.', '');
+  let group = null;
+  pending.forEach(e => {
+    if (e.group !== group) { group = e.group; out.push('---', '', `## ${group}`, ''); }
+    out.push(`### ${e.num}. ${e.title}`, `**Section:** ${e.code}`, '', `**Summary:** ${e.summary}`, '');
+    if (e.look) out.push(`**Look for:** ${e.look}`, '');
+  });
+  if (done.length) {
+    out.push('---', '', '## Signed off', '');
+    done.forEach(e => out.push(`- **${e.num}. ${e.title}** (${e.status}): ${e.code}. ${e.summary}`));
+    out.push('');
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n') + '\n';
+}
+
+module.exports = { loadItems, numbers, cites, check, sheet, loadCodes, codesSheet, TAG, ANY };
 
 if (require.main === module) {
   const pack = process.argv[2];
-  if (!pack) { console.error('Usage: node verify-sheet.js <pack>'); process.exit(1); }
+  if (!pack) { console.error('Usage: node verify-sheet.js <pack>|codes'); process.exit(1); }
+  if (pack === 'codes') {
+    const f = path.join(CONTENT, 'codes', 'VERIFY-SHEET.md');
+    fs.writeFileSync(f, codesSheet());
+    const { entries } = loadCodes();
+    console.log(`Wrote ${path.relative(process.cwd(), f)}: ${entries.length} entries, ${entries.filter(e => !e.status).length} waiting.`);
+    process.exit(0);
+  }
   const name = { fire: 'Fire Alarm', access: 'Access Control', cctv: 'CCTV', intrusion: 'Intrusion' }[pack] || pack;
   const md = sheet(pack, name);
   const f = path.join(CONTENT, pack, 'VERIFY-SHEET.md');
