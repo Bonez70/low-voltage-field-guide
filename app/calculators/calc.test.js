@@ -87,4 +87,38 @@ t('NAC drop: fails and over rating', () => {
   const r = C.nacDrop([{ qty: 20, ma: 150 }], 18, 300, 20.4, 16, 2.5); // 3 A; 2*300*3*0.00639 = 11.502 V
   near(r.drop, 11.502); assert.strictEqual(r.pass, false); assert.strictEqual(r.overRating, true);
 });
+t('access power: example door set', () => {
+  // normal 250 + 4*100 + 2*500 + 0 + 2*25 = 1700 mA; peak 250 + 4*150 + 2*500 + 2*300 + 2*25 = 2500 mA
+  const r = C.accessPower([
+    { qty: 1, normalMa: 250, peakMa: 250 },
+    { qty: 4, normalMa: 100, peakMa: 150 },
+    { qty: 2, normalMa: 500, peakMa: 500 },
+    { qty: 2, normalMa: 0, peakMa: 300 },
+    { qty: 2, normalMa: 25, peakMa: 25 }
+  ], 4);
+  near(r.normalA, 1.7); near(r.peakA, 2.5); near(r.minPsuA, 3.125);
+  assert.strictEqual(r.psu, 4); near(r.loadPct, 62.5);
+  near(r.requiredAh, 1.7 * 4 * 1.2); assert.strictEqual(r.battery, 12); // 8.16 Ah
+});
+t('access power: exact 80% fits, over largest returns null', () => {
+  assert.strictEqual(C.accessPower([{ qty: 1, normalMa: 0, peakMa: 2000 }], 0).psu, 2.5);
+  assert.strictEqual(C.accessPower([{ qty: 1, normalMa: 0, peakMa: 2000 }], 0).battery, 0);
+  assert.strictEqual(C.accessPower([{ qty: 1, normalMa: 9000, peakMa: 9000 }], 4).psu, null);
+  assert.strictEqual(C.accessPower([{ qty: 1, normalMa: 9000, peakMa: 9000 }], 4).battery, null); // 43.2 Ah
+});
+t('access power: peak never below normal', () => {
+  near(C.accessPower([{ qty: 1, normalMa: 500, peakMa: 0 }], 2).peakA, 0.5);
+});
+t('reader run: Wiegand within distance, power drop', () => {
+  // 150 mA, 22 AWG, 400 ft: 2*400*0.15*0.0161 = 1.932 V; 12 - 1.932 = 10.068 V
+  const r = C.readerRun('wiegand', 22, 400, 12, 150, 10);
+  near(r.drop, 1.932); near(r.endV, 10.068); assert.strictEqual(r.pass, true);
+  assert.strictEqual(r.dataOk, true); assert.strictEqual(r.maxDataFt, 500);
+  near(r.maxPowerFt, 2 / (2 * 0.15 * 0.0161), 0.01);
+});
+t('reader run: Wiegand too long, OSDP ok', () => {
+  assert.strictEqual(C.readerRun('wiegand', 18, 800, 12, 150, 10).dataOk, false);
+  assert.strictEqual(C.readerRun('osdp', 18, 800, 12, 150, 10).dataOk, true);
+  assert.throws(() => C.readerRun('rs232', 18, 100, 12, 150, 10));
+});
 console.log(`${n} tests passed`);

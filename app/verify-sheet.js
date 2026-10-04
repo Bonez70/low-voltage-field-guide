@@ -157,7 +157,8 @@ function sheet(pack, packName) {
     : `**Status: all ${items.length} items signed off.**`, '');
   out.push('Every code value and safety step in the draft, numbered, with the full paragraph it sits in. The value being checked is marked **⟦#n⟧** in the quote. Where the same value appears in several places, the first two are quoted and the rest are listed; one answer covers them all.', '');
   out.push('**How to answer:** reply with the item number and your call, for example:', '`1 ok, 4 should be 6 to 8 ft, 13 not sure, 18 remove`', '`all ok except 7, 22`', '');
-  out.push('"Source" is my honest note of where the value comes from. None of it was checked against the code book itself; it\'s general industry knowledge of NFPA 72 and the NEC, so your field experience and your adopted edition win.', '');
+  const books = { fire: 'NFPA 72 and the NEC', access: 'the IBC, NFPA 101, NFPA 80, the NEC, the ADA Standards, and UL 294' }[pack] || 'the codes and standards named';
+  out.push(`"Source" is my honest note of where the value comes from. None of it was checked against the code book itself; it's general industry knowledge of ${books}, so your field experience and your adopted edition win.`, '');
   let group = null;
   pending.forEach(it => {
     if (it.group !== group) { group = it.group; out.push('---', '', `## ${group}`, ''); }
