@@ -2,7 +2,7 @@
   "name": "Low Voltage Field Guide",
   "short_name": "LV Field Guide",
   "description": "Training, field reference, calculators and troubleshooting for security low voltage technicians.",
-  "start_url": "./#/intrusion/learn",
+  "start_url": "./#/home",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

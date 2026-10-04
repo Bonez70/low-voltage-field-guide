@@ -26,10 +26,11 @@
   var sys = $('sys-select');
   sys.innerHTML = PACKS.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') +
     UPCOMING.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + ' (coming)</option>'; }).join('');
-  sys.addEventListener('change', function () { go('/' + sys.value + '/' + (state.tab || 'learn')); });
+  sys.addEventListener('change', function () { go('/' + sys.value + '/' + (TABS[state.tab] ? state.tab : 'learn')); });
 
   /* ---------- routing ---------- */
   var state = { route: '', pack: '', tab: '', query: '' };
+  var searchFrom = '/home'; // where Back and closing search return to
   var scrolls = {};
   var memoryRoute = null; // used when the page can't write to location (some embedded previews)
 
@@ -56,6 +57,10 @@
 
   function setHeader(title, parent) {
     $('page-title').textContent = title;
+    state.title = title;
+    var home = state.tab === 'home';
+    $('brand').hidden = !home;
+    sys.parentNode.hidden = home;
     document.title = title + ' · Low Voltage Field Guide';
     $('back').hidden = !parent;
     $('back').dataset.to = parent || '';
@@ -66,6 +71,7 @@
   function setTabs(pack, tab) {
     Array.prototype.forEach.call(document.querySelectorAll('#tabs a'), function (a) {
       var t = a.dataset.tab;
+      if (t === 'home') { if (tab === 'home') a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); return; }
       var dest = t === 'calculators' && prefs.calc ? '/calculators/' + prefs.calc : '/' + t;
       a.setAttribute('href', '#/' + pack + dest);
       if (t === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -74,17 +80,27 @@
 
   function render() {
     var route = currentHash();
-    if (!route || route === '/') { route = prefs.last || '/' + (PACKS[0] ? PACKS[0].id : 'intrusion') + '/learn'; go(route, true); return; }
+    if (!route || route === '/') { go('/home', true); return; }
     var parts = route.split('?')[0].split('/').filter(Boolean);
-    state.route = route;
 
     if (parts[0] === 'search') {
+      if (state.tab !== 'search') searchFrom = state.route || '/home';
+      state.route = route;
       state.tab = 'search';
-      setTabs(state.pack || PACKS[0].id, '');
+      setTabs(state.pack || lastPack(), '');
       renderSearch();
       return;
     }
+    state.route = route;
     closeSearchIfEmpty();
+
+    if (parts[0] === 'home') {
+      state.tab = 'home';
+      setTabs(lastPack(), 'home');
+      view.innerHTML = viewHome();
+      window.scrollTo(0, scrolls[route] || 0);
+      return;
+    }
 
     var packId = parts[0], tab = TABS[parts[1]] ? parts[1] : 'learn';
     state.pack = packId; state.tab = tab;
@@ -98,14 +114,78 @@
     else if (tab === 'calculators') html = viewCalculators(pack, parts[2]);
     else html = viewTroubleshoot(pack, parts[2]);
     if (html !== null) view.innerHTML = html;
-    if (pack) { prefs.last = route; savePrefs(); }
+    if (pack) { prefs.last = route; prefs.lastTitle = pack.name + ' · ' + state.title; savePrefs(); }
     window.scrollTo(0, scrolls[route] || 0);
   }
 
   function viewMissing() {
     setHeader('Not found', '');
-    return '<div class="empty">That page isn\'t here. <a href="#/' + PACKS[0].id + '/learn">Go to Learn</a></div>';
+    return '<div class="empty">That page isn\'t here. <a href="#/home">Go to Home</a></div>';
   }
+
+  // The pack the bottom tabs point at when no pack is open: the last one used.
+  function lastPack() {
+    var id = (prefs.last || '').split('/')[1];
+    return packById(id) ? id : (PACKS[0] ? PACKS[0].id : 'intrusion');
+  }
+
+  /* ---------- Home ---------- */
+  var SYS_ICONS = {
+    intrusion: '<path d="M12 3l7 3v5.5c0 4.6-3 8-7 9.5-4-1.5-7-4.9-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10.5" r="2" fill="currentColor"/><path d="M12 12v3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    fire: '<path d="M12 3c.5 3.5 5.5 6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.6 1.3-4.3 2.7-5.6.3 1.9 1.1 3 2.3 3.6-.6-3.3-.2-6.4.5-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    access: '<rect x="3.5" y="6" width="17" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="11" r="1.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 15.2c.6-1.1 1.5-1.6 2.5-1.6s1.9.5 2.5 1.6M13.5 10h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    cctv: '<path d="M3.5 7.5l13 3.5-1.4 4.6-13-3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M16.6 11l3.4-1.5.6 4.3-5.5 1.8M8.5 13.3L7.5 17H4v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+  };
+  function sysIcon(id) {
+    return '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' + (SYS_ICONS[id] || '<circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/>') + '</svg>';
+  }
+  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+
+  function viewHome() {
+    setHeader('Field Guide', '');
+    var cont = prefs.last && packById(prefs.last.split('/')[1]) ?
+      '<a class="resume" href="#' + esc(prefs.last) + '"><span class="eyebrow">Pick up where you left off</span><b>' + esc(prefs.lastTitle || 'Last page') + '</b>' + chev + '</a>' : '';
+
+    var tiles = PACKS.map(function (p) {
+      return '<a class="sys-tile" href="#/' + p.id + '/learn">' + sysIcon(p.id) +
+        '<b>' + esc(p.name) + '</b><small>' + esc(p.blurb) + '</small>' +
+        '<span class="meta">' + plural(p.learn.modules.length, 'module') + ' · ' + plural(p.reference.cards.length, 'card') + ' · ' + plural(p.troubleshoot.guides.length, 'guide') + '</span></a>';
+    }).concat(UPCOMING.map(function (u) {
+      return '<a class="sys-tile soon-tile" href="#/' + u.id + '/learn">' + sysIcon(u.id) +
+        '<b>' + esc(u.name) + '</b>' + (u.blurb ? '<small>' + esc(u.blurb) + '</small>' : '') + '<span class="tag">Coming</span></a>';
+    })).join('');
+
+    // Every calculator once, opened in the first pack that carries it.
+    var seen = {}, calcs = [];
+    PACKS.forEach(function (p) {
+      (p.calculators || []).forEach(function (k) {
+        if (seen[k] || !CALC.CALCS[k]) return;
+        seen[k] = 1;
+        calcs.push('<a class="tool" href="#/' + p.id + '/calculators/' + k + '"><b>' + esc(CALC.CALCS[k].title) + '</b><small>' + esc(p.name) + '</small></a>');
+      });
+    });
+
+    var fixes = PACKS.map(function (p) {
+      var g = p.troubleshoot.guides;
+      return '<li><a href="#/' + p.id + '/troubleshoot"><span class="n sm" aria-hidden="true">' + sysIcon(p.id).replace('width="30" height="30"', 'width="20" height="20"') + '</span>' +
+        '<span class="t"><b>' + esc(p.name) + ' service calls</b><small>' + plural(g.length, 'guide') + ', by symptom</small></span>' + chev + '</a></li>';
+    }).join('');
+
+    return '<button class="home-search" type="button" id="home-search">' +
+      '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>' +
+      '<span>Search lessons, cards, guides</span></button>' +
+      cont +
+      '<h2 class="group-h">Systems</h2><div class="sys-grid">' + tiles + '</div>' +
+      (calcs.length ? '<h2 class="group-h">Calculators</h2><div class="tool-grid">' + calcs.join('') + '</div>' : '') +
+      '<h2 class="group-h">Troubleshoot</h2><ul class="rows">' + fixes + '</ul>' +
+      installCard() + DISCLAIMER;
+  }
+  view.addEventListener('click', function (e) {
+    if (!e.target.closest('#home-search')) return;
+    bar.hidden = false;
+    input.focus();
+    go('/search');
+  });
 
   function viewUpcoming(up, tab) {
     setHeader(TABS[tab], '');
@@ -121,8 +201,7 @@
     if (!modNum) {
       setHeader('Learn', '');
       var lessons = mods.reduce(function (n, m) { return n + m.lessons.length; }, 0);
-      return installCard() +
-        '<div class="page-h"><p class="eyebrow">' + esc(pack.name) + ' training</p><h2>' + esc(pack.blurb) + '</h2>' +
+      return '<div class="page-h"><p class="eyebrow">' + esc(pack.name) + ' training</p><h2>' + esc(pack.blurb) + '</h2>' +
         '<p class="lede">' + mods.length + ' modules, ' + lessons + ' short lessons, a quiz at the end of each. Start at Module 1 if you\'re new.</p></div>' +
         '<ul class="rows">' + mods.map(function (m) {
           return '<li><a href="#' + base + '/' + m.num + '"><span class="n">' + m.num + '</span><span class="t"><b>' + esc(m.title) + '</b><small>' +
@@ -266,7 +345,7 @@
   var bar = $('search-bar'), input = $('search-input');
   $('search-btn').addEventListener('click', function () {
     if (bar.hidden) { bar.hidden = false; input.focus(); if (input.value) go('/search', state.tab === 'search'); }
-    else { bar.hidden = true; input.value = ''; if (state.tab === 'search') go(prefs.last || '/' + PACKS[0].id + '/learn'); }
+    else { bar.hidden = true; input.value = ''; if (state.tab === 'search') go(searchFrom); }
   });
   bar.addEventListener('submit', function (e) { e.preventDefault(); input.blur(); });
   input.addEventListener('input', function () {
@@ -276,7 +355,7 @@
   function closeSearchIfEmpty() { if (!input.value) bar.hidden = true; }
 
   function renderSearch() {
-    setHeader('Search', prefs.last || '');
+    setHeader('Search', searchFrom);
     bar.hidden = false;
     var q = (input.value || '').trim().toLowerCase();
     if (!q) { view.innerHTML = '<p class="empty">Search every lesson, reference card, glossary term, and troubleshooting guide. Try "EOL", "glass break", or "low battery".</p>'; return; }
@@ -323,8 +402,8 @@
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var embedded = false;
   try { embedded = window.top !== window; } catch (e) { embedded = true; }
-  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferredPrompt = e; if (state.tab === 'learn') render(); });
-  window.addEventListener('appinstalled', function () { deferredPrompt = null; standalone = true; toast('Installed. Open it from your home screen.'); if (state.tab === 'learn') render(); });
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferredPrompt = e; if (state.tab === 'home') render(); });
+  window.addEventListener('appinstalled', function () { deferredPrompt = null; standalone = true; toast('Installed. Open it from your home screen.'); if (state.tab === 'home') render(); });
   function installCard() {
     if (standalone || embedded || prefs.hideInstall) return '';
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -343,7 +422,7 @@
         try { shown = Promise.resolve(ev.prompt()); } catch (err) { shown = Promise.reject(err); }
         shown.then(function () { return ev.userChoice; })
           .then(function (c) { if (!c || c.outcome !== 'accepted') manualInstall = true; }, function () { manualInstall = true; })
-          .then(function () { if (state.tab === 'learn') render(); });
+          .then(function () { if (state.tab === 'home') render(); });
       });
       if (x) x.addEventListener('click', function (e) { e.preventDefault(); prefs.hideInstall = true; savePrefs(); render(); });
     });

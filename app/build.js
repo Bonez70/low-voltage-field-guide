@@ -36,8 +36,8 @@ const PACKS = [
 ];
 // Shown in the system switcher as coming soon (draft packs are added to this list on the live site).
 const UPCOMING = [
-  { id: 'access', name: 'Access control' },
-  { id: 'cctv', name: 'CCTV' }
+  { id: 'access', name: 'Access control', blurb: 'Card readers, door hardware, and controllers' },
+  { id: 'cctv', name: 'CCTV', blurb: 'Cameras, recorders, and network video' }
 ];
 const WITH_DRAFTS = process.argv.includes('--drafts');
 
@@ -286,7 +286,7 @@ fs.mkdirSync(path.join(APP, 'packs'), { recursive: true });
 const all = PACKS.map(buildPack);
 const built = all.filter(p => !p.draft);
 const drafts = all.filter(p => p.draft);
-const liveUpcoming = drafts.map(p => ({ id: p.id, name: p.name })).concat(UPCOMING);
+const liveUpcoming = drafts.map(p => ({ id: p.id, name: p.name, blurb: p.blurb })).concat(UPCOMING);
 const packFiles = [];
 built.forEach(p => {
   const f = `packs/${p.id}.js`;
