@@ -26,6 +26,12 @@ Field tip boxes written as `> **Field tip (David to add):** topic` show as a das
 
 `node app/build.js --preview out.html` writes a single-file preview (no offline support) for quick review.
 
+## Code Finder
+
+`content/codes/codes.md` is a topic index to NFPA 72-2022, NFPA 70-2020 (NEC), NFPA 101-2021 and IBC 2021: each entry gives the section to open and a short summary in our own words (never the code text). The format is described at the top of that file. `build.js` writes it to `packs/codes.js` and the app shows it at `#/codes` (a tile on Home, and in search).
+
+Each entry is signed off on its own: only entries with a `**Status:**` line go on the live site, and the Home tile hides while none are signed off. `node app/verify-sheet.js codes` writes `content/codes/VERIFY-SHEET.md` for review, and `--drafts --preview` shows every entry marked Verify #n.
+
 ## Adding a system pack (Fire, Access, CCTV)
 
 1. Put its content in `content/<pack>/` with the same shape: `training/NN-*.md` (`# Module N: Title`, `## Lesson N.N: Title`, `## Module N quiz` with an `**Answer key:**` line), `reference.md` (`## Card: Title` sections), `troubleshooting.md` (`## N. Title` with a `**Symptom:**` line).
