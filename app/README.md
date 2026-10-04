@@ -6,8 +6,8 @@ Installable, offline mobile web app (PWA) for security low voltage techs. Carrie
 
 | Path | What it is |
 |---|---|
-| `index.html` | App shell: header with system switcher and search, four bottom tabs (Learn, Reference, Calculators, Troubleshoot) |
-| `app.js` | Routing (`#/<pack>/<tab>/...`), the four tab screens, search, install prompt, service worker registration |
+| `index.html` | App shell: header with system switcher and search, bottom tabs (Home, then Learn, Reference, Calculators, Troubleshoot for the open pack) |
+| `app.js` | Routing (`#/home`, `#/<pack>/<tab>/...`), the Home screen, the four tab screens, search, install prompt, service worker registration |
 | `app.css` | Styles (same field-meter look as the calculators) |
 | `calc-ui.js` | Calculator screens, mounted in the Calculators tab |
 | `calculators/` | Calculator math (`calc.js`), tests (`node calculators/calc.test.js`), standalone calculator page |
