@@ -29,7 +29,7 @@ Most access problems are built in at the survey. Go to every door and write down
 - **REX:** above the door on the egress side, aimed down at the door hardware area. Walk test it from both sides of the door: it must trip from the inside and must not trip from the outside.
 - **Diode** at the lock if the lock doesn't have built-in suppression (Lesson 5.3).
 - **Service loop** of a foot or two above the door, so the next tech can remake terminations.
-- **Fire-rated walls:** seal every penetration with a listed firestop system for that wall type. [VERIFY:firestop]
+- **Fire-rated walls:** seal every penetration with a listed firestop system for that wall type. [SRC:firestop]
 
 ---
 
@@ -46,17 +46,17 @@ Most access problems are built in at the survey. Go to every door and write down
 
 ## Lesson 6.4: Fire alarm release
 
-Where a building has a fire alarm system, **fail-safe locks on egress doors unlock when the fire alarm activates**, and stay unlocked until the fire alarm is reset. [VERIFY:fa-release]
+Where a building has a fire alarm system, **fail-safe locks on egress doors unlock when the fire alarm activates**, and stay unlocked until the fire alarm is reset. [SRC:fa-release]
 
 How it's wired in practice:
 
 - A fire alarm **relay** (a control module or panel relay) opens on alarm.
-- That contact goes in the **lock power path**, typically the access power supply's **fire alarm interface** input, so the locks lose power directly. Don't rely on a controller input and software to unlock the doors. [VERIFY:fa-release]
-- The fire alarm relay or control module goes within **3 ft** of the device it controls (here, the power supply's fire alarm input), with the fire alarm wiring to the relay supervised, the same rule as any fire alarm control function (see the Fire pack's lesson on control functions). [VERIFY:fa-relay-3ft]
+- That contact goes in the **lock power path**, typically the access power supply's **fire alarm interface** input, so the locks lose power directly. Don't rely on a controller input and software to unlock the doors. [SRC:fa-release]
+- The fire alarm relay or control module goes within **3 ft** of the device it controls (here, the power supply's fire alarm input), with the fire alarm wiring to the relay supervised, the same rule as any fire alarm control function (see the Fire pack's lesson on control functions). [SRC:fa-relay-3ft]
 - **Fail-secure locks don't unlock on fire alarm** unless they're required to (stairwell re-entry, Module 8). Their egress side is already free.
 - **Who wires it:** the fire alarm contractor owns the relay and its programming. Coordinate, and test the release together.
 
-**Test it** at acceptance and after any change to either system: put the fire alarm account on test, activate an alarm, confirm every fail-safe door releases, reset, and confirm they relock. [VERIFY:fa-release-test]
+**Test it** at acceptance and after any change to either system: put the fire alarm account on test, activate an alarm, confirm every fail-safe door releases, reset, and confirm they relock. [SRC:fa-release-test]
 
 ---
 

@@ -2,7 +2,7 @@
 
 One guide per common access service call, for the Troubleshoot tab. Each guide is a step-by-step flowchart: do the step, then follow the result.
 
-**Every guide starts the same way:** tell the building contact what you're doing, put monitored door alarms on test, and make sure the door you're working on can always be opened from the egress side while you work. [VERIFY:safety-notify] [VERIFY:safety-egress] Anything that touches the fire alarm release gets the fire alarm contractor and the fire alarm account on test first. [VERIFY:safety-fa-interface]
+**Every guide starts the same way:** tell the building contact what you're doing, put monitored door alarms on test, and make sure the door you're working on can always be opened from the egress side while you work. [SRC:safety-notify] [SRC:safety-egress] Anything that touches the fire alarm release gets the fire alarm contractor and the fire alarm account on test first. [SRC:safety-fa-interface]
 
 ---
 
@@ -108,7 +108,7 @@ One guide per common access service call, for the Troubleshoot tab. Each guide i
 
 1. Check the door's mode and schedule in the software. Is it on a scheduled unlock, a manual override, or a lockdown release someone forgot to undo?
 2. **REX stuck active** (motion REX seeing a heater, a sign moving in air, or a door gap) and REX set to unlock → the lock keeps cycling open. Watch the REX input.
-3. **Fire alarm release still active** → the fire alarm panel isn't reset or its relay is stuck. Check with the fire alarm contractor. [VERIFY:fa-release]
+3. **Fire alarm release still active** → the fire alarm panel isn't reset or its relay is stuck. Check with the fire alarm contractor. [SRC:fa-release]
 4. **Fail-safe lock with no power** → check the power supply output, fuse, and battery (Guide 11).
 5. Relay welded closed on the controller → swap to a spare relay or replace the module, and add a diode at the lock so it doesn't happen again.
 6. Strike held mechanically → a latch with a hold-back (dogged exit device) or a taped latch. Not an electrical problem.
@@ -134,14 +134,14 @@ One guide per common access service call, for the Troubleshoot tab. Each guide i
 
 **Symptom:** fail-safe doors stayed locked during a fire alarm or a test, or stay unlocked after the fire alarm is reset.
 
-**This is a life safety failure. Tell the building owner right away, and keep the doors unlocked or posted until it's fixed.** [VERIFY:fa-release]
+**This is a life safety failure. Tell the building owner right away, and keep the doors unlocked or posted until it's fixed.** [SRC:fa-release]
 
-1. Get the fire alarm contractor and put the fire alarm account on test. [VERIFY:safety-fa-interface]
+1. Get the fire alarm contractor and put the fire alarm account on test. [SRC:safety-fa-interface]
 2. Activate the release and meter the fire alarm interface input at the access power supply. Does the contact change state? No → the fire alarm relay isn't operating (programming or wiring on the fire alarm side).
 3. Contact changes but locks stay powered → the FA input is jumpered, wired to the wrong terminals, or the locks are on an output the FA input doesn't control (a second supply, or the controller's own lock output). Every fail-safe egress lock must lose power on alarm.
-4. A push button or REX wired as a bypass around the release → rewire so the fire alarm contact cuts lock power directly. [VERIFY:fa-release]
+4. A push button or REX wired as a bypass around the release → rewire so the fire alarm contact cuts lock power directly. [SRC:fa-release]
 5. **Won't relock after reset:** the FA relay is still in alarm or not reset, or the power supply has a latching FA input that needs its own reset. Check the supply's FA input setting.
-6. Retest every door the release controls, and record the test. [VERIFY:fa-release-test]
+6. Retest every door the release controls, and record the test. [SRC:fa-release-test]
 
 ---
 
@@ -150,9 +150,9 @@ One guide per common access service call, for the Troubleshoot tab. Each guide i
 **Symptom:** AC fail or low battery reported, or one or more doors lost power.
 
 1. **AC fail:** check the breaker and the AC input at the supply's terminals. Breaker on but no AC → the circuit or a switched outlet. Label the breaker so it doesn't happen again.
-2. **Low battery:** with AC on, meter the battery. Disconnect it and meter the charger output (often about 13.6 V for a 12 V system). Charger good, battery low after a day of charging → replace the batteries (both in a 24 V pair). Date the new ones. [VERIFY:batt-replace]
+2. **Low battery:** with AC on, meter the battery. Disconnect it and meter the charger output (often about 13.6 V for a 12 V system). Charger good, battery low after a day of charging → replace the batteries (both in a 24 V pair). Date the new ones. [SRC:batt-replace]
 3. **Output dead:** find the fuse or PTC for that output. Blown or tripped → disconnect the load and look for a short: a pinched cable at the door, a backward diode, or a failed lock.
-4. **Overloaded:** add up the load with the **Access Power calculator**. Over about 80% of the rating, or batteries that can't last the required standby → add a supply. [VERIFY:psu-80]
+4. **Overloaded:** add up the load with the **Access Power calculator**. Over about 80% of the rating, or batteries that can't last the required standby → add a supply. [SRC:psu-80]
 5. Supply cycling or hot → overload or a failing supply.
 
 ---
@@ -162,8 +162,8 @@ One guide per common access service call, for the Troubleshoot tab. Each guide i
 **Symptom:** the controller reboots, a reader beeps oddly, or the wrong number reads when a door unlocks or relocks.
 
 1. Does it happen exactly when the lock changes state? Yes → lock kickback or inrush.
-2. Check for a **suppression diode at the lock** (or built-in suppression). Missing → add one at the lock, band to +. [VERIFY:diode]
+2. Check for a **suppression diode at the lock** (or built-in suppression). Missing → add one at the lock, band to +. [SRC:diode]
 3. Is the lock powered from the **same supply or output** as the controller or readers? Yes → move locks to a separate supply or output.
-4. Solenoid latch retraction exit device → needs a supply made for its inrush. [VERIFY:exit-device-inrush]
-5. Lock and reader cables bundled together over a long run, with the reader shield not grounded → ground the shield at the controller end and separate the cables where you can. [VERIFY:shield-ground]
+4. Solenoid latch retraction exit device → needs a supply made for its inrush. [SRC:exit-device-inrush]
+5. Lock and reader cables bundled together over a long run, with the reader shield not grounded → ground the shield at the controller end and separate the cables where you can. [SRC:shield-ground]
 6. Recheck after the fix by cycling the lock twenty times while watching the controller and reader.

@@ -3,8 +3,8 @@
  * Pure functions, no DOM. Intrusion values come from content/intrusion/reference.md,
  * signed off by David on 2026-10-04. Fire values come from content/fire/reference.md
  * and were signed off by David on 2026-10-04 (content/fire/VERIFY-SHEET.md). Access values come from
- * content/access/reference.md (pending sign-off: access verify items psu-80, batt-factor,
- * ul294-standby, wiegand-distance, osdp-distance).
+ * content/access/reference.md and were signed off by David on 2026-10-04 (content/access/VERIFY-SHEET.md:
+ * psu-80, batt-factor, ul294-standby, wiegand-distance, osdp-distance).
  * Change values in the content first, then here.
  */
 (function (root, factory) {
@@ -34,7 +34,7 @@
   var NAC_START_V = 20.4;   // battery at end of standby (85% of 24 V)
   var NAC_MIN_V = 16;       // regulated 24 VDC appliance minimum
 
-  // Access control (pending sign-off; see the comment at the top).
+  // Access control (signed off; see the comment at the top).
   var ACCESS_PSU_SIZES_A = [1.5, 2.5, 4, 6, 10];       // common access power supply ratings
   var ACCESS_LOAD_LIMIT = 0.8;                          // load a supply to no more than 80% of its rating
   var ACCESS_BATTERY_SIZES_AH = [4, 7, 12, 18, 26, 40];

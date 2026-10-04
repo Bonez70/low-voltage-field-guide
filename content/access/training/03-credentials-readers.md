@@ -25,7 +25,7 @@
 
 Wiegand is the most common reader-to-controller wiring. It's old, simple, and one-way: the reader sends the card number and the controller sends back LED and beeper signals on separate wires.
 
-**Wires** (the most common color convention; always check the reader's manual): [VERIFY:wiegand-colors]
+**Wires** (the most common color convention; always check the reader's manual): [SRC:wiegand-colors]
 
 | Color | Function |
 |---|---|
@@ -39,7 +39,7 @@ Wiegand is the most common reader-to-controller wiring. It's old, simple, and on
 
 D0 and D1 sit at about 5 V when idle and pulse low to send a 0 (on D0) or a 1 (on D1). Swap them and the controller gets the wrong number or nothing at all.
 
-**The 26-bit format.** The classic Wiegand number is 26 bits: [VERIFY:wiegand-26]
+**The 26-bit format.** The classic Wiegand number is 26 bits: [SRC:wiegand-26]
 
 | Bit 1 | Bits 2 to 9 | Bits 10 to 25 | Bit 26 |
 |---|---|---|---|
@@ -47,7 +47,7 @@ D0 and D1 sit at about 5 V when idle and pulse low to send a 0 (on D0) or a 1 (o
 
 Only 65,536 card numbers per facility code means duplicates between sites are common. Larger formats (34-bit, 35-bit, 37-bit, and proprietary formats) give more numbers. The controller must be set to the format the cards use.
 
-**Distance:** Wiegand is good to about **500 ft** using 22 AWG shielded cable. [VERIFY:wiegand-distance]
+**Distance:** Wiegand is good to about **500 ft** using 22 AWG shielded cable. [SRC:wiegand-distance]
 
 **Security:** Wiegand is unencrypted and unsupervised. Someone with access to the wires at the reader can capture card numbers or replay them, and the controller can't tell if a reader has been swapped. That's why OSDP is replacing it.
 
@@ -55,14 +55,14 @@ Only 65,536 card numbers per facility code means duplicates between sites are co
 
 ## Lesson 3.3: OSDP
 
-**OSDP (Open Supervised Device Protocol)** is the modern reader standard, published by the Security Industry Association. [VERIFY:osdp-basics]
+**OSDP (Open Supervised Device Protocol)** is the modern reader standard, published by the Security Industry Association. [SRC:osdp-basics]
 
 - **Two-way.** The controller polls the reader; the reader answers. If a reader stops answering, the controller knows right away (it's **supervised**).
 - **RS-485 wiring:** two data wires (often labeled A/B or +/−) plus power and ground. Four conductors, twisted pair for the data.
-- **Multi-drop:** several readers can share one RS-485 run, each with its own address. Wire it as a daisy chain, not a star. [VERIFY:osdp-basics]
-- **Distance:** up to about **4,000 ft** on RS-485 with proper twisted pair cable. [VERIFY:osdp-distance]
-- **Termination:** long runs get a 120 Ω terminating resistor at each end of the bus. Short runs often don't need it; follow the controller manual. [VERIFY:osdp-term]
-- **Secure Channel** encrypts the link (AES-128). Turn it on: OSDP without Secure Channel is supervised but not encrypted. [VERIFY:osdp-secure]
+- **Multi-drop:** several readers can share one RS-485 run, each with its own address. Wire it as a daisy chain, not a star. [SRC:osdp-basics]
+- **Distance:** up to about **4,000 ft** on RS-485 with proper twisted pair cable. [SRC:osdp-distance]
+- **Termination:** long runs get a 120 Ω terminating resistor at each end of the bus. Short runs often don't need it; follow the controller manual. [SRC:osdp-term]
+- **Secure Channel** encrypts the link (AES-128). Turn it on: OSDP without Secure Channel is supervised but not encrypted. [SRC:osdp-secure]
 - **Settings must match** on both ends: address, baud rate (commonly 9600 by default), and Secure Channel keys.
 
 **Retrofits:** OSDP usually runs on the existing Wiegand cable, using one twisted pair for data. Check that the old cable has a twisted pair available.
@@ -73,7 +73,7 @@ Only 65,536 card numbers per facility code means duplicates between sites are co
 
 ## Lesson 3.4: Mounting and wiring the reader
 
-**Height and reach.** Card readers and keypads are operable parts, so they go within the accessible reach range: no higher than **48 in** and no lower than **15 in** above the floor, with clear floor space in front. Many specs call for 42 to 48 in to the center of the reader. [VERIFY:reach-range]
+**Height and reach.** Card readers and keypads are operable parts, so they go within the accessible reach range: no higher than **48 in** and no lower than **15 in** above the floor, with clear floor space in front. Many specs call for 42 to 48 in to the center of the reader. [SRC:reach-range]
 
 **Location.**
 
@@ -83,7 +83,7 @@ Only 65,536 card numbers per facility code means duplicates between sites are co
 - Keep readers away from each other (back-to-back readers on two sides of a wall can interfere).
 - Outdoors: a reader rated for the weather, with the cable entry sealed and a drip loop.
 
-**Cable.** Typical Wiegand reader cable is **22 AWG, 6 conductors, shielded** (8 conductors if the reader needs more functions). Ground the shield drain **at the controller end only**; at the reader, cut it back and tape it so it can't touch anything. [VERIFY:shield-ground]
+**Cable.** Typical Wiegand reader cable is **22 AWG, 6 conductors, shielded** (8 conductors if the reader needs more functions). Ground the shield drain **at the controller end only**; at the reader, cut it back and tape it so it can't touch anything. [SRC:shield-ground]
 
 **Power.** Most readers want 12 VDC and draw 50 to 250 mA (more when a heater or LCD is on). Long runs on 22 AWG drop voltage; check with the **Reader Cable calculator**.
 

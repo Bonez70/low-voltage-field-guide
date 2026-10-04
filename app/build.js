@@ -35,7 +35,7 @@ const PACKS = [
   },
   {
     id: 'access', name: 'Access control', blurb: 'Card readers, locks, door hardware, and egress rules',
-    calculators: ['lockpsu', 'reader', 'drop', 'gauge'], draft: true,
+    calculators: ['lockpsu', 'reader', 'drop', 'gauge'],
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   }
 ];

@@ -61,13 +61,13 @@ These two words come up on every door. They describe what the lock does **on the
 
 Memory aid: fail-**safe** keeps **people** safe (door opens); fail-**secure** keeps the **building** secure (door stays locked).
 
-**The egress side is always free.** On a properly installed door, someone inside can always get out with one motion, whatever the lock does on the secure side. A fail-secure strike stays locked from the outside during a power failure, but the lever or panic bar on the inside still opens the door mechanically. [VERIFY:free-egress]
+**The egress side is always free.** On a properly installed door, someone inside can always get out with one motion, whatever the lock does on the secure side. A fail-secure strike stays locked from the outside during a power failure, but the lever or panic bar on the inside still opens the door mechanically. [SRC:free-egress]
 
 A **magnetic lock** has no mechanical way to release it. It holds only while powered, so it must be fail-safe, and the code adds extra rules to guarantee people can get out (Module 8).
 
 Which one to use depends on the door:
 
-- **Fire-rated doors** must stay latched in a fire, so their electrified hardware is fail-secure. [VERIFY:fire-door-latch]
+- **Fire-rated doors** must stay latched in a fire, so their electrified hardware is fail-secure. [SRC:fire-door-latch]
 - **Stairwell doors** that are locked from the stair side often have to unlock on a fire alarm so people can get back onto a floor (Module 8).
 - **Perimeter doors** are usually fail-secure so a power failure doesn't leave the building open.
 
@@ -80,9 +80,9 @@ Which one to use depends on the door:
 If you've done intrusion work, the electrical basics are the same: Ohm's law, voltage drop, series and parallel (see the Intrusion pack's Foundations module). What's different is the **load**: locks draw a lot more current than motion detectors.
 
 - Locks run on **12 VDC or 24 VDC**. Many are field-selectable with a jumper or by wiring. Setting a 12 V lock on 24 V will burn out its coil; setting a 24 V lock on 12 V gives a weak hold or no release.
-- A magnetic lock commonly draws about **0.5 A at 12 V** (half that at 24 V), all the time it's locked. An electric strike draws a few hundred milliamps, only while unlocked. [VERIFY:lock-currents]
-- Most access power is **Class 2**: the supply is limited (no more than 30 V and 100 VA per output for the voltages we use) so the wiring doesn't present a fire or shock hazard. [VERIFY:nec-class2]
-- Class 2 wiring stays **separated from 120 V wiring**: not in the same raceway, box, or enclosure compartment unless a listed barrier separates them. [VERIFY:nec-separation]
+- A magnetic lock commonly draws about **0.5 A at 12 V** (half that at 24 V), all the time it's locked. An electric strike draws a few hundred milliamps, only while unlocked. [SRC:lock-currents]
+- Most access power is **Class 2**: the supply is limited (no more than 30 V and 100 VA per output for the voltages we use) so the wiring doesn't present a fire or shock hazard. [SRC:nec-class2]
+- Class 2 wiring stays **separated from 120 V wiring**: not in the same raceway, box, or enclosure compartment unless a listed barrier separates them. [SRC:nec-separation]
 - A lock is a coil. When its power is cut, the collapsing magnetic field kicks back a voltage spike that can reset or damage the controller. A **suppression diode** at the lock stops it (Module 5).
 
 ---
@@ -91,9 +91,9 @@ If you've done intrusion work, the electrical basics are the same: Ohm's law, vo
 
 Access control is security equipment installed on **exit doors**. A mistake can trap people in a fire. Treat every door as part of the building's life safety system.
 
-- **Never leave a door unable to open from the egress side**, even for a few minutes while you work. If you have to take hardware off, prop the door, post someone at it, or leave it unlocked, and tell the building contact. [VERIFY:safety-egress]
-- **Tell the building before you work.** People may get locked out, doors may go unlocked, and forced and held-open alarms may report to a monitoring center. Put the account on test if door alarms are monitored. [VERIFY:safety-notify]
-- **Don't touch the fire alarm release without the fire alarm contractor.** The connection that unlocks doors on a fire alarm belongs to both systems. Testing it means putting the fire alarm account on test and following its testing rules (see the Fire pack's testing module). [VERIFY:safety-fa-interface]
+- **Never leave a door unable to open from the egress side**, even for a few minutes while you work. If you have to take hardware off, prop the door, post someone at it, or leave it unlocked, and tell the building contact. [SRC:safety-egress]
+- **Tell the building before you work.** People may get locked out, doors may go unlocked, and forced and held-open alarms may report to a monitoring center. Put the account on test if door alarms are monitored. [SRC:safety-notify]
+- **Don't touch the fire alarm release without the fire alarm contractor.** The connection that unlocks doors on a fire alarm belongs to both systems. Testing it means putting the fire alarm account on test and following its testing rules (see the Fire pack's testing module). [SRC:safety-fa-interface]
 - **Ladders and doors:** a door swinging into your ladder is the classic access injury. Lock the door open or post someone at it while you work overhead.
 - **Lock out 120 V** before working on a power supply's AC input, and disconnect the battery before you change fuses or outputs.
 - **Drilling doors and frames:** find out if the door is fire-rated (label on the hinge edge of the door and in the frame's hinge rabbet) before you drill anything (Module 4).

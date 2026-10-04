@@ -27,7 +27,7 @@ An electric strike replaces the frame's strike plate. When it releases, its **ke
 - **Fail-safe** strikes exist for doors that must unlock on power loss or fire alarm, but **not on fire-rated doors** (Lesson 4.5).
 - **Match the lock:** the strike must fit the latch type (cylindrical, mortise, rim exit device), the latch throw, and the deadlatch. A deadlatch that falls into the keeper gap leaves the door unlockable or unlatched.
 - **Preload:** a door that's pushing or pulling on the latch (weatherstrip, warped door, stack pressure) can bind the keeper so it won't release. Strikes are rated for a preload; when it's exceeded, fix the door or use a high-preload strike.
-- **Current:** draws only while unlocked, commonly a few hundred milliamps at 12 V. Continuous-duty strikes are needed when a door is held unlocked on a schedule. [VERIFY:lock-currents]
+- **Current:** draws only while unlocked, commonly a few hundred milliamps at 12 V. Continuous-duty strikes are needed when a door is held unlocked on a schedule. [SRC:lock-currents]
 - **Rim strikes** go with rim exit devices (panic bars) and mount on the surface of the frame.
 
 ---
@@ -36,7 +36,7 @@ An electric strike replaces the frame's strike plate. When it releases, its **ke
 
 A **magnetic lock (maglock)** is an electromagnet on the frame header and a steel **armature plate** on the door. Energized, it holds the door shut; de-energized, it lets go.
 
-- **Holding force** is commonly 600 lb (interior) or 1,200 lb (perimeter). Current is commonly about 0.5 A at 12 V or 0.25 A at 24 V, drawn **all the time the door is locked**. [VERIFY:lock-currents]
+- **Holding force** is commonly 600 lb (interior) or 1,200 lb (perimeter). Current is commonly about 0.5 A at 12 V or 0.25 A at 24 V, drawn **all the time the door is locked**. [SRC:lock-currents]
 - **Always fail-safe.** Because it holds with no mechanical release, egress must be guaranteed electrically: the code requires either a motion sensor plus push button arrangement or a switch built into the door hardware (Module 8).
 - The magnet always mounts on the **secure side**. On a door that swings away from the secure side (the usual out-swinging exit door), it mounts under the header on the push side, with an L bracket if the frame is narrow. On a door that swings toward the secure side, a Z bracket brings the magnet down to meet the armature on the pull side.
 - **Armature** must float on its rubber washers so it can align itself flat with the magnet. A tightened-down armature won't seat flat and holds poorly.
@@ -51,7 +51,7 @@ Maglocks are easy to install on doors where nothing else fits (glass doors, exis
 
 - **Electrified lockset** (cylindrical or mortise): the lock itself has a solenoid or motor that locks or unlocks the outside lever. The inside lever is always free. Fail-secure or fail-safe by order or by setting. Usually the cleanest, most secure option.
 - **Electrified exit device (panic bar):** either **electric latch retraction** (pulls the latch in so the door is push/pull, often used with door operators) or **electrified trim** (unlocks the outside lever).
-- **Solenoid latch retraction** can pull a large **inrush current** for a fraction of a second (several amps). It needs a power supply or controller made for it. Motorized latch retraction draws much less. [VERIFY:exit-device-inrush]
+- **Solenoid latch retraction** can pull a large **inrush current** for a fraction of a second (several amps). It needs a power supply or controller made for it. Motorized latch retraction draws much less. [SRC:exit-device-inrush]
 - **Request-to-exit switch** built into the lockset or exit device: reports that the inside hardware was used.
 
 **Getting power into the door:**
@@ -77,8 +77,8 @@ All three limit wire count and wire size. Check the conductor gauge in the hinge
 
 **Fire-rated doors.** Look for the label on the hinge edge of the door and in the frame. A fire door must **positively latch** every time it closes, so:
 
-- Electrified hardware on it must be **listed for use on fire doors**, and electric strikes on fire doors must be **fail-secure**. A fail-safe strike would leave the door unlatched in a fire. [VERIFY:fire-door-latch]
-- **Don't field-modify** a fire door or frame (cutting, drilling, enlarging preps) beyond what the fire door standard allows. Most modifications need factory or listed-agency preparation; otherwise the label is void. [VERIFY:fire-door-mod]
+- Electrified hardware on it must be **listed for use on fire doors**, and electric strikes on fire doors must be **fail-secure**. A fail-safe strike would leave the door unlatched in a fire. [SRC:fire-door-latch]
+- **Don't field-modify** a fire door or frame (cutting, drilling, enlarging preps) beyond what the fire door standard allows. Most modifications need factory or listed-agency preparation; otherwise the label is void. [SRC:fire-door-mod]
 - Don't add a hold-open or remove the closer to make a door easier to use. Fire doors close and latch.
 
 ---

@@ -32,8 +32,8 @@ Quick cards for the Reference tab. Each `##` section is one card. Values are com
 | **Fail-safe** | Unlocked | Locked | Maglocks, stairwell re-entry, doors that must release on fire alarm |
 | **Fail-secure** | Locked | Unlocked | Perimeter doors, fire-rated doors, most strikes and locksets |
 
-- Describes the **secure side** only. The egress side is free either way on a properly installed door. [VERIFY:free-egress]
-- Fire-rated doors: fail-secure electrified hardware, listed for fire doors. [VERIFY:fire-door-latch]
+- Describes the **secure side** only. The egress side is free either way on a properly installed door. [SRC:free-egress]
+- Fire-rated doors: fail-secure electrified hardware, listed for fire doors. [SRC:fire-door-latch]
 - Many strikes and locksets are field-convertible. Check the label or the jumper before you blame the controller.
 
 ---
@@ -53,7 +53,7 @@ Quick cards for the Reference tab. Each `##` section is one card. Values are com
 
 ## Card: Typical lock and device current
 
-Typical values for planning only. **Use the spec sheet** for the actual device. [VERIFY:lock-currents]
+Typical values for planning only. **Use the spec sheet** for the actual device. [SRC:lock-currents]
 
 | Device | At 12 VDC | At 24 VDC | Draws |
 |---|---|---|---|
@@ -61,7 +61,7 @@ Typical values for planning only. **Use the spec sheet** for the actual device. 
 | Maglock, 1,200 lb | ≈ 500 mA | ≈ 250 mA | Continuously while locked |
 | Electric strike | ≈ 200 to 450 mA | ≈ 100 to 250 mA | While unlocked (fail-secure) |
 | Electrified lockset (solenoid) | ≈ 250 to 500 mA | ≈ 150 to 250 mA | While energized |
-| Exit device, solenoid latch retraction | Inrush of several amps | | Needs a supply made for it [VERIFY:exit-device-inrush] |
+| Exit device, solenoid latch retraction | Inrush of several amps | | Needs a supply made for it [SRC:exit-device-inrush] |
 | Card reader | ≈ 50 to 250 mA | | Continuously |
 | Motion REX | ≈ 15 to 30 mA | | Continuously |
 
@@ -69,7 +69,7 @@ Typical values for planning only. **Use the spec sheet** for the actual device. 
 
 ## Card: Wiegand reader wiring
 
-Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-colors]
+Most common color convention. **Check the reader's manual.** [SRC:wiegand-colors]
 
 | Color | Function |
 |---|---|
@@ -79,10 +79,10 @@ Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-col
 | White | Data 1 (D1) |
 | Brown / orange | LED control |
 | Yellow | Beeper |
-| Drain | Shield, grounded at controller only [VERIFY:shield-ground] |
+| Drain | Shield, grounded at controller only [SRC:shield-ground] |
 
 - D0 and D1 idle at about 5 V and pulse low.
-- Max run about **500 ft** on 22 AWG shielded. [VERIFY:wiegand-distance]
+- Max run about **500 ft** on 22 AWG shielded. [SRC:wiegand-distance]
 
 ---
 
@@ -92,7 +92,7 @@ Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-col
 |---|---|---|---|
 | Even parity (bits 2 to 13) | Facility code 0 to 255 | Card number 0 to 65,535 | Odd parity (bits 14 to 25) |
 
-[VERIFY:wiegand-26]
+[SRC:wiegand-26]
 
 - Printed card numbers are often "FC-card" (for example 123-45678) or a long decimal of the whole number. Know which before you type one in.
 - Other formats: 34, 35, 37 bit and proprietary. The controller must match the cards.
@@ -101,12 +101,12 @@ Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-col
 
 ## Card: OSDP quick facts
 
-- RS-485, 2 data wires (A/B) plus power and ground; twisted pair for data. [VERIFY:osdp-basics]
-- Daisy chain (multi-drop), each reader with its own address; no star wiring. [VERIFY:osdp-basics]
-- Up to about **4,000 ft** of RS-485 cable. [VERIFY:osdp-distance]
-- 120 Ω termination at both ends of long runs. [VERIFY:osdp-term]
+- RS-485, 2 data wires (A/B) plus power and ground; twisted pair for data. [SRC:osdp-basics]
+- Daisy chain (multi-drop), each reader with its own address; no star wiring. [SRC:osdp-basics]
+- Up to about **4,000 ft** of RS-485 cable. [SRC:osdp-distance]
+- 120 Ω termination at both ends of long runs. [SRC:osdp-term]
 - Default baud rate commonly 9600; address, baud, and keys must match the controller.
-- **Secure Channel** (AES-128) encrypts the link. Turn it on. [VERIFY:osdp-secure]
+- **Secure Channel** (AES-128) encrypts the link. Turn it on. [SRC:osdp-secure]
 - Supervised: the controller reports a reader that stops answering.
 
 ---
@@ -115,15 +115,15 @@ Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-col
 
 | Run | Limit | Notes |
 |---|---|---|
-| Wiegand reader | ≈ 500 ft | 22 AWG shielded [VERIFY:wiegand-distance] |
-| OSDP / RS-485 | ≈ 4,000 ft | Twisted pair [VERIFY:osdp-distance] |
-| Ethernet / PoE | 100 m (328 ft) | Per channel, switch to device [VERIFY:ethernet-100m] |
+| Wiegand reader | ≈ 500 ft | 22 AWG shielded [SRC:wiegand-distance] |
+| OSDP / RS-485 | ≈ 4,000 ft | Twisted pair [SRC:osdp-distance] |
+| Ethernet / PoE | 100 m (328 ft) | Per channel, switch to device [SRC:ethernet-100m] |
 | Lock power | Voltage drop decides | Use the **Voltage Drop calculator** |
 | Reader power | Voltage drop decides | Use the **Reader Cable calculator** |
 
-**Cable ratings:** CL2 general, CL2R riser, CL2P plenum (CM types may substitute). [VERIFY:nec-cable-type]
-**Support:** from the structure, not ceiling tiles, grid wires, or pipes. [VERIFY:nec-support]
-**Separation:** Class 2 not in the same raceway or box as 120 V without a listed barrier. [VERIFY:nec-separation]
+**Cable ratings:** CL2 general, CL2R riser, CL2P plenum (CM types may substitute). [SRC:nec-cable-type]
+**Support:** from the structure, not ceiling tiles, grid wires, or pipes. [SRC:nec-support]
+**Separation:** Class 2 not in the same raceway or box as 120 V without a listed barrier. [SRC:nec-separation]
 
 ---
 
@@ -138,7 +138,7 @@ Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-col
    −  ──┴────┴──  from − output
 ```
 
-- DC locks: a 1N4001 to 1N4007 diode across the lock terminals, **band to +**, **at the lock**. [VERIFY:diode]
+- DC locks: a 1N4001 to 1N4007 diode across the lock terminals, **band to +**, **at the lock**. [SRC:diode]
 - Backward = dead short across the lock output.
 - AC locks: MOV instead of a diode.
 - Skip it if the lock has built-in suppression.
@@ -147,14 +147,14 @@ Most common color convention. **Check the reader's manual.** [VERIFY:wiegand-col
 
 ## Card: Power supply and battery quick rules
 
-- Listed for access control (UL 294) or burglar alarm (UL 603) use. [VERIFY:psu-listing]
-- Load to no more than about **80%** of the rating. [VERIFY:psu-80]
+- Listed for access control (UL 294) or burglar alarm (UL 603) use. [SRC:psu-listing]
+- Load to no more than about **80%** of the rating. [SRC:psu-80]
 - Separate lock power from controller and reader power.
-- Battery: **Required Ah = load A × standby h × 1.2**. [VERIFY:batt-factor]
-- UL 294 standby levels: I none, II 30 min, III 2 h, IV 4 h. [VERIFY:ul294-standby]
+- Battery: **Required Ah = load A × standby h × 1.2**. [SRC:batt-factor]
+- UL 294 standby levels: I none, II 30 min, III 2 h, IV 4 h. [SRC:ul294-standby]
 - 24 V = two 12 V batteries in series, same size and age.
-- Replace sealed lead-acid batteries every 3 to 5 years; date them. [VERIFY:batt-replace]
-- PoE: about 15.4 W per port (12.95 W at the device); PoE+ 30 W (25.5 W). [VERIFY:poe-classes]
+- Replace sealed lead-acid batteries every 3 to 5 years; date them. [SRC:batt-replace]
+- PoE: about 15.4 W per port (12.95 W at the device); PoE+ 30 W (25.5 W). [SRC:poe-classes]
 
 Use the **Access Power calculator**.
 
@@ -177,26 +177,26 @@ A lock that reads full voltage with no load can still be starved under load. Alw
 
 ## Card: Egress door rules
 
-- Opens from the egress side without a key, tool, or special knowledge or effort. [VERIFY:free-egress]
-- One releasing operation. [VERIFY:one-operation]
-- Hardware 34 to 48 in above the floor. [VERIFY:hardware-height]
-- One hand, no tight grasping, pinching, or twisting; 5 lbf max to operate. [VERIFY:hardware-grasp]
-- Interior door opening force 5 lbf max (fire doors: AHJ minimum). [VERIFY:door-force]
-- Readers and keypads within 15 to 48 in reach range. [VERIFY:reach-range]
-- Panic hardware on assembly and educational doors serving 50 or more, high hazard, and certain electrical rooms; bar at least half the door width. [VERIFY:panic-hardware]
+- Opens from the egress side without a key, tool, or special knowledge or effort. [SRC:free-egress]
+- One releasing operation. [SRC:one-operation]
+- Hardware 34 to 48 in above the floor. [SRC:hardware-height]
+- One hand, no tight grasping, pinching, or twisting; 5 lbf max to operate. [SRC:hardware-grasp]
+- Interior door opening force 5 lbf max (fire doors: AHJ minimum). [SRC:door-force]
+- Readers and keypads within 15 to 48 in reach range. [SRC:reach-range]
+- Panic hardware on assembly and educational doors serving 50 or more, high hazard, and certain electrical rooms; bar at least half the door width. [SRC:panic-hardware]
 
 ---
 
 ## Card: Maglock egress: two code paths
 
-**Path 1: Sensor release** [VERIFY:sr-requirements]
+**Path 1: Sensor release** [SRC:sr-requirements]
 - Egress-side motion sensor unlocks the door; loss of sensor power unlocks
 - Loss of lock power unlocks
-- **PUSH TO EXIT** button 40 to 48 in high, within 5 ft, cuts lock power directly, unlocked at least 30 s [VERIFY:sr-button]
-- Fire alarm or sprinkler activation unlocks until reset [VERIFY:fa-release]
-- UL 294 listed [VERIFY:ul294]
+- **PUSH TO EXIT** button 40 to 48 in high, within 5 ft, cuts lock power directly, unlocked at least 30 s [SRC:sr-button]
+- Fire alarm or sprinkler activation unlocks until reset [SRC:fa-release]
+- UL 294 listed [SRC:ul294]
 
-**Path 2: Door hardware release** [VERIFY:em-lock]
+**Path 2: Door hardware release** [SRC:em-lock]
 - Lever or panic bar with a built-in switch that directly cuts lock power
 - Obvious operation, one hand
 - Loss of power unlocks
@@ -208,34 +208,34 @@ Get AHJ approval first; many restrict maglocks.
 
 ## Card: Delayed egress
 
-- Only in occupancies the code allows, in fully sprinklered or fully detected buildings. [VERIFY:de-conditions]
-- ≤ 15 lbf for ≤ 3 s starts an irreversible release; unlocks within **15 s** (30 s if AHJ approves); local alarm sounds. [VERIFY:de-timing]
-- Rearms manually at the door only. [VERIFY:de-timing]
-- Releases immediately on sprinkler or detection activation, power loss, and from the fire command center. [VERIFY:de-release]
-- Sign within 12 in above the hardware: "PUSH UNTIL ALARM SOUNDS. DOOR CAN BE OPENED IN 15 SECONDS." Letters 1 in high, 1/8 in stroke. [VERIFY:de-sign]
-- No more than one delayed egress door in the path to an exit. [VERIFY:de-conditions]
+- Only in occupancies the code allows, in fully sprinklered or fully detected buildings. [SRC:de-conditions]
+- ≤ 15 lbf for ≤ 3 s starts an irreversible release; unlocks within **15 s** (30 s if AHJ approves); local alarm sounds. [SRC:de-timing]
+- Rearms manually at the door only. [SRC:de-timing]
+- Releases immediately on sprinkler or detection activation, power loss, and from the fire command center. [SRC:de-release]
+- Sign within 12 in above the hardware: "PUSH UNTIL ALARM SOUNDS. DOOR CAN BE OPENED IN 15 SECONDS." Letters 1 in high, 1/8 in stroke. [SRC:de-sign]
+- No more than one delayed egress door in the path to an exit. [SRC:de-conditions]
 
 ---
 
 ## Card: Fire alarm release
 
-- Fail-safe locks on egress doors unlock on fire alarm and stay unlocked until reset. [VERIFY:fa-release]
-- Fire alarm contact in the **lock power path** (power supply FA input), not a software input. [VERIFY:fa-release]
-- Fire alarm relay within 3 ft of the controlled device, wiring to the relay supervised. [VERIFY:fa-relay-3ft]
-- Stairway doors locked from the stair side unlock for re-entry. [VERIFY:stair-reentry]
-- The fire alarm contractor owns the relay; coordinate and test together. [VERIFY:safety-fa-interface]
-- Test every fail-safe door at acceptance and after changes, with the fire alarm account on test. [VERIFY:fa-release-test]
+- Fail-safe locks on egress doors unlock on fire alarm and stay unlocked until reset. [SRC:fa-release]
+- Fire alarm contact in the **lock power path** (power supply FA input), not a software input. [SRC:fa-release]
+- Fire alarm relay within 3 ft of the controlled device, wiring to the relay supervised. [SRC:fa-relay-3ft]
+- Stairway doors locked from the stair side unlock for re-entry. [SRC:stair-reentry]
+- The fire alarm contractor owns the relay; coordinate and test together. [SRC:safety-fa-interface]
+- Test every fail-safe door at acceptance and after changes, with the fire alarm account on test. [SRC:fa-release-test]
 
 ---
 
 ## Card: Fire-rated doors
 
 - Label on the hinge edge of the door and in the frame.
-- Must positively latch: electrified hardware listed for fire doors; strikes fail-secure. [VERIFY:fire-door-latch]
-- No field modification beyond what NFPA 80 allows. [VERIFY:fire-door-mod]
+- Must positively latch: electrified hardware listed for fire doors; strikes fail-secure. [SRC:fire-door-latch]
+- No field modification beyond what NFPA 80 allows. [SRC:fire-door-mod]
 - Closer stays; no unlisted hold-opens.
-- Inspected and tested every year, with records. [VERIFY:door-inspect]
-- Penetrations in rated walls get a listed firestop system. [VERIFY:firestop]
+- Inspected and tested every year, with records. [SRC:door-inspect]
+- Penetrations in rated walls get a listed firestop system. [SRC:firestop]
 
 ---
 
@@ -247,7 +247,7 @@ Get AHJ approval first; many restrict maglocks.
 - [ ] Forced door and held-open alarms report and restore
 - [ ] Inside hardware opens the door in every lock state, power off included
 - [ ] AC off: runs on battery; AC and battery off: fail-safe unlocks, fail-secure stays locked outside
-- [ ] Fire alarm release (fail-safe egress doors), account on test [VERIFY:fa-release-test]
+- [ ] Fire alarm release (fail-safe egress doors), account on test [SRC:fa-release-test]
 - [ ] Lock voltage at the lock, energized
 - [ ] Reader and enclosure tampers report
 

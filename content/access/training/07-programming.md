@@ -58,7 +58,7 @@ Test each door from both sides before you call it done. Write the results on a d
 - [ ] Held open: prop it past the held-open time, alarm reported, restores when closed
 - [ ] Egress: inside hardware opens the door with one motion with the lock in every state, including with power off
 - [ ] Power loss: remove AC, door behaves as designed on battery; remove battery and AC, fail-safe unlocks and fail-secure stays locked from outside
-- [ ] Fire alarm release (fail-safe egress doors): with the fire alarm account on test, activate an alarm, door releases; reset, door relocks [VERIFY:fa-release-test]
+- [ ] Fire alarm release (fail-safe egress doors): with the fire alarm account on test, activate an alarm, door releases; reset, door relocks [SRC:fa-release-test]
 - [ ] Lock voltage at the lock, energized, within the lock's rating
 - [ ] Tamper on readers and enclosures reports
 
@@ -70,7 +70,7 @@ Test each door from both sides before you call it done. Write the results on a d
 - **Lost or terminated cards** get **disabled right away**, not deleted, so their history stays in reports.
 - **Hand over:** door schedule, wiring diagrams, controller addresses and admin credentials (in a sealed envelope or password manager, not an email), and the door test sheet.
 - **Explain the egress features** to the building: what happens in a fire alarm and a power failure, and that doors must never be chained, padlocked, or blocked.
-- **Inspection:** fire door assemblies and certain egress doors need an inspection every year with written records. Tell the customer who does it. [VERIFY:door-inspect]
+- **Inspection:** fire door assemblies and certain egress doors need an inspection every year with written records. Tell the customer who does it. [SRC:door-inspect]
 
 ---
 
