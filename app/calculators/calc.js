@@ -4,7 +4,9 @@
  * signed off by David on 2026-10-04. Fire values come from content/fire/reference.md
  * and were signed off by David on 2026-10-04 (content/fire/VERIFY-SHEET.md). Access values come from
  * content/access/reference.md and were signed off by David on 2026-10-04 (content/access/VERIFY-SHEET.md:
- * psu-80, batt-factor, ul294-standby, wiegand-distance, osdp-distance).
+ * psu-80, batt-factor, ul294-standby, wiegand-distance, osdp-distance). CCTV values come from
+ * content/cctv/reference.md and are PENDING sign-off (content/cctv/VERIFY-SHEET.md: poe-classes,
+ * poe-headroom, dori-ppm, storage-margin).
  * Change values in the content first, then here.
  */
 (function (root, factory) {
@@ -45,6 +47,37 @@
   ];
   var READER_GAUGES = [22, 20, 18];
   var READER_MAX_FT = { wiegand: 500, osdp: 4000 };
+
+  // CCTV (pending sign-off; see the comment at the top).
+  // PoE classes: watts at the switch port (pse) and at the device (pd).
+  var POE_CLASSES = [
+    { cls: 1, std: '802.3af', pse: 4.0, pd: 3.84 },
+    { cls: 2, std: '802.3af', pse: 7.0, pd: 6.49 },
+    { cls: 3, std: '802.3af', pse: 15.4, pd: 12.95 },
+    { cls: 4, std: '802.3at', pse: 30, pd: 25.5 },
+    { cls: 5, std: '802.3bt Type 3', pse: 45, pd: 40 },
+    { cls: 6, std: '802.3bt Type 3', pse: 60, pd: 51 },
+    { cls: 7, std: '802.3bt Type 4', pse: 75, pd: 62 },
+    { cls: 8, std: '802.3bt Type 4', pse: 90, pd: 71.3 }
+  ];
+  // Port types: the highest class each port supports.
+  var POE_PORTS = [
+    { id: 'af', label: '802.3af (PoE)', maxClass: 3 },
+    { id: 'at', label: '802.3at (PoE+)', maxClass: 4 },
+    { id: 'bt60', label: '802.3bt Type 3 (60 W)', maxClass: 6 },
+    { id: 'bt90', label: '802.3bt Type 4 (90 W)', maxClass: 8 }
+  ];
+  var POE_LOAD_LIMIT = 0.8;     // design a switch to no more than 80% of its PoE budget
+  var DORI = [                  // IEC 62676-4 pixels per meter
+    { id: 'detect', label: 'Detect', ppm: 25 },
+    { id: 'observe', label: 'Observe', ppm: 62.5 },
+    { id: 'recognize', label: 'Recognize', ppm: 125 },
+    { id: 'identify', label: 'Identify', ppm: 250 }
+  ];
+  var FT_PER_M = 3.28084;
+  var STORAGE_MARGIN = 1.2;     // plan 20% above the calculated storage
+  var RAID = { none: { label: 'None (JBOD)', parity: 0, min: 1 }, raid1: { label: 'RAID 1 (mirror)', parity: 0, min: 2 },
+    raid5: { label: 'RAID 5', parity: 1, min: 3 }, raid6: { label: 'RAID 6', parity: 2, min: 4 } };
 
   function num(x, name) {
     var n = Number(x);
@@ -204,7 +237,103 @@
     return vd;
   }
 
+  /** Smallest PoE class whose device power covers the draw, or null if over Class 8. */
+  function poeClassFor(watts) {
+    for (var i = 0; i < POE_CLASSES.length; i++) if (POE_CLASSES[i].pd >= watts - 1e-9) return POE_CLASSES[i];
+    return null;
+  }
+
+  /**
+   * PoE switch budget. devices: [{ qty, watts }] with watts = the device's maximum draw (spec sheet).
+   * mode 'max': each port is charged the device's draw plus worst-case cable loss for its class
+   * (draw × port W ÷ device W of that class). mode 'class': each port is charged its class's full port W,
+   * as switches that allocate by class do. port: id from POE_PORTS.
+   */
+  function poeBudget(devices, budgetW, port, mode) {
+    var B = num(budgetW, 'Switch PoE budget');
+    var pt = POE_PORTS.filter(function (p) { return p.id === port; })[0];
+    if (!pt) throw new Error('Unknown port type');
+    var rows = [], pdW = 0, portW = 0, ports = 0, tooBig = 0, overPort = 0;
+    (devices || []).forEach(function (d) {
+      var q = num(d.qty, 'Quantity'), w = num(d.watts, 'Device watts');
+      var c = poeClassFor(w);
+      var each = c ? (mode === 'class' ? c.pse : w * c.pse / c.pd) : null;
+      var ok = !!c && c.cls <= pt.maxClass;
+      rows.push({ qty: q, watts: w, cls: c ? c.cls : null, std: c ? c.std : null, portW: each, portOk: ok });
+      ports += q; pdW += q * w;
+      if (each !== null) portW += q * each;
+      if (!c) tooBig += q; else if (!ok) overPort += q;
+    });
+    var limitW = B * POE_LOAD_LIMIT;
+    return {
+      rows: rows, ports: ports, deviceW: pdW, portW: portW, budgetW: B, limitW: limitW, minBudgetW: portW / POE_LOAD_LIMIT,
+      loadPct: B > 0 ? portW / B * 100 : null, pass: portW <= limitW + 1e-9 && !tooBig && !overPort,
+      overBudget: portW > limitW + 1e-9, tooBig: tooBig, overPort: overPort, port: pt, mode: mode === 'class' ? 'class' : 'max'
+    };
+  }
+
+  /**
+   * Recording storage. groups: [{ qty, mbps }] per-camera bitrate. pct = percent of the time recorded.
+   * driveTb and raid (key of RAID) are optional: with them, the drive count to hold the result.
+   */
+  function storage(groups, hoursPerDay, pct, days, driveTb, raid) {
+    var mbps = 0;
+    (groups || []).forEach(function (g) { mbps += num(g.qty, 'Quantity') * num(g.mbps, 'Bitrate'); });
+    var h = num(hoursPerDay, 'Hours per day');
+    if (h > 24) throw new Error('Hours per day must be 24 or less');
+    var p = num(pct, 'Percent recorded');
+    if (p > 100) throw new Error('Percent recorded must be 100 or less');
+    var D = num(days, 'Days to keep');
+    var gbPerDay = mbps * 3600 * h * (p / 100) / 8 / 1000;
+    var tb = gbPerDay * D / 1000;
+    var res = { mbps: mbps, gbPerDay: gbPerDay, tb: tb, requiredTb: tb * STORAGE_MARGIN, margin: STORAGE_MARGIN, days: D };
+    if (driveTb !== undefined && driveTb !== null && driveTb !== '' && Number(driveTb) > 0) {
+      var size = num(driveTb, 'Drive size'), r = RAID[raid || 'none'];
+      if (!r) throw new Error('Unknown RAID level');
+      var data = Math.max(1, Math.ceil(res.requiredTb / size - 1e-9));
+      var total = raid === 'raid1' ? data * 2 : data + r.parity;
+      total = Math.max(total, r.min);
+      if (raid === 'raid1' && total % 2) total++;
+      res.drives = total;
+      res.driveTb = size;
+      res.usableTb = raid === 'raid1' ? total / 2 * size : (total - r.parity) * size;
+      res.raid = raid || 'none';
+    }
+    return res;
+  }
+
+  /** Horizontal field of view in degrees from focal length and sensor width (mm). */
+  function hfovFromFocal(focalMm, sensorWidthMm) {
+    var f = num(focalMm, 'Focal length'), w = num(sensorWidthMm, 'Sensor width');
+    if (f === 0) throw new Error('Focal length must be more than 0');
+    return 2 * Math.atan(w / (2 * f)) * 180 / Math.PI;
+  }
+
+  /**
+   * Scene width and pixel density at a distance, and the farthest distance for each DORI level.
+   * hPixels = horizontal resolution; hfovDeg = horizontal field of view.
+   */
+  function fieldOfView(hPixels, hfovDeg, distanceFt) {
+    var px = num(hPixels, 'Horizontal pixels'), a = num(hfovDeg, 'Field of view'), d = num(distanceFt, 'Distance');
+    if (a <= 0 || a >= 180) throw new Error('Field of view must be between 0 and 180 degrees');
+    var t = Math.tan(a / 2 * Math.PI / 180);
+    var width = 2 * d * t;
+    var ppf = width > 0 ? px / width : Infinity;
+    var ppm = ppf * FT_PER_M;
+    var level = null;
+    var levels = DORI.map(function (L) {
+      var ppfTarget = L.ppm / FT_PER_M;
+      var ok = ppm >= L.ppm - 1e-9;
+      if (ok) level = L;
+      return { id: L.id, label: L.label, ppm: L.ppm, ppf: ppfTarget, ok: ok, maxFt: px / ppfTarget / (2 * t) };
+    });
+    return { widthFt: width, ppf: ppf, ppm: ppm, level: level, levels: levels, hfov: a };
+  }
+
   return {
+    POE_CLASSES: POE_CLASSES, POE_PORTS: POE_PORTS, POE_LOAD_LIMIT: POE_LOAD_LIMIT, DORI: DORI, FT_PER_M: FT_PER_M,
+    STORAGE_MARGIN: STORAGE_MARGIN, RAID: RAID,
+    poeClassFor: poeClassFor, poeBudget: poeBudget, storage: storage, hfovFromFocal: hfovFromFocal, fieldOfView: fieldOfView,
     ACCESS_PSU_SIZES_A: ACCESS_PSU_SIZES_A, ACCESS_LOAD_LIMIT: ACCESS_LOAD_LIMIT, ACCESS_BATTERY_SIZES_AH: ACCESS_BATTERY_SIZES_AH,
     ACCESS_STANDBY_PRESETS: ACCESS_STANDBY_PRESETS, READER_GAUGES: READER_GAUGES, READER_MAX_FT: READER_MAX_FT,
     accessPower: accessPower, readerRun: readerRun,

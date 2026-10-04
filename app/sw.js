@@ -6,7 +6,7 @@
  * Fonts: cached the first time they load; the app falls back to system fonts before that.
  */
 'use strict';
-var VERSION = 'e82b6aa8f6';
+var VERSION = '629dd25f36';
 var CACHE = 'slv-' + VERSION;
 var FILES = [
   "./",

@@ -37,7 +37,19 @@
       { name: 'Electric strike (fail-secure)', qty: 2, normalMa: 0, peakMa: 300 },
       { name: 'Motion REX', qty: 2, normalMa: 25, peakMa: 25 }
     ] },
-    r: { protocol: 'wiegand', gauge: 22, len: 300, vs: 12, ma: 150, vmin: 10 }
+    r: { protocol: 'wiegand', gauge: 22, len: 300, vs: 12, ma: 150, vmin: 10 },
+    pe: { budget: 370, port: 'bt60', mode: 'max', devices: [
+      { name: 'Turret 4 MP with IR', qty: 8, w: 6.5 },
+      { name: 'Bullet 8 MP with IR and heater', qty: 4, w: 12.5 },
+      { name: 'Outdoor PTZ with heater', qty: 1, w: 50 },
+      { name: 'Multi-sensor 4 × 4 MP', qty: 1, w: 22 }
+    ] },
+    st: { hours: 24, pct: 100, days: 30, drive: 8, raid: 'raid5', groups: [
+      { name: 'Turret 4 MP, H.265', qty: 8, mbps: 3 },
+      { name: 'Bullet 8 MP, H.265', qty: 4, mbps: 6 },
+      { name: 'Multi-sensor 4 × 4 MP', qty: 1, mbps: 12 }
+    ] },
+    fv: { mode: 'hfov', px: 2560, hfov: 40, focal: 6, sensor: 5.6, dist: 30 }
   };
   var S;
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -60,7 +72,10 @@
     firebatt: { label: 'Battery', title: 'Fire battery' },
     nac: { label: 'NAC drop', title: 'NAC voltage drop' },
     lockpsu: { label: 'Power', title: 'Access power' },
-    reader: { label: 'Reader', title: 'Reader cable' }
+    reader: { label: 'Reader', title: 'Reader cable' },
+    poe: { label: 'PoE', title: 'PoE budget' },
+    storage: { label: 'Storage', title: 'Video storage' },
+    fov: { label: 'View', title: 'Field of view' }
   };
 
   var HTML = {
@@ -139,11 +154,55 @@
     '<p class="note">Data distance: Wiegand about ' + C.READER_MAX_FT.wiegand + ' ft on 22 AWG shielded (SIA AC-01); OSDP about ' + C.READER_MAX_FT.osdp.toLocaleString('en-US') + ' ft on twisted pair (SIA OSDP). Use the reader\'s maximum current (heater or display on).</p></section>' +
     '<section class="card"><h2>The math</h2><div class="math" id="r-math"></div><p class="note">Voltage drop = 2 × one-way length × current × Ω per foot on the power pair. Solid copper at 68 °F.</p></section>';
 
+  HTML.poe =
+    '<div class="readout" aria-live="polite"><div class="lbl">PoE power on this switch</div><div class="big" id="pe-w">–</div><div class="sub" id="pe-sub"></div><div id="pe-flag"></div></div>' +
+    '<p class="example" id="pe-example">Example job loaded. Replace the cameras with your own from their spec sheets.</p>' +
+    '<section class="card"><h2>The switch</h2><div class="fields">' +
+    '<label>Total PoE budget (switch spec)<div class="unit"><input id="pe-budget" type="number" inputmode="decimal" min="0" step="any"><span>W</span></div></label>' +
+    '<label>Port type<select id="pe-port"></select></label>' +
+    '<label class="full">Budget each port by<select id="pe-mode"><option value="max">Camera maximum draw + cable loss</option><option value="class">Class allocation (switch reserves the class watts)</option></select></label></div>' +
+    '<p class="note">Check the switch manual for how it allocates power. Many switches reserve the full class watts for each port.</p></section>' +
+    '<section class="card"><h2>Cameras on this switch</h2><p class="note">Watts per camera: the <b>maximum</b> draw from the spec sheet, with IR, heater, and PTZ motors on.</p>' +
+    '<div class="devices" id="pe-devices"></div><div class="actions"><button class="add" id="pe-add" type="button">+ Add camera</button><button class="add" id="pe-reset" type="button">Load example</button></div><div class="totals" id="pe-totals"></div></section>' +
+    '<section class="card"><h2>Each camera</h2><div class="tbl"><table><thead><tr><th>Camera</th><th>Max W</th><th>Class</th><th>Port W each</th></tr></thead><tbody id="pe-rows"></tbody></table></div></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="pe-math"></div><p class="note">Classes (IEEE 802.3): ' + C.POE_CLASSES.map(function (c) { return c.cls + ' = ' + c.pse + ' W port / ' + c.pd + ' W device'; }).join('; ') +
+    '. Maximum-draw mode adds worst-case cable loss: camera W × port W ÷ device W for its class. Design the switch to no more than ' + (C.POE_LOAD_LIMIT * 100) + '% of its budget (design practice). Each run 100 m (328 ft) or less.</p></section>';
+  HTML.storage =
+    '<div class="readout" aria-live="polite"><div class="lbl">Storage to install</div><div class="big" id="st-tb">–</div><div class="sub" id="st-sub"></div><div id="st-flag"></div></div>' +
+    '<p class="example" id="st-example">Example job loaded. Replace the cameras with your own; use measured bitrates when you have them.</p>' +
+    '<section class="card"><h2>Cameras</h2><p class="note">Bitrate per camera in Mbps (main stream, as recorded). Group cameras with the same settings.</p>' +
+    '<div class="devices" id="st-groups"></div><div class="actions"><button class="add" id="st-add" type="button">+ Add cameras</button><button class="add" id="st-reset" type="button">Load example</button></div><div class="totals" id="st-totals"></div></section>' +
+    '<section class="card"><h2>Recording</h2><div class="fields">' +
+    '<label>Hours recorded per day<div class="unit"><input id="st-hours" type="number" inputmode="decimal" min="0" max="24" step="any"><span>h</span></div></label>' +
+    '<label>Time recorded (motion)<div class="unit"><input id="st-pct" type="number" inputmode="decimal" min="0" max="100" step="any"><span>%</span></div></label>' +
+    '<label class="full">Days to keep<div class="unit"><input id="st-days" type="number" inputmode="decimal" min="0" step="any"><span>days</span></div></label></div>' +
+    '<p class="note">100% is continuous recording. For motion recording, measure the real fraction for a week, then redo this.</p></section>' +
+    '<section class="card"><h2>Drives</h2><div class="fields">' +
+    '<label>Drive size<div class="unit"><input id="st-drive" type="number" inputmode="decimal" min="0" step="any"><span>TB</span></div></label>' +
+    '<label>RAID<select id="st-raid"></select></label></div>' +
+    '<p class="note">Check the recorder\'s bays, maximum drive size, and RAID support. Use surveillance-rated drives. RAID isn\'t backup.</p></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="st-math"></div><p class="note">GB per day = Mbps × 3600 × hours × fraction recorded ÷ 8 ÷ 1000. TB = GB per day × days ÷ 1000, then +' + Math.round((C.STORAGE_MARGIN - 1) * 100) + '% headroom (design practice). Decimal TB, as drives are sold; recorders showing TiB read about 9% lower.</p></section>';
+  HTML.fov =
+    '<div class="readout" aria-live="polite"><div class="lbl">Pixel density on the target</div><div class="big" id="fv-ppf">–</div><div class="sub" id="fv-sub"></div><div id="fv-flag"></div></div>' +
+    '<p class="example" id="fv-example">Example values loaded. Enter the camera from its spec sheet and your distance.</p>' +
+    '<section class="card"><h2>Camera</h2><div class="fields">' +
+    '<label class="full">Horizontal pixels<div class="unit"><input id="fv-px" type="number" inputmode="numeric" min="0" step="1"><span>px</span></div></label>' +
+    '<label class="full">Field of view from<select id="fv-mode"><option value="hfov">Spec sheet HFOV</option><option value="focal">Focal length and sensor width</option></select></label>' +
+    '<label id="fv-hfov-l">Horizontal field of view<div class="unit"><input id="fv-hfov" type="number" inputmode="decimal" min="0" step="any"><span>°</span></div></label>' +
+    '<label id="fv-focal-l">Focal length<div class="unit"><input id="fv-focal" type="number" inputmode="decimal" min="0" step="any"><span>mm</span></div></label>' +
+    '<label id="fv-sensor-l">Sensor width (spec sheet)<div class="unit"><input id="fv-sensor" type="number" inputmode="decimal" min="0" step="any"><span>mm</span></div></label>' +
+    '<label>Distance to target<div class="unit"><input id="fv-dist" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label></div>' +
+    '<p class="note">Common widths: 1920 (2 MP), 2560 or 2688 (4 MP), 2592 or 2880 (5 MP), 3840 (4K). Use the spec sheet HFOV at your zoom setting when you have it.</p></section>' +
+    '<section class="card"><h2>What it can do (IEC 62676-4)</h2><div class="tbl"><table><thead><tr><th>Level</th><th>Needs</th><th>Here</th><th>Max distance</th></tr></thead><tbody id="fv-rows"></tbody></table></div>' +
+    '<p class="note">Max distance is the farthest the target can be and still get that level with this camera and view.</p></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="fv-math"></div><p class="note">Scene width = 2 × distance × tan(HFOV ÷ 2). Pixels per foot = horizontal pixels ÷ scene width. HFOV = 2 × atan(sensor width ÷ (2 × focal length)). Lens distortion makes wide lenses differ a little from the math.</p></section>';
+
   function mount(el, which) {
     var $ = function (id) { return el.querySelector('#' + id); };
     el.innerHTML = '<div class="panel">' + (BATT[which] ? batteryHtml(BATT[which]) : HTML[which]) + '</div>';
     if (BATT[which]) battery($, BATT[which]); else if (which === 'drop') drop($); else if (which === 'nac') nac($);
-    else if (which === 'lockpsu') lockpsu($); else if (which === 'reader') reader($); else gauge($);
+    else if (which === 'lockpsu') lockpsu($); else if (which === 'reader') reader($);
+    else if (which === 'poe') poe($); else if (which === 'storage') storageCalc($); else if (which === 'fov') fov($); else gauge($);
   }
 
   /* ---------- battery ---------- */
@@ -459,6 +518,166 @@
       } catch (err) {
         $('r-end').textContent = '–'; $('r-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
         $('r-flag').innerHTML = ''; $('r-math').textContent = '';
+      }
+    }
+    calc();
+  }
+
+  // Rows of { name, qty, <field> } for the PoE and storage screens.
+  function rowList($, opts) {
+    var box = $(opts.box);
+    function render() {
+      box.innerHTML = opts.list().map(function (d, i) {
+        return '<div class="dev nac" data-i="' + i + '">' +
+          '<label class="name">' + opts.nameLabel + '<input id="' + opts.box + '-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
+          '<label>Qty<input data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
+          '<label>' + opts.valLabel + '<input data-k="' + opts.key + '" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d[opts.key]) + '"></label>' +
+          '<button type="button" class="del" aria-label="Remove ' + esc(d.name || 'row') + '">×</button></div>';
+      }).join('');
+    }
+    box.addEventListener('input', function (e) {
+      var row = e.target.closest('.dev'); if (!row) return;
+      opts.list()[+row.dataset.i][e.target.dataset.k] = e.target.value; opts.calc();
+    });
+    box.addEventListener('click', function (e) {
+      if (!e.target.classList.contains('del')) return;
+      opts.list().splice(+e.target.closest('.dev').dataset.i, 1); render(); opts.calc();
+    });
+    $(opts.add).addEventListener('click', function () {
+      var blank = { name: '', qty: 1 }; blank[opts.key] = '';
+      opts.list().push(blank); render(); opts.calc();
+      var el = $(opts.box + '-n-' + (opts.list().length - 1)); if (el) el.focus();
+    });
+    return render;
+  }
+
+  /* ---------- PoE budget (cctv) ---------- */
+  function poe($) {
+    var P = S.pe, DEF = DEFAULTS.pe;
+    var isExample = function () { return JSON.stringify(P) === JSON.stringify(DEF); };
+    $('pe-port').innerHTML = C.POE_PORTS.map(function (p) { return '<option value="' + p.id + '">' + esc(p.label) + '</option>'; }).join('');
+    ['budget', 'port', 'mode'].forEach(function (k) {
+      var el = $('pe-' + k); el.value = P[k];
+      el.addEventListener('input', function () { P[k] = el.value; calc(); });
+    });
+    var render = rowList($, { box: 'pe-devices', add: 'pe-add', key: 'w', nameLabel: 'Camera', valLabel: 'Max W', list: function () { return P.devices; }, calc: function () { calc(); } });
+    $('pe-reset').addEventListener('click', function () {
+      S.pe = P = JSON.parse(JSON.stringify(DEF));
+      ['budget', 'port', 'mode'].forEach(function (k) { $('pe-' + k).value = P[k]; });
+      render(); calc();
+    });
+    function calc() {
+      save();
+      $('pe-example').hidden = !isExample();
+      $('pe-reset').hidden = isExample();
+      try {
+        if (P.budget === '') throw new Error('Enter the switch PoE budget');
+        var devs = P.devices.map(function (d) { return { qty: d.qty || 0, watts: d.w || 0 }; });
+        var r = C.poeBudget(devs, P.budget, P.port, P.mode);
+        $('pe-w').innerHTML = f(r.portW, 1) + '<small>W</small>';
+        $('pe-sub').textContent = 'of ' + f(r.budgetW, 0) + ' W budget (' + f(r.loadPct, 0) + '%) · ' + r.ports + ' ports · plan to ' + f(r.limitW, 0) + ' W';
+        var flags = r.overBudget ? '<span class="pill bad">Over ' + (C.POE_LOAD_LIMIT * 100) + '% of budget</span>' : '<span class="pill ok">Within ' + (C.POE_LOAD_LIMIT * 100) + '% of budget</span>';
+        if (r.overPort) flags += ' <span class="pill bad">' + r.overPort + ' need a bigger port</span>';
+        if (r.tooBig) flags += ' <span class="pill bad">' + r.tooBig + ' over 802.3bt</span>';
+        var tips = [];
+        if (r.overBudget) tips.push('Needs a switch budget of at least ' + f(r.minBudgetW, 0) + ' W, or split the cameras across switches.');
+        if (r.overPort) tips.push('Cameras marked red need a higher PoE port type than ' + r.port.label + ', an injector, or a separate supply.');
+        if (r.tooBig) tips.push('Over 71.3 W needs a separate power supply (often 24 VAC).');
+        if (tips.length) flags += '<p class="sub" style="margin:8px 0 0">' + tips.join(' ') + '</p>';
+        $('pe-flag').innerHTML = flags;
+        $('pe-totals').innerHTML = '<span>Cameras ' + f(r.deviceW, 1) + ' W</span><span>At the ports ' + f(r.portW, 1) + ' W</span>';
+        $('pe-rows').innerHTML = r.rows.map(function (row, i) {
+          var d = P.devices[i];
+          return '<tr><td style="white-space:normal">' + esc(d.name || 'Camera') + (Number(d.qty) !== 1 ? ' × ' + esc(d.qty) : '') + '</td><td>' + f(row.watts, 1) + '</td>' +
+            '<td class="' + (row.portOk ? 'ok' : 'bad') + '">' + (row.cls ? row.cls + ' (' + row.std + ')' : 'Over Class 8') + '</td>' +
+            '<td>' + (row.portW !== null ? f(row.portW, 1) : '–') + '</td></tr>';
+        }).join('');
+        $('pe-math').textContent =
+          'Port W   ' + (r.mode === 'class' ? 'class port watts per camera' : 'camera W × port W ÷ device W') + '\n' +
+          'Total    sum of qty × port W     = ' + f(r.portW, 1) + ' W\n' +
+          'Plan to  ' + f(r.budgetW, 0) + ' W × ' + C.POE_LOAD_LIMIT + '            = ' + f(r.limitW, 1) + ' W\n' +
+          'Budget   ' + f(r.portW, 1) + ' ÷ ' + C.POE_LOAD_LIMIT + ' = ' + f(r.minBudgetW, 1) + ' W needed → ' + (r.overBudget ? 'too small' : 'OK');
+      } catch (err) {
+        $('pe-w').textContent = '–'; $('pe-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('pe-flag').innerHTML = ''; $('pe-math').textContent = ''; $('pe-totals').innerHTML = ''; $('pe-rows').innerHTML = '';
+      }
+    }
+    render(); calc();
+  }
+
+  /* ---------- video storage (cctv) ---------- */
+  function storageCalc($) {
+    var P = S.st, DEF = DEFAULTS.st;
+    var isExample = function () { return JSON.stringify(P) === JSON.stringify(DEF); };
+    $('st-raid').innerHTML = Object.keys(C.RAID).map(function (k) { return '<option value="' + k + '">' + esc(C.RAID[k].label) + '</option>'; }).join('');
+    ['hours', 'pct', 'days', 'drive', 'raid'].forEach(function (k) {
+      var el = $('st-' + k); el.value = P[k];
+      el.addEventListener('input', function () { P[k] = el.value; calc(); });
+    });
+    var render = rowList($, { box: 'st-groups', add: 'st-add', key: 'mbps', nameLabel: 'Cameras', valLabel: 'Mbps each', list: function () { return P.groups; }, calc: function () { calc(); } });
+    $('st-reset').addEventListener('click', function () {
+      S.st = P = JSON.parse(JSON.stringify(DEF));
+      ['hours', 'pct', 'days', 'drive', 'raid'].forEach(function (k) { $('st-' + k).value = P[k]; });
+      render(); calc();
+    });
+    function calc() {
+      save();
+      $('st-example').hidden = !isExample();
+      $('st-reset').hidden = isExample();
+      try {
+        ['hours', 'pct', 'days'].forEach(function (k) { if (P[k] === '') throw new Error('Fill in the recording fields'); });
+        var groups = P.groups.map(function (g) { return { qty: g.qty || 0, mbps: g.mbps || 0 }; });
+        var r = C.storage(groups, P.hours, P.pct, P.days, P.drive, P.raid);
+        $('st-tb').innerHTML = f(r.requiredTb, 1) + '<small>TB</small>';
+        $('st-sub').textContent = f(r.tb, 2) + ' TB before headroom · ' + f(r.gbPerDay, 1) + ' GB per day · ' + f(r.mbps, 1) + ' Mbps in';
+        $('st-flag').innerHTML = r.drives ? '<span class="pill ok">' + r.drives + ' × ' + f(r.driveTb, 0) + ' TB, ' + esc(C.RAID[r.raid].label) + '</span><p class="sub" style="margin:8px 0 0">' + f(r.usableTb, 0) + ' TB usable. Check the recorder has ' + r.drives + ' bays and takes ' + f(r.driveTb, 0) + ' TB drives, and that its incoming bandwidth is over ' + f(r.mbps, 0) + ' Mbps.</p>' : '';
+        $('st-totals').innerHTML = '<span>Total ' + f(r.mbps, 1) + ' Mbps</span>';
+        $('st-math').textContent =
+          'Per day  ' + f(r.mbps, 1) + ' Mbps × 3600 × ' + P.hours + ' h × ' + P.pct + '% ÷ 8 ÷ 1000 = ' + f(r.gbPerDay, 1) + ' GB\n' +
+          'Keep     ' + f(r.gbPerDay, 1) + ' GB × ' + P.days + ' days ÷ 1000   = ' + f(r.tb, 2) + ' TB\n' +
+          'Headroom × ' + r.margin + '                        = ' + f(r.requiredTb, 2) + ' TB' +
+          (r.drives ? '\nDrives   ' + r.drives + ' × ' + f(r.driveTb, 0) + ' TB ' + C.RAID[r.raid].label + ' = ' + f(r.usableTb, 0) + ' TB usable' : '');
+      } catch (err) {
+        $('st-tb').textContent = '–'; $('st-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('st-flag').innerHTML = ''; $('st-math').textContent = ''; $('st-totals').innerHTML = '';
+      }
+    }
+    render(); calc();
+  }
+
+  /* ---------- field of view (cctv) ---------- */
+  function fov($) {
+    var P = S.fv;
+    var isExample = function () { return JSON.stringify(P) === JSON.stringify(DEFAULTS.fv); };
+    ['px', 'mode', 'hfov', 'focal', 'sensor', 'dist'].forEach(function (k) {
+      var el = $('fv-' + k); el.value = P[k];
+      el.addEventListener('input', function () { P[k] = el.value; calc(); });
+    });
+    function calc() {
+      save();
+      $('fv-example').hidden = !isExample();
+      var focal = P.mode === 'focal';
+      $('fv-hfov-l').hidden = focal; $('fv-focal-l').hidden = !focal; $('fv-sensor-l').hidden = !focal;
+      try {
+        var need = focal ? ['px', 'focal', 'sensor', 'dist'] : ['px', 'hfov', 'dist'];
+        need.forEach(function (k) { if (P[k] === '') throw new Error('Fill in every field'); });
+        var hfov = focal ? C.hfovFromFocal(P.focal, P.sensor) : Number(P.hfov);
+        var r = C.fieldOfView(P.px, hfov, P.dist);
+        $('fv-ppf').innerHTML = (isFinite(r.ppf) ? f(r.ppf, 0) : '–') + '<small>px/ft</small>';
+        $('fv-sub').textContent = 'Scene ' + f(r.widthFt, 1) + ' ft wide at ' + P.dist + ' ft · ' + f(r.ppm, 0) + ' px/m · HFOV ' + f(r.hfov, 1) + '°';
+        $('fv-flag').innerHTML = r.level ? '<span class="pill ' + (r.level.id === 'identify' ? 'ok' : 'warn') + '">' + r.level.label + '</span>' : '<span class="pill bad">Below detect</span>';
+        $('fv-rows').innerHTML = r.levels.map(function (L) {
+          return '<tr' + (r.level && L.id === r.level.id ? ' class="pick"' : '') + '><td>' + L.label + '</td><td>' + f(L.ppf, 0) + ' px/ft</td>' +
+            '<td class="' + (L.ok ? 'ok' : 'bad') + '">' + (L.ok ? 'Yes' : 'No') + '</td><td>' + f(L.maxFt, 0) + ' ft</td></tr>';
+        }).join('');
+        $('fv-math').textContent =
+          (focal ? 'HFOV   2 × atan(' + P.sensor + ' ÷ (2 × ' + P.focal + ')) = ' + f(r.hfov, 1) + '°\n' : '') +
+          'Width  2 × ' + P.dist + ' ft × tan(' + f(r.hfov / 2, 1) + '°) = ' + f(r.widthFt, 2) + ' ft\n' +
+          'px/ft  ' + P.px + ' ÷ ' + f(r.widthFt, 2) + ' ft      = ' + f(r.ppf, 1) + '\n' +
+          'px/m   ' + f(r.ppf, 1) + ' × 3.281        = ' + f(r.ppm, 0);
+      } catch (err) {
+        $('fv-ppf').textContent = '–'; $('fv-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('fv-flag').innerHTML = ''; $('fv-math').textContent = ''; $('fv-rows').innerHTML = '';
       }
     }
     calc();

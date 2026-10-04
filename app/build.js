@@ -19,7 +19,7 @@ const verify = require('./verify-sheet.js');
 const APP = __dirname;
 const CONTENT = path.join(APP, '..', 'content');
 
-// One entry per system pack. CCTV gets added here when its content exists.
+// One entry per system pack.
 // draft: true keeps a pack off the live site (it shows as coming soon) until its verify sheet
 // is signed off; it only appears in a --drafts preview. A non-draft pack with [VERIFY] tags fails the build.
 const PACKS = [
@@ -37,12 +37,15 @@ const PACKS = [
     id: 'access', name: 'Access control', blurb: 'Card readers, locks, door hardware, and egress rules',
     calculators: ['lockpsu', 'reader', 'drop', 'gauge'],
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
+  },
+  {
+    id: 'cctv', name: 'CCTV', blurb: 'Cameras, recorders, and network video', draft: true,
+    calculators: ['fov', 'poe', 'storage', 'drop', 'gauge'],
+    training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   }
 ];
 // Shown in the system switcher as coming soon (draft packs are added to this list on the live site).
-const UPCOMING = [
-  { id: 'cctv', name: 'CCTV', blurb: 'Cameras, recorders, and network video' }
-];
+const UPCOMING = [];
 const WITH_DRAFTS = process.argv.includes('--drafts');
 
 /* ---------------- Markdown (the subset the content uses) ---------------- */
@@ -57,9 +60,9 @@ function makeRenderer(ctx) {
       .replace(/\b(Guides?) (\d{1,2})\b/g, (m, w, n) => `<a href="${p}/troubleshoot/${n}">${w} ${n}</a>`)
       .replace(/\bLesson (\d)\.(\d)\b/g, (m, a, b) => ctx.lessons.has(a + '.' + b) ? `<a href="${p}/learn/${a}/${a}.${b}">Lesson ${a}.${b}</a>` : m)
       .replace(/\bModule (\d)\b(?!\.\d)/g, (m, n) => ctx.modules.has(Number(n)) ? `<a href="${p}/learn/${n}">Module ${n}</a>` : m)
-      .replace(/\b(NAC Voltage Drop|Fire Battery|Battery Standby|Voltage Drop|Wire Gauge|Access Power|Reader Cable) calculator\b/gi, (m, n) => {
+      .replace(/\b(NAC Voltage Drop|Fire Battery|Battery Standby|Voltage Drop|Wire Gauge|Access Power|Reader Cable|PoE Budget|Storage|Field of View) calculator\b/gi, (m, n) => {
         const id = { 'nac voltage drop': 'nac', 'fire battery': 'firebatt', 'battery standby': 'battery', 'voltage drop': 'drop', 'wire gauge': 'gauge',
-          'access power': 'lockpsu', 'reader cable': 'reader' }[n.toLowerCase()];
+          'access power': 'lockpsu', 'reader cable': 'reader', 'poe budget': 'poe', 'storage': 'storage', 'field of view': 'fov' }[n.toLowerCase()];
         return `<a href="${p}/calculators/${id}">${m}</a>`;
       })
       .replace(/Reference: <em>([^<]+)<\/em>/g, (m, t) => {
