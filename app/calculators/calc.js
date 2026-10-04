@@ -1,7 +1,9 @@
 /*
- * Security Low Voltage App: calculator math (v1, intrusion).
- * Pure functions, no DOM. Values come from content/intrusion/reference.md,
- * signed off by David on 2026-10-04. Change values there first, then here.
+ * Security Low Voltage App: calculator math.
+ * Pure functions, no DOM. Intrusion values come from content/intrusion/reference.md,
+ * signed off by David on 2026-10-04. Fire values come from content/fire/reference.md
+ * and are pending David's sign-off (content/fire/VERIFY-SHEET.md).
+ * Change values in the content first, then here.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -20,6 +22,16 @@
     { id: 'com', label: 'UL commercial / certificated burglary', hours: 24 }
   ];
 
+  // Fire alarm (NFPA 72 based; pending sign-off: fire verify items batt-*, nac-*).
+  var FIRE_BATTERY_SIZES_AH = [7, 12, 18, 26, 33, 40, 55, 100];
+  var FIRE_STANDBY_PRESETS = [
+    { id: 'hs', label: 'Horn/strobe', hours: 24, alarm: 5 },
+    { id: 'voice', label: 'Voice evacuation', hours: 24, alarm: 15 }
+  ];
+  var FIRE_GAUGES = [18, 16, 14, 12];
+  var NAC_START_V = 20.4;   // battery at end of standby (85% of 24 V)
+  var NAC_MIN_V = 16;       // regulated 24 VDC appliance minimum
+
   function num(x, name) {
     var n = Number(x);
     if (!isFinite(n) || n < 0) throw new Error(name + ' must be a number of 0 or more');
@@ -28,9 +40,12 @@
 
   /**
    * devices: [{ qty, standbyMa, alarmMa }]
-   * Returns totals in amps, required Ah (with 1.2 safety factor), and the next standard size.
+   * Returns totals in amps, required Ah (with the safety factor), and the next standard size.
+   * opts: { sizes, factor } to override the intrusion battery sizes and 1.2 factor.
    */
-  function batteryStandby(devices, standbyHours, alarmMinutes) {
+  function batteryStandby(devices, standbyHours, alarmMinutes, opts) {
+    var sizes = (opts && opts.sizes) || BATTERY_SIZES_AH;
+    var factor = (opts && opts.factor) || SAFETY_FACTOR;
     var sbMa = 0, alMa = 0;
     (devices || []).forEach(function (d) {
       var q = num(d.qty, 'Quantity');
@@ -43,17 +58,22 @@
     var standbyAh = standbyA * h;
     var alarmAh = alarmA * alarmHours;
     var baseAh = standbyAh + alarmAh;
-    var requiredAh = baseAh * SAFETY_FACTOR;
+    var requiredAh = baseAh * factor;
     var battery = null;
-    for (var i = 0; i < BATTERY_SIZES_AH.length; i++) {
-      if (BATTERY_SIZES_AH[i] >= requiredAh - 1e-9) { battery = BATTERY_SIZES_AH[i]; break; }
+    for (var i = 0; i < sizes.length; i++) {
+      if (sizes[i] >= requiredAh - 1e-9) { battery = sizes[i]; break; }
     }
     return {
       standbyA: standbyA, alarmA: alarmA, standbyHours: h, alarmHours: alarmHours,
       standbyAh: standbyAh, alarmAh: alarmAh, baseAh: baseAh, requiredAh: requiredAh,
       battery: battery, // null when more than the largest common size
-      largestCommon: BATTERY_SIZES_AH[BATTERY_SIZES_AH.length - 1]
+      largestCommon: sizes[sizes.length - 1], factor: factor
     };
+  }
+
+  /** Fire alarm battery: same math with fire battery sizes and the 20% margin. */
+  function fireBattery(devices, standbyHours, alarmMinutes) {
+    return batteryStandby(devices, standbyHours, alarmMinutes, { sizes: FIRE_BATTERY_SIZES_AH, factor: SAFETY_FACTOR });
   }
 
   function ohmsPerFt(gauge) {
@@ -105,7 +125,29 @@
     return { allowedV: allowedV, gauge: pick, rows: rows };
   }
 
+  /**
+   * NAC voltage drop, all appliance current lumped at the far end (the conservative method).
+   * appliances: [{ qty, ma }] current per appliance in mA, ideally at its minimum operating voltage.
+   */
+  function nacDrop(appliances, gauge, oneWayFt, sourceV, minV, ratingA) {
+    var ma = 0;
+    (appliances || []).forEach(function (a) { ma += num(a.qty, 'Quantity') * num(a.ma, 'Appliance current'); });
+    var I = ma / 1000;
+    var vd = voltageDrop(I, gauge, oneWayFt, sourceV, minV);
+    vd.currentA = I;
+    if (ratingA !== undefined && ratingA !== null && ratingA !== '') {
+      vd.ratingA = num(ratingA, 'NAC rating');
+      vd.overRating = I > vd.ratingA + 1e-9;
+    }
+    var Vs = num(sourceV, 'Source voltage'), Vmin = num(minV, 'Appliance minimum voltage');
+    vd.maxRunFt = Vs > Vmin ? maxRunFt(I, gauge, Vs - Vmin) : 0;
+    return vd;
+  }
+
   return {
+    FIRE_BATTERY_SIZES_AH: FIRE_BATTERY_SIZES_AH, FIRE_STANDBY_PRESETS: FIRE_STANDBY_PRESETS,
+    FIRE_GAUGES: FIRE_GAUGES, NAC_START_V: NAC_START_V, NAC_MIN_V: NAC_MIN_V,
+    fireBattery: fireBattery, nacDrop: nacDrop,
     WIRE_OHMS_PER_FT: WIRE_OHMS_PER_FT, GAUGES: GAUGES, BATTERY_SIZES_AH: BATTERY_SIZES_AH,
     SAFETY_FACTOR: SAFETY_FACTOR, STANDBY_PRESETS: STANDBY_PRESETS,
     batteryStandby: batteryStandby, voltageDrop: voltageDrop, maxRunFt: maxRunFt, wireGauge: wireGauge

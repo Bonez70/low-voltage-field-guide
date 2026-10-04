@@ -4,6 +4,8 @@
  *
  *   node build.js                       rebuild packs/*.js and sw.js from content/
  *   node build.js --preview out.html    also write a single-file preview (no service worker)
+ *   node build.js --drafts --preview out.html
+ *                                       preview that also includes draft packs (never published)
  *
  * Content stays as Markdown in ../content/<pack>/ so it can be read and corrected
  * without touching code. Run this after any content change, then publish the app folder.
@@ -12,24 +14,32 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const verify = require('./verify-sheet.js');
 
 const APP = __dirname;
 const CONTENT = path.join(APP, '..', 'content');
 
-// One entry per system pack. Fire, Access and CCTV get added here when their content exists.
+// One entry per system pack. Access and CCTV get added here when their content exists.
+// draft: true keeps a pack off the live site (it shows as coming soon) until its verify sheet
+// is signed off; it only appears in a --drafts preview. A non-draft pack with [VERIFY] tags fails the build.
 const PACKS = [
   {
     id: 'intrusion', name: 'Intrusion', blurb: 'Burglary alarm, residential to small commercial',
     calculators: ['battery', 'drop', 'gauge'],
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
+  },
+  {
+    id: 'fire', name: 'Fire alarm', blurb: 'Fire alarm, NFPA 72 based, small to mid-size commercial', draft: true,
+    calculators: ['firebatt', 'nac', 'gauge'],
+    training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   }
 ];
-// Shown in the system switcher as coming soon.
+// Shown in the system switcher as coming soon (draft packs are added to this list on the live site).
 const UPCOMING = [
-  { id: 'fire', name: 'Fire alarm' },
   { id: 'access', name: 'Access control' },
   { id: 'cctv', name: 'CCTV' }
 ];
+const WITH_DRAFTS = process.argv.includes('--drafts');
 
 /* ---------------- Markdown (the subset the content uses) ---------------- */
 
@@ -43,8 +53,8 @@ function makeRenderer(ctx) {
       .replace(/\b(Guides?) (\d{1,2})\b/g, (m, w, n) => `<a href="${p}/troubleshoot/${n}">${w} ${n}</a>`)
       .replace(/\bLesson (\d)\.(\d)\b/g, (m, a, b) => ctx.lessons.has(a + '.' + b) ? `<a href="${p}/learn/${a}/${a}.${b}">Lesson ${a}.${b}</a>` : m)
       .replace(/\bModule (\d)\b(?!\.\d)/g, (m, n) => ctx.modules.has(Number(n)) ? `<a href="${p}/learn/${n}">Module ${n}</a>` : m)
-      .replace(/\b(Battery Standby|Voltage Drop|Wire Gauge) calculator\b/gi, (m, n) => {
-        const id = { 'battery standby': 'battery', 'voltage drop': 'drop', 'wire gauge': 'gauge' }[n.toLowerCase()];
+      .replace(/\b(NAC Voltage Drop|Fire Battery|Battery Standby|Voltage Drop|Wire Gauge) calculator\b/gi, (m, n) => {
+        const id = { 'nac voltage drop': 'nac', 'fire battery': 'firebatt', 'battery standby': 'battery', 'voltage drop': 'drop', 'wire gauge': 'gauge' }[n.toLowerCase()];
         return `<a href="${p}/calculators/${id}">${m}</a>`;
       })
       .replace(/Reference: <em>([^<]+)<\/em>/g, (m, t) => {
@@ -60,6 +70,7 @@ function makeRenderer(ctx) {
       .replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?!\w)/g, '$1<em>$2</em>')
       .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => /^https?:/.test(u) ? `<a href="${u}" target="_blank" rel="noopener">${t}</a>` : t);
     s = crossLinks(s);
+    s = s.replace(/\[VERIFY:([a-z0-9-]+)\]/g, (m, k) => `<mark class="verify" title="Waiting on sign-off">Verify #${ctx.verify[k] || '?'}</mark>`);
     return s.replace(/\u0000(\d+)\u0000/g, (m, i) => '<code>' + codes[i] + '</code>');
   }
 
@@ -144,7 +155,7 @@ function makeRenderer(ctx) {
 }
 
 function plain(md) {
-  return md.replace(/```[\s\S]*?```/g, ' ').replace(/[*`>#|]/g, ' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+  return md.replace(/```[\s\S]*?```/g, ' ').replace(/\[VERIFY:[a-z0-9-]+\]/g, ' ').replace(/[*`>#|]/g, ' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/-{3,}/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
@@ -178,8 +189,11 @@ function buildPack(cfg) {
   const modSrc = modFiles.map(f => splitH2(read(path.join(cfg.training, f))));
   const refSrc = splitH2(read(cfg.reference));
   const tsSrc = splitH2(read(cfg.troubleshooting));
+  const vc = verify.check(cfg.id);
+  if (!cfg.draft && vc.count) throw new Error(`${cfg.id}: ${vc.count} [VERIFY] tags still in the content. Get them signed off, or mark the pack draft.`);
+  if (vc.unknown.length) throw new Error(`${cfg.id}: [VERIFY] tags with no entry in verify-items.md: ${vc.unknown.join(', ')}`);
   const ctx = {
-    pack: cfg.id,
+    pack: cfg.id, verify: verify.numbers(cfg.id),
     modules: new Set(modSrc.map(m => Number((m.title.match(/Module (\d+)/) || [])[1]))),
     lessons: new Set(),
     cards: refSrc.sections.map(s => ({ id: slug(s.heading), title: s.heading.replace(/^Card:\s*/, '') }))
@@ -247,8 +261,16 @@ function buildPack(cfg) {
     return { num: Number(gm[1]), title: gm[2], symptomHtml: sym ? R.inline(sym[1].charAt(0).toUpperCase() + sym[1].slice(1)) : '', html: R.render(body) };
   });
 
+  if (cfg.draft) {
+    // Every page of a draft pack says so.
+    const note = `<p class="draft-note"><strong>Draft for review.</strong> Values marked Verify # are waiting on sign-off (${vc.items.length} items).</p>`;
+    modules.forEach(m => { m.introHtml = note + m.introHtml; m.lessons.forEach(l => { l.html = note + l.html; }); });
+    cards.forEach(c => { c.html = note + c.html; });
+    guides.forEach(g => { g.html = note + g.html; });
+  }
   return {
-    id: cfg.id, name: cfg.name, blurb: cfg.blurb, calculators: cfg.calculators, openTips,
+    id: cfg.id, name: cfg.name, blurb: cfg.blurb, calculators: cfg.calculators, openTips, draft: !!cfg.draft,
+    verifyOpen: vc.count ? vc.items.length : 0,
     learn: { modules },
     reference: { introHtml: R.render(refSrc.head), cards },
     troubleshoot: { introHtml: R.render(tsSrc.head), guides },
@@ -259,7 +281,10 @@ function buildPack(cfg) {
 /* ---------------- Write outputs ---------------- */
 
 fs.mkdirSync(path.join(APP, 'packs'), { recursive: true });
-const built = PACKS.map(buildPack);
+const all = PACKS.map(buildPack);
+const built = all.filter(p => !p.draft);
+const drafts = all.filter(p => p.draft);
+const liveUpcoming = drafts.map(p => ({ id: p.id, name: p.name })).concat(UPCOMING);
 const packFiles = [];
 built.forEach(p => {
   const f = `packs/${p.id}.js`;
@@ -269,7 +294,7 @@ built.forEach(p => {
   packFiles.push(f);
 });
 fs.writeFileSync(path.join(APP, 'packs/index.js'),
-  '/* Generated by build.js. */\nwindow.SLV_UPCOMING = ' + JSON.stringify(UPCOMING) + ';\n');
+  '/* Generated by build.js. */\nwindow.SLV_UPCOMING = ' + JSON.stringify(liveUpcoming) + ';\n');
 packFiles.unshift('packs/index.js');
 
 // Service worker: precache the whole app; the version is a hash of every file so any change ships an update.
@@ -283,8 +308,9 @@ fs.writeFileSync(path.join(APP, 'sw.js'),
   '/* Generated by build.js from sw.template.js. */\n' +
   swTpl.replace('__VERSION__', version).replace('__FILES__', JSON.stringify(SHELL, null, 2)));
 
-console.log('Built ' + built.map(p => `${p.id}: ${p.learn.modules.length} modules, ${p.learn.modules.reduce((n, m) => n + m.lessons.length, 0)} lessons, ` +
-  `${p.reference.cards.length} cards, ${p.troubleshoot.guides.length} guides, ${p.openTips} field tips open`).join('; ') + '. Cache version ' + version + '.');
+console.log('Built ' + all.map(p => (p.draft ? '[draft, not published] ' : '') + `${p.id}: ${p.learn.modules.length} modules, ${p.learn.modules.reduce((n, m) => n + m.lessons.length, 0)} lessons, ` +
+  `${p.reference.cards.length} cards, ${p.troubleshoot.guides.length} guides, ${p.openTips} field tips open` +
+  (p.verifyOpen ? `, ${p.verifyOpen} verify items open` : '')).join('; ') + '. Cache version ' + version + '.');
 
 // Single-file preview: same app, everything inline, no service worker or manifest.
 const pi = process.argv.indexOf('--preview');
@@ -297,7 +323,12 @@ if (pi > 0) {
     .replace(/<link rel="(manifest|apple-touch-icon|icon)"[^>]*>\s*/g, '')
     .replace(/<link rel="stylesheet" href="app.css">/, '<style>\n' + fs.readFileSync(path.join(APP, 'app.css'), 'utf8') + '\n</style>');
   let body = html.match(/<body[^>]*>([\s\S]*?)<\/body>/)[1];
-  body = body.replace(/<script src="([^"]+)"><\/script>/g, (m, f) => inlineJs(f));
+  body = body.replace(/<script src="([^"]+)"><\/script>/g, (m, f) => {
+    if (f !== 'packs/index.js' || !WITH_DRAFTS) return inlineJs(f);
+    // Preview with drafts: draft packs load as real packs instead of "coming soon".
+    return '<script>\nwindow.SLV_UPCOMING = ' + JSON.stringify(UPCOMING) + ';\n' +
+      drafts.map(p => '(window.SLV_PACKS = window.SLV_PACKS || []).push(' + JSON.stringify(p).replace(/<\/script/gi, '<\\/script') + ');').join('\n') + '\n</script>';
+  });
   fs.writeFileSync(out, head.trim() + '\n' + body.trim() + '\n');
   console.log('Preview written to ' + out);
 }

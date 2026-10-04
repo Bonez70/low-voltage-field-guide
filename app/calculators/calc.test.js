@@ -56,4 +56,35 @@ t('wire gauge: none works', () => {
   assert.strictEqual(r.gauge, null);
 });
 t('max run', () => near(C.maxRunFt(0.5, 18, 1.2), 1.2 / (2 * 0.5 * 0.00639)));
+t('fire battery: 24 h + 5 min with 20% margin', () => {
+  // 190.6 mA standby x 24 h = 4.5744 Ah; 1510.6 mA x 5/60 h = 0.12588 Ah; x 1.2 = 5.6403 Ah -> 7 Ah
+  const r = C.fireBattery([
+    { qty: 1, standbyMa: 180, alarmMa: 300 },
+    { qty: 30, standbyMa: 0.3, alarmMa: 0.3 },
+    { qty: 4, standbyMa: 0.4, alarmMa: 0.4 },
+    { qty: 10, standbyMa: 0, alarmMa: 60 },
+    { qty: 4, standbyMa: 0, alarmMa: 150 }
+  ], 24, 5);
+  near(r.requiredAh, (0.1906 * 24 + 1.5106 * 5 / 60) * 1.2);
+  assert.strictEqual(r.battery, 7);
+});
+t('fire battery: uses fire sizes above 18 Ah', () => {
+  const r = C.fireBattery([{ qty: 1, standbyMa: 700, alarmMa: 4000 }], 24, 15); // (16.8 + 1) * 1.2 = 21.36
+  near(r.requiredAh, 21.36); assert.strictEqual(r.battery, 26);
+  assert.strictEqual(C.fireBattery([{ qty: 1, standbyMa: 5000, alarmMa: 0 }], 24, 0).battery, null);
+});
+t('intrusion battery unchanged by fire options', () => {
+  assert.strictEqual(C.batteryStandby([{ qty: 1, standbyMa: 1000, alarmMa: 0 }], 24, 0).battery, null);
+});
+t('NAC drop: lumped load at the end', () => {
+  // 1160 mA, 14 AWG, 250 ft: 2*250*1.16*0.00253 = 1.4674 V; 20.4 - 1.4674 = 18.9326 V
+  const r = C.nacDrop([{ qty: 6, ma: 75 }, { qty: 3, ma: 160 }, { qty: 1, ma: 230 }], 14, 250, 20.4, 16, 2);
+  near(r.currentA, 1.16); near(r.drop, 1.4674); near(r.endV, 18.9326);
+  assert.strictEqual(r.pass, true); assert.strictEqual(r.overRating, false);
+  near(r.maxRunFt, 4.4 / (2 * 1.16 * 0.00253), 0.01);
+});
+t('NAC drop: fails and over rating', () => {
+  const r = C.nacDrop([{ qty: 20, ma: 150 }], 18, 300, 20.4, 16, 2.5); // 3 A; 2*300*3*0.00639 = 11.502 V
+  near(r.drop, 11.502); assert.strictEqual(r.pass, false); assert.strictEqual(r.overRating, true);
+});
 console.log(`${n} tests passed`);
