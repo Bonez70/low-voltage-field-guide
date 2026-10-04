@@ -439,7 +439,7 @@
 
   if ('serviceWorker' in navigator && !embedded && /^(https:|http:\/\/localhost|http:\/\/127\.)/.test(location.href)) {
     var hadController = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.register('sw.js').then(function () {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function () {
       if (!hadController) navigator.serviceWorker.ready.then(function () { toast('Saved for offline use.'); });
     }).catch(function () {});
     navigator.serviceWorker.addEventListener('controllerchange', function () {
