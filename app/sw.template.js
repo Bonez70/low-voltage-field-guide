@@ -1,6 +1,7 @@
 /*
  * Offline support. build.js fills in the version and file list and writes sw.js.
- * App files: served from cache first, so the app opens with no signal.
+ * App files: served from cache first, so the app opens with no signal. They are fetched with
+ * cache: 'reload' so a new version never copies stale files out of the browser's HTTP cache.
  * Fonts: cached the first time they load; the app falls back to system fonts before that.
  */
 'use strict';
@@ -9,7 +10,7 @@ var CACHE = 'slv-' + VERSION;
 var FILES = __FILES__;
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES.map(function (f) { return new Request(f, { cache: 'reload' }); })); }).then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener('activate', function (e) {
