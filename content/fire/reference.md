@@ -18,9 +18,9 @@ Priority: alarm, then supervisory, then trouble. Alarm and supervisory latch unt
 
 ## Card: Before you test
 
-1. Monitoring center: account **on test**, get operator name, note the time window. [VERIFY:safety-notify]
-2. Building: owner, manager, or engineer notified; occupants told if appliances will sound. [VERIFY:safety-notify]
-3. **Disable releasing circuits** (suppression) and any output you don't want to run: elevator recall, HVAC shutdown, door unlock. [VERIFY:safety-releasing]
+1. Call the monitoring center and put the account **on test**. Get the operator's name. [SRC:safety-notify]
+2. Notify the owner or building contact, plus occupants if appliances will sound. Some jurisdictions also require notifying the fire department. [SRC:safety-notify]
+3. **Disable releasing circuits** (suppression) and any output you don't want to run: elevator recall, HVAC shutdown, door unlock. [SRC:safety-releasing]
 4. Coordinate with sprinkler, elevator, and HVAC trades if their equipment is part of the test.
 5. When finished: re-enable everything, reset, panel **normal with no troubles**, account **off test** with the operator.
 
@@ -41,9 +41,9 @@ Open = trouble, every device still works
 Class X = Class A + isolators, survives a short
 ```
 
-- No T-taps on conventional IDCs, NACs, or any Class A circuit. [VERIFY:no-ttaps]
-- T-taps on Class B addressable SLC only if the manufacturer allows. [VERIFY:no-ttaps]
-- Class A outgoing and return run in separate cables or raceways. [VERIFY:classa-separation]
+- No T-taps on conventional IDCs, NACs, or any Class A circuit. [SRC:no-ttaps]
+- T-taps on Class B addressable SLC only if the manufacturer allows. [SRC:no-ttaps]
+- Class A outgoing and return never in the same cable or raceway, except limited short runs such as drops to a device or into the panel. [SRC:classa-separation]
 
 ---
 
@@ -59,7 +59,7 @@ Circuit **disconnected** from the panel, panel and account on test.
 | ≈ 0 Ω both directions | Short, or a device in alarm | Short |
 | Any reading to earth ground | Ground fault | Ground fault |
 
-**No megohmmeter with devices or the panel connected.** [VERIFY:safety-megger]
+**No megohmmeter with devices or the panel connected.** [SRC:safety-megger]
 
 ---
 
@@ -72,16 +72,16 @@ Smooth flat ceiling, spot-type. Follow the drawings for beams, slopes, and high 
 - Ceiling, or sidewall with the top of detector within 12 in of the ceiling [VERIFY:smoke-mount]
 - Household smoke alarms: 4 in from the wall on the ceiling, or 4 to 12 in down on the wall [VERIFY:smoke-mount]
 - At least 3 ft from supply diffusers and return openings [VERIFY:smoke-hvac]
-- Not in kitchens, showers, garages, dusty or outside listed temperature (commonly 32 to 100 °F) [VERIFY:smoke-environment]
+- Not in kitchens, showers, garages, dusty spaces, or outside the listed range (commonly 32 to 100 °F, up to 93% humidity) [SRC:smoke-environment]
 - Dust covers during construction; remove every one before service [VERIFY:construction-dust]
 
 ---
 
 ## Card: Heat detector quick rules
 
-- Rating at least 20 °F above the hottest normal ceiling temperature [VERIFY:heat-ambient]
-- Common ratings: 135 °F ordinary, 194 °F hot spaces [VERIFY:heat-types]
-- Rate-of-rise: commonly about 15 °F per minute [VERIFY:heat-types]
+- Rating at least 20 °F above the hottest normal ceiling temperature [SRC:heat-ambient]
+- Common ratings: 135 °F ordinary, 194 °F hot spaces [SRC:heat-types]
+- Rate-of-rise: commonly about 15 °F per minute [SRC:heat-types]
 - Use the **listed spacing**; reduce it above about 10 ft ceilings [VERIFY:heat-spacing]
 - Every point within 0.7 × listed spacing [VERIFY:heat-spacing]
 - Non-restorable heads can't be heat tested
@@ -92,18 +92,18 @@ Smooth flat ceiling, spot-type. Follow the drawings for beams, slopes, and high 
 ## Card: Pull stations, waterflow, tamper
 
 **Pull stations**
-- Within 5 ft of each exit doorway, each floor [VERIFY:pull]
-- Operable part 42 to 48 in above the floor [VERIFY:pull]
-- No more than 200 ft travel to the nearest one [VERIFY:pull]
+- Within 5 ft of each exit doorway, each floor [SRC:pull]
+- Operable part 42 to 48 in above the floor [SRC:pull]
+- No more than 200 ft travel to the nearest one [SRC:pull]
 
 **Waterflow (alarm)**
-- Signal within 90 s of flow equal to one sprinkler [VERIFY:waterflow-90s]
+- Signal within 90 s of flow equal to one sprinkler [SRC:waterflow-90s]
 - Test through the inspector's test valve
 
 **Tamper / valve supervisory (supervisory)**
-- Signal within 2 turns of the handwheel or 1/5 of valve travel [VERIFY:tamper-travel]
-- Restore only when fully open [VERIFY:tamper-travel]
-- Never on the same zone as waterflow [VERIFY:tamper-separate]
+- Signal within 2 turns of the handwheel or 1/5 of valve travel [SRC:tamper-travel]
+- Restore only when fully open [SRC:tamper-travel]
+- Never on the same zone as waterflow [SRC:tamper-separate]
 
 ---
 
@@ -215,7 +215,7 @@ Use the NAC Voltage Drop calculator.
 | FPLP | Plenum (anywhere) |
 | CI | Circuit integrity, survivability |
 
-- Identify fire alarm circuits at terminal and junction locations (red covers are common) [VERIFY:nec-identify]
+- Identify fire alarm circuits at terminal and junction locations (red covers and cable are common; red itself isn't required) [SRC:nec-identify]
 - Keep separate from power and non-power-limited circuits
 - Support from structure, not ceiling grid wires
 - Wire size and length limits: panel manual

@@ -28,7 +28,7 @@ Many states require a **fire alarm license** for the company and the technician,
 | **NFPA 70** (National Electrical Code), **Article 760** | Fire alarm wiring: circuit types, cable ratings, separation |
 | **IBC / IFC** (International Building and Fire Codes) or **NFPA 101** (Life Safety Code) | *When* a fire alarm is required, and what kind, based on building use and size |
 | **NFPA 90A** | HVAC systems, including where duct smoke detectors are required |
-| **UL 864** | The listing standard for fire alarm control units [VERIFY:ul-listings] |
+| **UL 864** | The listing standard for fire alarm control units [SRC:ul-listings] |
 
 **The building code says whether you need a system. NFPA 72 says how to build it.**
 
@@ -56,7 +56,7 @@ Most of what you'll wire is **power-limited fire alarm (PLFA)** circuits: initia
 | **CI** (circuit integrity) | Survivability: keeps working for a rated time in a fire |
 
 Rules to remember:
-- **Fire alarm circuits are identified** at terminal and junction locations so nobody mistakes them for something else and cuts power to them. Red box covers and red cable are common ways to do this. [VERIFY:nec-identify]
+- **Fire alarm circuits are identified** at terminal and junction locations so nobody mistakes them for something else and cuts power to them. Red box covers and red cable are common ways to do this, but red itself isn't required. [SRC:nec-identify]
 - **Keep PLFA cables separated** from power, lighting, and non-power-limited circuits. Don't share a box or raceway with 120 V wiring.
 - **Use the jacket rating for the space.** Plenum spaces need FPLP (or cable in a raceway as allowed by the NEC and AHJ).
 - **Support the cable** from the building structure, not from ceiling grid wires or pipes.
@@ -67,9 +67,9 @@ Rules to remember:
 
 Working on a live fire system can trigger an evacuation, dispatch the fire department, shut down HVAC, recall elevators, release doors, or **discharge a suppression system**. Before you do anything that could cause a signal:
 
-1. **Call the monitoring center** and put the account on test for the time you need. Get the operator's name. [VERIFY:safety-notify]
-2. **Tell the building**: owner, manager, or engineer, and occupants if devices will sound. In some jurisdictions the fire department must be notified too. [VERIFY:safety-notify]
-3. **Disable outputs you don't want to operate** using the panel's disable or bypass functions, per the panel manual and the building's procedure: releasing circuits (clean agent, preaction, deluge), elevator recall, HVAC shutdown, door unlocking. **Never test with a releasing circuit armed** unless the test plan calls for a full discharge test with everyone involved. [VERIFY:safety-releasing]
+1. **Call the monitoring center** and put the account on test. Get the operator's name. [SRC:safety-notify]
+2. **Notify the owner or building contact**, plus occupants if appliances will sound. Some jurisdictions also require notifying the fire department. [SRC:safety-notify]
+3. **Disable outputs you don't want to operate** using the panel's disable or bypass functions, per the panel manual and the building's procedure: releasing circuits (clean agent, preaction, deluge), elevator recall, HVAC shutdown, door unlocking. **Never test with a releasing circuit armed** unless the test plan calls for a full discharge test with everyone involved. [SRC:safety-releasing]
 4. **When you're done**, re-enable everything you disabled, reset the panel, confirm it's normal with no troubles, and take the account off test with the monitoring center.
 
 Other hazards on fire jobs:

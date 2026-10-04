@@ -2,7 +2,7 @@
 
 One guide per common fire service call, for the Troubleshoot tab. Each guide is a step-by-step flowchart: do the step, then follow the result.
 
-**Every guide starts the same way:** put the account **on test** with the monitoring center, notify the building, and disable releasing circuits and any outputs you don't want to operate before you touch anything (Reference: *Before you test*). [VERIFY:safety-notify] [VERIFY:safety-releasing] When you're done, re-enable everything, reset, confirm the panel is normal, and take the account off test.
+**Every guide starts the same way:** put the account **on test** with the monitoring center, notify the building, and disable releasing circuits and any outputs you don't want to operate before you touch anything (Reference: *Before you test*). [SRC:safety-notify] [SRC:safety-releasing] When you're done, re-enable everything, reset, confirm the panel is normal, and take the account off test.
 
 ---
 
@@ -16,7 +16,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 4. With the circuit off the panel, meter each conductor to earth ground. Any reading → the fault is on that conductor.
 5. Split the circuit at an accessible midpoint and test each half. Repeat until you're down to one run or device.
 6. Look for: a staple or screw through the cable, wire pinched against a metal box or cover, water in an exterior or basement device, a damaged conduit fitting, or a shield drain wire touching the box.
-7. **No megohmmeter with devices connected.** [VERIFY:safety-megger]
+7. **No megohmmeter with devices connected.** [SRC:safety-megger]
 8. Repair, reconnect, confirm the trouble clears and the circuit works.
 
 > **Field tip (David to add):** the most common place you find a ground fault in a finished building.
@@ -34,7 +34,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 3. Find the EOL. Is it there and the right value? A missing or wrong EOL is common after another contractor's work.
 4. Go device by device from the panel: check each detector is seated in its base and each terminal is tight. On two-wire smokes, a detector removed from its base opens the circuit by design.
 5. Split the circuit at an accessible device and meter each half to find the break.
-6. Look for a T-tap. A branch someone added will leave part of the circuit unsupervised and may hide the real break. Rewire it as a single path. [VERIFY:no-ttaps]
+6. Look for a T-tap. A branch someone added will leave part of the circuit unsupervised and may hide the real break. Rewire it as a single path. [SRC:no-ttaps]
 7. Reconnect, confirm the trouble clears, and test the devices past where the break was.
 
 ---
@@ -90,7 +90,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 
 1. Pull the history: same device each time? Same time of day? (Cooking, cleaning, HVAC cycling, shift change, sprinkler testing.)
 2. **Addressable:** check the detector's sensitivity and dirty or maintenance alert on the panel. Dirty → clean per manufacturer or replace.
-3. Look at the environment: steam (showers, kitchens), dust (construction, warehouses), insects, exhaust, aerosol sprays, humidity, or temperature outside the listed range. [VERIFY:smoke-environment]
+3. Look at the environment: steam (showers, kitchens), dust (construction, warehouses), insects, exhaust, aerosol sprays, humidity, or temperature outside the listed range. [SRC:smoke-environment]
 4. Check the location: within 3 ft of a supply diffuser or return? Air drawing dust into it or blowing across it? [VERIFY:smoke-hvac]
 5. Construction dust? Clean or replace, and make sure dust covers are used next time. [VERIFY:construction-dust]
 6. Fix the cause: clean, replace, or relocate or change the detector type **with the designer's or AHJ's approval**. Don't change device types on your own.
@@ -105,7 +105,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 **Symptom:** supervisory signal on the panel that stays after a reset.
 
 1. Identify the device. Is it a valve tamper, duct detector, low air, fire pump, or other monitored input?
-2. **Valve tamper:** is the valve fully open? Coordinate with the building or sprinkler contractor; never open or close sprinkler valves yourself unless you're authorized. A partly closed valve won't restore. [VERIFY:tamper-travel]
+2. **Valve tamper:** is the valve fully open? Coordinate with the building or sprinkler contractor; never open or close sprinkler valves yourself unless you're authorized. A partly closed valve won't restore. [SRC:tamper-travel]
 3. Valve fully open but still supervisory → adjust or replace the switch; check that the switch's trip lever sits correctly on the valve.
 4. **Duct detector:** check the detector's LED and the remote test station. Dirty, in alarm, or in trouble? Check airflow across the sampling tubes. Reset at the detector if it latches locally. (Guide 10)
 5. **Wiring:** meter the circuit. A short on a supervisory input can read as an active supervisory.
@@ -117,11 +117,11 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 
 **Symptom:** waterflow alarm with no fire, or no alarm when water flows.
 
-1. **False waterflow alarms:** check for pressure surges (fire pump starting, city water pressure changes). Check the retard setting; it may be too short. Don't set it so long that it exceeds the 90-second requirement. [VERIFY:waterflow-90s]
+1. **False waterflow alarms:** check for pressure surges (fire pump starting, city water pressure changes). Check the retard setting; it may be too short. Don't set it so long that it exceeds the 90-second requirement. [SRC:waterflow-90s]
 2. Is water actually moving? A leak, a broken head, or an open drain will cause a real waterflow. Investigate before you call it false.
 3. Check the switch for corrosion, water in the electrical housing, or a damaged paddle.
 4. **No alarm on flow:** test with the inspector's test valve with the sprinkler contractor. Time it. No signal → check the switch contact with a meter while water flows, then the wiring and module or zone.
-5. Confirm the waterflow is not on the same zone as a tamper switch. [VERIFY:tamper-separate]
+5. Confirm the waterflow is not on the same zone as a tamper switch. [SRC:tamper-separate]
 
 ---
 
@@ -160,7 +160,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 
 1. Was the output disabled for testing and not re-enabled? Check the panel's disabled list first.
 2. Check the relay or control module: does it change state when the input is activated? Listen and meter the contact.
-3. Check the wiring from the relay to the other trade's equipment. The relay should be within 3 ft of the controlled device with a supervised circuit to it. [VERIFY:relay-3ft]
+3. Check the wiring from the relay to the other trade's equipment. The relay should be within 3 ft of the controlled device with a supervised circuit to it. [SRC:relay-3ft]
 4. Check the programming against the sequence of operations: is the input mapped to that output?
 5. **Elevators:** confirm lobby detector, machine room, and hoistway signals go to the right recall input (primary or alternate floor). Test with the elevator contractor present. [VERIFY:elevator-recall]
 6. Retest the full sequence after the fix and document it.
@@ -172,7 +172,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 **Symptom:** a detector fails sensitivity, is damaged, or is past its service life.
 
 1. Get the exact replacement: same type, **listed and compatible** with the panel. A different model may need panel programming or may not be compatible at all.
-2. Put the account on test and disable the device or zone. [VERIFY:safety-notify]
+2. Put the account on test and disable the device or zone. [SRC:safety-notify]
 3. Replace the head (or base and head), set the same address on addressable systems.
 4. Confirm the panel sees the correct device type at the correct address, with no troubles.
 5. Test the new device with listed smoke or the correct method. [VERIFY:test-smoke]

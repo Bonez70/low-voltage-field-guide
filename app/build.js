@@ -70,7 +70,9 @@ function makeRenderer(ctx) {
       .replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?!\w)/g, '$1<em>$2</em>')
       .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => /^https?:/.test(u) ? `<a href="${u}" target="_blank" rel="noopener">${t}</a>` : t);
     s = crossLinks(s);
-    s = s.replace(/\[VERIFY:([a-z0-9-]+)\]/g, (m, k) => `<mark class="verify" title="Waiting on sign-off">Verify #${ctx.verify[k] || '?'}</mark>`);
+    const src = k => ctx.cites[k] ? `<span class="src">(${esc(ctx.cites[k])})</span>` : '';
+    s = s.replace(/\[SRC:([a-z0-9-]+)\]/g, (m, k) => src(k))
+      .replace(/\[VERIFY:([a-z0-9-]+)\]/g, (m, k) => src(k) + ` <mark class="verify" title="Waiting on sign-off">Verify #${ctx.verify[k] || '?'}</mark>`);
     return s.replace(/\u0000(\d+)\u0000/g, (m, i) => '<code>' + codes[i] + '</code>');
   }
 
@@ -155,7 +157,7 @@ function makeRenderer(ctx) {
 }
 
 function plain(md) {
-  return md.replace(/```[\s\S]*?```/g, ' ').replace(/\[VERIFY:[a-z0-9-]+\]/g, ' ').replace(/[*`>#|]/g, ' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+  return md.replace(/```[\s\S]*?```/g, ' ').replace(/\[(VERIFY|SRC):[a-z0-9-]+\]/g, ' ').replace(/[*`>#|]/g, ' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/-{3,}/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
@@ -193,7 +195,7 @@ function buildPack(cfg) {
   if (!cfg.draft && vc.count) throw new Error(`${cfg.id}: ${vc.count} [VERIFY] tags still in the content. Get them signed off, or mark the pack draft.`);
   if (vc.unknown.length) throw new Error(`${cfg.id}: [VERIFY] tags with no entry in verify-items.md: ${vc.unknown.join(', ')}`);
   const ctx = {
-    pack: cfg.id, verify: verify.numbers(cfg.id),
+    pack: cfg.id, verify: verify.numbers(cfg.id), cites: verify.cites(cfg.id),
     modules: new Set(modSrc.map(m => Number((m.title.match(/Module (\d+)/) || [])[1]))),
     lessons: new Set(),
     cards: refSrc.sections.map(s => ({ id: slug(s.heading), title: s.heading.replace(/^Card:\s*/, '') }))
@@ -263,14 +265,14 @@ function buildPack(cfg) {
 
   if (cfg.draft) {
     // Every page of a draft pack says so.
-    const note = `<p class="draft-note"><strong>Draft for review.</strong> Values marked Verify # are waiting on sign-off (${vc.items.length} items).</p>`;
+    const note = `<p class="draft-note"><strong>Draft for review.</strong> Values marked Verify # are waiting on sign-off (${vc.pending.length} of ${vc.items.length} items left).</p>`;
     modules.forEach(m => { m.introHtml = note + m.introHtml; m.lessons.forEach(l => { l.html = note + l.html; }); });
     cards.forEach(c => { c.html = note + c.html; });
     guides.forEach(g => { g.html = note + g.html; });
   }
   return {
     id: cfg.id, name: cfg.name, blurb: cfg.blurb, calculators: cfg.calculators, openTips, draft: !!cfg.draft,
-    verifyOpen: vc.count ? vc.items.length : 0,
+    verifyOpen: vc.count ? vc.pending.length : 0,
     learn: { modules },
     reference: { introHtml: R.render(refSrc.head), cards },
     troubleshoot: { introHtml: R.render(tsSrc.head), guides },

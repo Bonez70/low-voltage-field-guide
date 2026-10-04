@@ -6,7 +6,8 @@
  *
  * Code values and safety steps in draft content are tagged [VERIFY:key]. Each key is
  * described once in content/<pack>/verify-items.md (### key: title, **Proposed:**, **Source:**)
- * and numbered in that file's order. The sheet quotes the full paragraph around each tag
+ * and numbered in that file's order. Signed-off items get a **Status:** line, and their tags in the
+ * content become [SRC:key], which the app shows as the item's **Cite:** source. The sheet quotes the full paragraph around each tag
  * so the reviewer sees every value in context. build.js uses the same numbering for the
  * "Verify #n" markers in the preview, and refuses to publish a pack that still has tags.
  */
@@ -15,7 +16,8 @@ const fs = require('fs');
 const path = require('path');
 
 const CONTENT = path.join(__dirname, '..', 'content');
-const TAG = /\[VERIFY:([a-z0-9-]+)\]/g;
+const TAG = /\[VERIFY:([a-z0-9-]+)\]/g;          // value waiting on sign-off
+const ANY = /\[(?:VERIFY|SRC):([a-z0-9-]+)\]/g;   // either; SRC = signed off, still shows its source
 
 function loadItems(pack) {
   const f = path.join(CONTENT, pack, 'verify-items.md');
@@ -25,9 +27,11 @@ function loadItems(pack) {
   fs.readFileSync(f, 'utf8').replace(/\r/g, '').split('\n').forEach(l => {
     let m;
     if ((m = l.match(/^##\s+(.*)$/))) group = m[1].trim();
-    else if ((m = l.match(/^###\s+([a-z0-9-]+):\s*(.*)$/))) { cur = { key: m[1], title: m[2].trim(), group, proposed: '', source: '' }; items.push(cur); }
+    else if ((m = l.match(/^###\s+([a-z0-9-]+):\s*(.*)$/))) { cur = { key: m[1], title: m[2].trim(), group, proposed: '', source: '', cite: '', status: '' }; items.push(cur); }
     else if (cur && (m = l.match(/^\*\*Proposed:\*\*\s*(.*)$/))) cur.proposed = m[1];
     else if (cur && (m = l.match(/^\*\*Source:\*\*\s*(.*)$/))) cur.source = m[1];
+    else if (cur && (m = l.match(/^\*\*Cite:\*\*\s*(.*)$/))) cur.cite = m[1];
+    else if (cur && (m = l.match(/^\*\*Status:\*\*\s*(.*)$/))) cur.status = m[1];
   });
   items.forEach((it, i) => { it.num = i + 1; });
   return items;
@@ -37,6 +41,12 @@ function loadItems(pack) {
 function numbers(pack) {
   const items = loadItems(pack) || [];
   return Object.fromEntries(items.map(it => [it.key, it.num]));
+}
+
+/** { key: short source } for build.js. */
+function cites(pack) {
+  const items = loadItems(pack) || [];
+  return Object.fromEntries(items.map(it => [it.key, it.cite]));
 }
 
 // Every content file of a pack, in reading order, with a function naming where a line sits.
@@ -70,7 +80,7 @@ function whereAt(file, idx) {
 
 const isList = l => /^\s*([-*]|\d+\.)\s+/.test(l);
 const isTable = l => /^\|/.test(l);
-const onlyTags = l => l.replace(TAG, '').trim() === '';
+const onlyTags = l => l.replace(ANY, '').trim() === '';
 
 // The block of text around line idx: a paragraph, one list item, a whole table row with its header,
 // or (for a line that is only tags) the block right above it.
@@ -120,28 +130,36 @@ function check(pack) {
   const items = loadItems(pack) || [];
   const uses = collect(pack);
   const known = new Set(items.map(i => i.key));
-  const unknown = Object.keys(uses).filter(k => !known.has(k));
-  const unused = items.filter(i => !uses[i.key]).map(i => i.key);
-  return { items, uses, unknown, unused, count: Object.values(uses).reduce((n, u) => n + u.length, 0) };
+  const allKeys = new Set();
+  contentFiles(pack).forEach(f => f.lines.forEach(l => { let m; ANY.lastIndex = 0; while ((m = ANY.exec(l))) allKeys.add(m[1]); }));
+  const unknown = [...allKeys].filter(k => !known.has(k));
+  const unused = items.filter(i => !i.status && !uses[i.key]).map(i => i.key);
+  const stillTagged = items.filter(i => i.status && uses[i.key]).map(i => i.key);
+  const pending = items.filter(i => !i.status);
+  return { items, pending, uses, unknown, unused, stillTagged, count: Object.values(uses).reduce((n, u) => n + u.length, 0) };
 }
 
 function sheet(pack, packName) {
-  const { items, uses, unknown, unused } = check(pack);
+  const { items, pending, uses, unknown, unused, stillTagged } = check(pack);
   if (unknown.length) throw new Error('Tags with no entry in verify-items.md: ' + unknown.join(', '));
   if (unused.length) throw new Error('verify-items.md entries not used in the content: ' + unused.join(', '));
+  if (stillTagged.length) throw new Error('Signed off but still tagged [VERIFY] in the content (change to [SRC]): ' + stillTagged.join(', '));
+  const done = items.filter(i => i.status);
   const num = Object.fromEntries(items.map(i => [i.key, i.num]));
   const quote = (block, key) => block.map(l => {
-    const t = l.replace(TAG, (m, k) => k === key ? `**⟦#${num[k]}⟧**` : `⟦#${num[k] || '?'}⟧`);
+    const t = l.replace(ANY, (m, k) => k === key ? `**⟦#${num[k]}⟧**` : `⟦#${num[k] || '?'}⟧`);
     return t.trim() ? '> ' + t : '>';
   }).join('\n');
   const out = [];
   out.push(`# Verify Sheet: ${packName} Draft`, '');
-  out.push(`**Status: waiting on David.** ${items.length} items. Nothing in the ${packName.toLowerCase()} pack goes live until every item is signed off.`, '');
+  out.push(pending.length
+    ? `**Status: ${done.length} of ${items.length} signed off, ${pending.length} waiting on David** (items ${ranges(pending.map(i => i.num))}). Nothing in the ${packName.toLowerCase()} pack goes live until every item is signed off.`
+    : `**Status: all ${items.length} items signed off.**`, '');
   out.push('Every code value and safety step in the draft, numbered, with the full paragraph it sits in. The value being checked is marked **⟦#n⟧** in the quote. Where the same value appears in several places, the first two are quoted and the rest are listed; one answer covers them all.', '');
   out.push('**How to answer:** reply with the item number and your call, for example:', '`1 ok, 4 should be 6 to 8 ft, 13 not sure, 18 remove`', '`all ok except 7, 22`', '');
   out.push('"Source" is my honest note of where the value comes from. None of it was checked against the code book itself; it\'s general industry knowledge of NFPA 72 and the NEC, so your field experience and your adopted edition win.', '');
   let group = null;
-  items.forEach(it => {
+  pending.forEach(it => {
     if (it.group !== group) { group = it.group; out.push('---', '', `## ${group}`, ''); }
     out.push(`### ${it.num}. ${it.title}`);
     const u = uses[it.key];
@@ -153,12 +171,23 @@ function sheet(pack, packName) {
     const shownWhere = new Set(shown.map(x => x.where));
     const rest = [...new Set(u.map(x => x.where))].filter(w => !shownWhere.has(w));
     if (rest.length) out.push(`**Also in:** ${rest.join('; ')}`, '');
-    out.push(`**Proposed:** ${it.proposed}`, '', `**Source:** ${it.source}`, '');
+    out.push(`**Proposed:** ${it.proposed}`, '', `**Source:** ${it.source}`, '', `**Shown in the app as:** (${it.cite})`, '');
   });
+  if (done.length) {
+    out.push('---', '', '## Signed off', '');
+    done.forEach(it => out.push(`- **${it.num}. ${it.title}** (${it.status}): ${it.proposed} *Source: ${it.cite}.*`));
+    out.push('');
+  }
   return out.join('\n').replace(/\n{3,}/g, '\n\n') + '\n';
 }
 
-module.exports = { loadItems, numbers, check, sheet, TAG };
+function ranges(nums) {
+  const r = [];
+  nums.forEach(n => { const last = r[r.length - 1]; if (last && n === last[1] + 1) last[1] = n; else r.push([n, n]); });
+  return r.map(([a, b]) => a === b ? String(a) : `${a} to ${b}`).join(', ');
+}
+
+module.exports = { loadItems, numbers, cites, check, sheet, TAG, ANY };
 
 if (require.main === module) {
   const pack = process.argv[2];
@@ -167,6 +196,6 @@ if (require.main === module) {
   const md = sheet(pack, name);
   const f = path.join(CONTENT, pack, 'VERIFY-SHEET.md');
   fs.writeFileSync(f, md);
-  const { items, count } = check(pack);
-  console.log(`Wrote ${path.relative(process.cwd(), f)}: ${items.length} items, ${count} tags in the content.`);
+  const { items, pending, count } = check(pack);
+  console.log(`Wrote ${path.relative(process.cwd(), f)}: ${items.length} items, ${pending.length} waiting, ${count} [VERIFY] tags in the content.`);
 }

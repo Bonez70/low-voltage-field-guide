@@ -61,7 +61,9 @@ The fire alarm often controls other systems. These are installed per the **seque
 - **Shunt trip:** where sprinklers are in an elevator machine room or hoistway, **heat detectors** within **2 ft of each sprinkler head**, with a lower temperature rating and faster response than the sprinkler, disconnect elevator power **before** water flows. [VERIFY:elevator-shunt]
 - The fire alarm provides **dry contacts** to the elevator controller; the elevator contractor wires their side. Test together.
 
-**HVAC shutdown:** relays or control modules within **3 ft** of the device they control, with the circuit to the relay supervised. [VERIFY:relay-3ft]
+**Control relays:** relays or control modules for emergency control functions (HVAC shutdown, elevator recall, door release) go within **3 ft** of the controlled device, with the wiring to the relay supervised. [SRC:relay-3ft]
+
+**HVAC shutdown:** the fire alarm relay stops the air handler (and closes smoke dampers where the design calls for it) per the sequence of operations.
 
 **Door holders and locks:** magnetic door holders release fire doors on alarm. Electrically locked doors on egress routes unlock on alarm per the building code. Coordinate with the door hardware installer.
 

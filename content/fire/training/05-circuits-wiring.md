@@ -45,7 +45,7 @@ PANEL RET ════════════════════╝
 (each line is a pair: + and −, no EOL)
 ```
 
-**The outgoing and return paths should not run in the same cable or raceway**, so one damaged cable can't take out both. The code allows short exceptions; the drawings and the code edition in force say how far. [VERIFY:classa-separation]
+**The outgoing and return conductors don't run in the same cable or raceway**, so one damaged cable can't take out both. The exceptions are limited, such as short drops to a device or into the panel; the drawings and the code edition in force say how far. [SRC:classa-separation]
 
 ### Class X
 Like Class A, but it also keeps working through a **short** (using **isolation modules** between groups of devices). Common on addressable SLCs in larger buildings.
@@ -59,9 +59,9 @@ Ethernet-based pathways for newer networked and voice systems. You'll see it on 
 
 A **T-tap** is a branch off the middle of a circuit.
 
-- **Conventional IDCs and NACs: no T-taps.** The EOL at the end only supervises wire that runs *through* it. A branch is unsupervised: if it breaks, the panel never knows, and those devices are silently dead. [VERIFY:no-ttaps]
-- **Class A circuits: no T-taps.** A branch breaks the loop design. [VERIFY:no-ttaps]
-- **Class B addressable SLCs: T-taps usually allowed** if the panel manufacturer permits them, because the panel polls every device and notices one that stops answering. Check the manual for limits on total wire length with taps. [VERIFY:no-ttaps]
+- **Conventional IDCs and NACs: no T-taps.** The EOL at the end only supervises wire that runs *through* it. A branch is unsupervised: if it breaks, the panel never knows, and those devices are silently dead. [SRC:no-ttaps]
+- **Class A circuits: no T-taps.** A branch breaks the loop design. [SRC:no-ttaps]
+- **Class B addressable SLCs: T-taps usually allowed** if the panel manufacturer permits them, because the panel polls every device and notices one that stops answering. Check the manual for limits on total wire length with taps. [SRC:no-ttaps]
 
 **Wire through every device.** On conventional circuits, the wire must land on the device terminals in and out (or on separate terminals, as the device instructions show), not be twisted together with a pigtail to the device. That way, removing a device opens the circuit and the panel reports a trouble.
 
@@ -84,7 +84,7 @@ Two-wire smoke detectors have electronics across the circuit. They're polarized,
 
 **NAC with EOL:** appliances have built-in blocking diodes, so in one direction you read about the EOL value and in the other direction you read lower (the appliances). An open in one direction means a break; a near-zero reading **in both** directions means a short.
 
-**Never use a megohmmeter (insulation tester) with devices or the panel connected.** The test voltage will destroy devices. Disconnect every device first, or don't megger at all. [VERIFY:safety-megger]
+**Never use a megohmmeter (insulation tester) with devices or the panel connected.** The test voltage will destroy devices. Disconnect every device first, or don't megger at all. [SRC:safety-megger]
 
 ---
 
