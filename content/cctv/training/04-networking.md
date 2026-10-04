@@ -8,7 +8,7 @@
 
 Every camera, recorder, and switch needs a unique **IP address** on the same network (or a routed path between networks).
 
-- **Private ranges** (used inside buildings, never routed on the internet): 10.0.0.0 to 10.255.255.255, 172.16.0.0 to 172.31.255.255, and 192.168.0.0 to 192.168.255.255. [VERIFY:private-ip]
+- **Private ranges** (used inside buildings, never routed on the internet): 10.0.0.0 to 10.255.255.255, 172.16.0.0 to 172.31.255.255, and 192.168.0.0 to 192.168.255.255. [SRC:private-ip]
 - **Subnet mask:** 255.255.255.0 (written /24) means the first three numbers name the network and the last one names the device: 192.168.1.1 to 192.168.1.254, 254 usable addresses.
 - **Gateway:** the router's address. A camera with no gateway or the wrong one still records on the local NVR but can't reach a time server or the cloud.
 - **DHCP vs static:** cameras should have **static addresses** (or DHCP reservations) so the recorder always finds them. A camera that gets a new address from DHCP after a power outage drops off the recorder.
@@ -46,7 +46,7 @@ Every camera, recorder, and switch needs a unique **IP address** on the same net
 | 802.3bt Type 3 | 5 / 6 | 45 / 60 W | 40 / 51 W |
 | 802.3bt Type 4 | 7 / 8 | 75 / 90 W | 62 / 71.3 W |
 
-[VERIFY:poe-classes]
+[SRC:poe-classes]
 
 The difference between the port and the device is what the cable loses over 100 m.
 
@@ -54,7 +54,7 @@ The difference between the port and the device is what the cable loses over 100 
 
 1. Add up each camera's **maximum** draw from the spec sheet: IR on, heater on, PTZ moving. Not the typical number.
 2. Compare to the switch's **total PoE budget** (often far less than ports × 30 W).
-3. Design to no more than about **80% of the budget**. [VERIFY:poe-headroom]
+3. Design to no more than about **80% of the budget**. [SRC:poe-headroom]
 4. Some switches reserve the **class maximum** for each port, not the actual draw. A Class 4 camera then takes 30 W of budget even if it uses 9 W.
 
 Use the **PoE Budget calculator**.
@@ -71,7 +71,7 @@ Use the **PoE Budget calculator**.
 - **Profile S:** live video and PTZ. The basic one.
 - **Profile T:** H.265, advanced streaming, and events (motion, tamper, analytics).
 - **Profile G:** recording on the camera's memory card and playing it back.
-- **Profile M:** analytics metadata (people, vehicles, attributes). [VERIFY:onvif-profiles]
+- **Profile M:** analytics metadata (people, vehicles, attributes). [SRC:onvif-profiles]
 
 ONVIF gets you video. It often doesn't get you every analytics feature or setting; mixing brands means testing the features that matter before you sell the job.
 
@@ -84,7 +84,7 @@ ONVIF gets you video. It often doesn't get you every analytics feature or settin
 | 3702 UDP | ONVIF device discovery |
 | 123 UDP | NTP time |
 
-[VERIFY:ports]
+[SRC:ports]
 
 ---
 
@@ -92,9 +92,9 @@ ONVIF gets you video. It often doesn't get you every analytics feature or settin
 
 Customers want video on their phones. How you deliver it decides whether the system gets hacked.
 
-- **Don't port-forward** camera or recorder ports to the internet. Internet scanners find exposed recorders within hours, and many recorders have had serious security flaws. [VERIFY:no-port-forward]
+- **Don't port-forward** camera or recorder ports to the internet. Internet scanners find exposed recorders within hours, and many recorders have had serious security flaws. [SRC:no-port-forward]
 - **Better:** the manufacturer's cloud or relay service with strong passwords and multi-factor login, or a **VPN** into the site's network.
-- **UPnP** on the recorder or router opens ports automatically. Turn it off. [VERIFY:hardening]
+- **UPnP** on the recorder or router opens ports automatically. Turn it off. [SRC:hardening]
 - Remote viewers use the **sub stream**. A site with a slow upload connection can't send many main streams at once.
 
 Module 8 covers hardening in full.

@@ -56,7 +56,7 @@ The European standard for video surveillance, IEC 62676-4, sets targets for each
 | **Recognize** | 125 | 38 |
 | **Identify** | 250 | 76 |
 
-[VERIFY:dori-ppm]
+[SRC:dori-ppm]
 
 **Example.** A 4 MP camera (2560 pixels wide) seeing a 40 ft wide scene: 2560 ÷ 40 = **64 px/ft**. That's recognize, not identify. Zoom to 30 ft wide: 2560 ÷ 30 = 85 px/ft, identify.
 
@@ -81,16 +81,16 @@ The European standard for video surveillance, IEC 62676-4, sets targets for each
 - A dedicated camera per lane, aimed where cars must pass at low speed.
 - **Fast shutter:** 1/1000 s or faster for moving vehicles (1/500 s can work in slow lots); plates blur at normal settings.
 - Keep the angle to the plate under about 30° horizontally and vertically.
-- Follow the LPR camera's pixels-on-plate requirement; it's specific to the camera and the reading software. [VERIFY:lpr-settings]
+- Follow the LPR camera's pixels-on-plate requirement; it's specific to the camera and the reading software. [SRC:lpr-settings]
 
 ---
 
 ## Lesson 3.5: Ratings and listings
 
-- **Outdoor cameras:** IP66 or IP67 ingress protection (dust tight, jets of water or temporary immersion). IP is a rating, not "internet protocol" here. **Vandal resistance:** IK10 for domes in reach. [VERIFY:ip-ik-ratings]
+- **Outdoor cameras:** IP66 or IP67 ingress protection (dust tight, jets of water or temporary immersion). IP is a rating, not "internet protocol" here. **Vandal resistance:** IK10 for domes in reach. [SRC:ip-ik-ratings]
 - **Temperature:** check the operating range on the spec sheet. Cold climates need heaters; heaters add PoE power (Lesson 4.3).
-- **Safety listing:** cameras, recorders, PoE switches, and power supplies carry a safety listing (UL 62368-1, or UL 60950-1 on older gear), and separate power supplies are Class 2. [VERIFY:camera-listing]
-- **Plenum:** a camera or back box in a plenum ceiling (a return air space) has to be listed for that space. [VERIFY:plenum-devices]
+- **Safety listing:** cameras, recorders, PoE switches, and power supplies carry a safety listing (UL 62368-1, or UL 60950-1 on older gear), and separate power supplies are Class 2. [SRC:camera-listing]
+- **Plenum:** a camera or back box in a plenum ceiling (a return air space) has to be listed for that space. [SRC:plenum-devices]
 
 ---
 

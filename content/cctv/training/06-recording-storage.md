@@ -44,7 +44,7 @@ Motion detection set badly is the most common cause of "it didn't record." Trees
 - All 12 per day: 12 × 43.2 = 518.4 GB
 - 30 days: 518.4 × 30 ÷ 1000 = **15.6 TB**
 
-Then add headroom: plan about **20% more** than the math, because bitrates rise at night, in rain, and as the scene gets busier, and some systems need free space to work. 15.6 × 1.2 = **18.7 TB**. [VERIFY:storage-margin]
+Then add headroom: plan about **20% more** than the math, because bitrates rise at night, in rain, and as the scene gets busier, and some systems need free space to work. 15.6 × 1.2 = **18.7 TB**. [SRC:storage-margin]
 
 - Drives are sold in decimal TB (1 TB = 1000 GB); recorders often show binary TiB, which looks about 9% smaller. That isn't missing space.
 - **Use measured bitrates.** After install, read each camera's actual bitrate from the recorder and redo the math.
@@ -55,7 +55,7 @@ Use the **Storage calculator**.
 
 ## Lesson 6.4: Drives and RAID
 
-- **Surveillance-rated (or enterprise) drives.** They're built for writing around the clock. Desktop drives fail early in recorders. [VERIFY:surveillance-drives]
+- **Surveillance-rated (or enterprise) drives.** They're built for writing around the clock. Desktop drives fail early in recorders. [SRC:surveillance-drives]
 - **Check the recorder's limits:** number of bays, maximum drive size, and supported RAID levels.
 
 | RAID | Usable space | Survives |
@@ -78,11 +78,11 @@ Set the recorder to **alert on drive failure** and send it to someone who will a
 **Retention** is how many days of video the customer keeps. There's no single code for it.
 
 - **30 days** is a common default. Many customers ask for more.
-- **Some regulations set a minimum:** state cannabis rules, gaming regulators, some banking and government contracts, and some insurance policies. The customer or their spec tells you; get it in writing. [VERIFY:retention]
+- **Some regulations set a minimum:** state cannabis rules, gaming regulators, some banking and government contracts, and some insurance policies. The customer or their spec tells you; get it in writing. [SRC:retention]
 - Set the recorder to **overwrite** oldest video when full, and check the actual days kept after the first month.
 - Some customers also have a **maximum** retention for privacy reasons.
 
-**UPS:** put the recorder, the core PoE switch, and the internet modem and router on a UPS. Size it for the customer's runtime, at least long enough to ride through short outages and shut the recorder down cleanly. Most CCTV has no code standby requirement, unlike fire and intrusion. [VERIFY:ups-recorder]
+**UPS:** put the recorder, the core PoE switch, and the internet modem and router on a UPS. Size it for the customer's runtime, at least long enough to ride through short outages and shut the recorder down cleanly. Most CCTV has no code standby requirement, unlike fire and intrusion. [SRC:ups-recorder]
 
 ---
 

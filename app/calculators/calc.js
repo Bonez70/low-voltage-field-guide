@@ -5,7 +5,7 @@
  * and were signed off by David on 2026-10-04 (content/fire/VERIFY-SHEET.md). Access values come from
  * content/access/reference.md and were signed off by David on 2026-10-04 (content/access/VERIFY-SHEET.md:
  * psu-80, batt-factor, ul294-standby, wiegand-distance, osdp-distance). CCTV values come from
- * content/cctv/reference.md and are PENDING sign-off (content/cctv/VERIFY-SHEET.md: poe-classes,
+ * content/cctv/reference.md and were signed off by David on 2026-10-04 (content/cctv/VERIFY-SHEET.md: poe-classes,
  * poe-headroom, dori-ppm, storage-margin).
  * Change values in the content first, then here.
  */
@@ -48,7 +48,7 @@
   var READER_GAUGES = [22, 20, 18];
   var READER_MAX_FT = { wiegand: 500, osdp: 4000 };
 
-  // CCTV (pending sign-off; see the comment at the top).
+  // CCTV (signed off; see the comment at the top).
   // PoE classes: watts at the switch port (pse) and at the device (pd).
   var POE_CLASSES = [
     { cls: 1, std: '802.3af', pse: 4.0, pd: 3.84 },

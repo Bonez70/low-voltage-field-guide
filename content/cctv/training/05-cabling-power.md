@@ -7,12 +7,12 @@
 ## Lesson 5.1: Network cable
 
 - **Category 5e** works for most cameras; **Category 6** is the common choice on new jobs. Solid copper conductors only. Copper-clad aluminum (CCA) "Cat" cable isn't real category cable: it fails certification, runs hot with PoE, and breaks at terminations.
-- **Distance limit: 100 m (328 ft)** per run, switch to camera, including patch cords. The usual split is 90 m of installed cable plus 10 m of cords. [VERIFY:ethernet-100m]
+- **Distance limit: 100 m (328 ft)** per run, switch to camera, including patch cords. The usual split is 90 m of installed cable plus 10 m of cords. [SRC:ethernet-100m]
 - **Terminate to T568B** (or T568A) the same at both ends, and test every run. A cable that passes a simple continuity check can still fail at gigabit speed or under PoE load.
 - **Longer runs:** a PoE extender in the middle, a remote PoE switch fed by fiber, or fiber media converters at both ends.
 - **Between buildings: use fiber.** It carries no current, so lightning and ground differences can't travel on it.
 
-**PoE in big bundles.** PoE puts current on every conductor, and a tight bundle of PoE cables gets warm. Where each conductor carries more than 0.3 A (PoE+ and especially 802.3bt), the NEC limits how many cables can be bundled for each cable gauge and temperature rating, or you use cable marked **-LP** (limited power) for the current. [VERIFY:poe-bundle]
+**PoE in big bundles.** PoE puts current on every conductor, and a tight bundle of PoE cables gets warm. Where each conductor carries more than 0.3 A (PoE+ and especially 802.3bt), the NEC limits how many cables can be bundled for each cable gauge and temperature rating, or you use cable marked **-LP** (limited power) for the current. [SRC:poe-bundle]
 
 ---
 
@@ -25,7 +25,7 @@ Analog and HD-over-coax cameras use **75 Ω coax**.
 - **Solid copper center conductor.** Copper-clad steel (common in TV cable) cuts the distance for HD video badly.
 - **Connectors:** compression BNCs, matched to the exact cable. Twist-on BNCs cause most intermittent video problems.
 
-**Distance:** HD over coax at 1080p is commonly rated around **500 m (1,600 ft)** on RG59 with a solid copper center, and less (about 300 m) for 4K / 8 MP. Check the camera and DVR specs; they vary by maker and format. [VERIFY:coax-distance]
+**Distance:** HD over coax at 1080p is commonly rated around **500 m (1,600 ft)** on RG59 with a solid copper center, and less (about 300 m) for 4K / 8 MP. Check the camera and DVR specs; they vary by maker and format. [SRC:coax-distance]
 
 **Baluns** convert coax video to one twisted pair of a Category cable, so you can run HD analog on UTP. Use matched passive baluns at both ends, and one camera per pair.
 
@@ -36,7 +36,7 @@ Analog and HD-over-coax cameras use **75 Ω coax**.
 Analog cameras, PTZs, and heaters often run on **12 VDC** or **24 VAC** from a separate power supply.
 
 - **Power supply:** a listed Class 2 supply with **individually fused (or PTC) outputs**, one per camera, so one shorted camera doesn't kill the rest.
-- **Voltage at the camera:** most cameras want their rated voltage within about ±10%. Check the spec sheet and measure **at the camera, with IR on**. [VERIFY:camera-voltage]
+- **Voltage at the camera:** most cameras want their rated voltage within about ±10%. Check the spec sheet and measure **at the camera, with IR on**. [SRC:camera-voltage]
 - **12 VDC drops fast.** A 12 V camera with heater and IR can draw 1 A. On 18 AWG at 200 ft: 2 × 200 × 1 × 0.00639 = 2.56 V of drop, leaving 9.4 V. Too low. Use 16 AWG or heavier, a closer supply, or a 24 VAC model.
 - **24 VAC** tolerates long runs better and is standard for many PTZs and heaters.
 - **Polarity** matters on DC. Reversing it can destroy a camera.
@@ -47,7 +47,7 @@ Use the **Voltage Drop calculator** and the **Wire Gauge calculator** for the po
 
 ## Lesson 5.4: Cable ratings and support
 
-**Cable ratings** (NEC): [VERIFY:nec-cable-type]
+**Cable ratings** (NEC): [SRC:nec-cable-type]
 
 - **CM / CL2:** general use in walls and open ceilings.
 - **CMR / CL2R:** riser, between floors in a vertical shaft.
@@ -55,18 +55,18 @@ Use the **Voltage Drop calculator** and the **Wire Gauge calculator** for the po
 - **CATV / CATVR / CATVP:** coax ratings, same idea.
 - A higher rating can always replace a lower one.
 
-**Support:** cable is supported by the building structure with listed hardware (J-hooks, bridle rings), not laid on ceiling tiles or tied to ceiling grid wires, pipes, or conduit. [VERIFY:nec-support]
+**Support:** cable is supported by the building structure with listed hardware (J-hooks, bridle rings), not laid on ceiling tiles or tied to ceiling grid wires, pipes, or conduit. [SRC:nec-support]
 
-**Fire-rated walls and floors:** every hole you make through a rated wall or floor is sealed with a listed firestop system for that wall and cable. Unsealed penetrations are a common inspection failure. [VERIFY:firestop]
+**Fire-rated walls and floors:** every hole you make through a rated wall or floor is sealed with a listed firestop system for that wall and cable. Unsealed penetrations are a common inspection failure. [SRC:firestop]
 
 ---
 
 ## Lesson 5.5: Outdoor runs, surge, and grounding
 
-- **Outdoor-rated cable** for any run outside: UV-resistant jacket, and gel-filled or direct-burial rated for underground. Conduit underground counts as a wet location, so indoor cable inside buried conduit isn't allowed. [VERIFY:outdoor-cable]
+- **Outdoor-rated cable** for any run outside: UV-resistant jacket, and gel-filled or direct-burial rated for underground. Conduit underground counts as a wet location, so indoor cable inside buried conduit isn't allowed. [SRC:outdoor-cable]
 - **Drip loops** at every outdoor entry, and seal the camera's cable entry and the wall penetration. Water follows the cable into the camera otherwise.
-- **Surge protection:** copper runs that leave the building, to a pole, a gate, or another building, get a surge protector at the building end (and at the camera end on poles), bonded to the building's grounding electrode system with a short, straight wire. Better still, use fiber between buildings. [VERIFY:outdoor-surge]
-- **Poles:** metal camera poles are bonded and grounded under the electrical work for the pole, and tall poles may need lightning protection where the design calls for it. Coordinate with the electrician. [VERIFY:pole-grounding]
+- **Surge protection:** copper runs that leave the building, to a pole, a gate, or another building, get a surge protector at the building end (and at the camera end on poles), bonded to the building's grounding electrode system with a short, straight wire. Better still, use fiber between buildings. [SRC:outdoor-surge]
+- **Poles:** metal camera poles are bonded and grounded under the electrical work for the pole, and tall poles may need lightning protection where the design calls for it. Coordinate with the electrician. [SRC:pole-grounding]
 
 > **Field tip (David to add):** the outdoor connection or weatherproofing habit that stopped your callbacks.
 

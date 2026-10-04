@@ -39,7 +39,7 @@ const PACKS = [
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   },
   {
-    id: 'cctv', name: 'CCTV', blurb: 'Cameras, recorders, and network video', draft: true,
+    id: 'cctv', name: 'CCTV', blurb: 'Cameras, recorders, and network video',
     calculators: ['fov', 'poe', 'storage', 'drop', 'gauge'],
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   }

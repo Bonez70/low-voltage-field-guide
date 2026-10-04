@@ -24,9 +24,9 @@ Walk the site with the customer and answer these for every camera:
 
 ## Lesson 7.2: Mounting
 
-- **Height for faces:** cameras meant to identify people at doors are commonly mounted **8 to 10 ft** high, with the vertical angle down to the face kept small (under about 15 to 30°). Mounted at 14 ft looking straight down, you get the tops of hats. [VERIFY:mount-height]
+- **Height for faces:** cameras meant to identify people at doors are commonly mounted **8 to 10 ft** high, with the vertical angle down to the face kept small (under about 15 to 30°). Mounted at 14 ft looking straight down, you get the tops of hats. [SRC:mount-height]
 - **Height for overviews:** 10 to 14 ft or higher, out of easy reach.
-- **Into structure.** Use the mount the manufacturer made for the surface: wall, pendant, corner, pole, or junction box adapter. Anchors rated for the weight; PTZs and heavy multi-sensors get blocking or a structural mount. [VERIFY:safety-mount]
+- **Into structure.** Use the mount the manufacturer made for the surface: wall, pendant, corner, pole, or junction box adapter. Anchors rated for the weight; PTZs and heavy multi-sensors get blocking or a structural mount. [SRC:safety-mount]
 - **Back boxes or junction boxes** hide the cable and the connection, protect it from weather and tampering, and keep the cable from being cut at the camera.
 - **Plan for service:** you'll be back to clean, refocus, and replace. Put cameras where a ladder can reach when you can.
 
@@ -70,7 +70,7 @@ Before you call it done:
 
 - [ ] Every camera recording, on the right schedule, at the right resolution and frame rate.
 - [ ] Day and night views checked, with someone walking through, on playback.
-- [ ] Time correct on the recorder and every camera, synced to one time source. [VERIFY:time-sync]
+- [ ] Time correct on the recorder and every camera, synced to one time source. [SRC:time-sync]
 - [ ] Drives healthy and the recorder showing the expected days of retention (check again after a few weeks).
 - [ ] Default passwords changed; user accounts made for the customer (Module 8).
 - [ ] Alerts set for drive failure and camera loss, sent to someone who'll act.

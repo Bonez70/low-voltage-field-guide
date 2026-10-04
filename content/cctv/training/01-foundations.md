@@ -68,11 +68,11 @@ The most common complaint in this trade is "we have cameras everywhere and you c
 
 Most CCTV injuries come from **ladders and lifts**, not electricity.
 
-- **Ladders:** extension ladders set at 4 to 1 (1 ft out for every 4 ft up), extending 3 ft above the landing, on firm footing, tied off or held. Three points of contact. Don't carry the camera up in your hand; use a bag or a hand line. [VERIFY:safety-height]
-- **Lifts:** in a boom lift, wear a harness and lanyard tied to the basket anchor; in a scissor lift, stay inside the rails. Lift training is required before you run one. [VERIFY:safety-height]
-- **Mounting:** cameras, and especially PTZs, go into structure or listed mounting hardware, never hung from drywall or ceiling tile alone. A camera that falls on someone is a serious injury. [VERIFY:safety-mount]
-- **Line voltage:** 120 V outlets, circuits, and power to a pole are the electrician's. You plug in; you don't wire branch circuits. [VERIFY:safety-line-voltage]
-- **Tell the customer first.** Taking a camera or the recorder offline creates a gap in recording, and a gap is exactly when something happens. If the video is monitored, put the account on test with the monitoring center. [VERIFY:safety-notify]
+- **Ladders:** extension ladders set at 4 to 1 (1 ft out for every 4 ft up), extending 3 ft above the landing, on firm footing, tied off or held. Three points of contact. Don't carry the camera up in your hand; use a bag or a hand line. [SRC:safety-height]
+- **Lifts:** in a boom lift, wear a harness and lanyard tied to the basket anchor; in a scissor lift, stay inside the rails. Lift training is required before you run one. [SRC:safety-height]
+- **Mounting:** cameras, and especially PTZs, go into structure or listed mounting hardware, never hung from drywall or ceiling tile alone. A camera that falls on someone is a serious injury. [SRC:safety-mount]
+- **Line voltage:** 120 V outlets, circuits, and power to a pole are the electrician's. You plug in; you don't wire branch circuits. [SRC:safety-line-voltage]
+- **Tell the customer first.** Taking a camera or the recorder offline creates a gap in recording, and a gap is exactly when something happens. If the video is monitored, put the account on test with the monitoring center. [SRC:safety-notify]
 
 > **Field tip (David to add):** the ladder or lift habit that has kept you safe on camera jobs.
 
@@ -82,9 +82,9 @@ Most CCTV injuries come from **ladders and lifts**, not electricity.
 
 You'll see live video and recordings of people who never agreed to be filmed by you.
 
-- **Don't copy, photograph, share, or keep footage.** Not for training, not because it's funny, not to show the customer later on your own phone. Exports go to the customer through their process. [VERIFY:safety-privacy-footage]
-- **Some places never get cameras:** restrooms, locker rooms, changing areas, and anywhere people have a reasonable expectation of privacy. If a customer asks, the answer is no. [VERIFY:privacy-areas]
-- **Audio is a different law.** Recording conversations falls under wiretap laws, and some states require every party's consent. Leave audio off unless the customer has legal sign-off. Module 8 covers this. [VERIFY:audio-consent]
+- **Don't copy, photograph, share, or keep footage.** Not for training, not because it's funny, not to show the customer later on your own phone. Exports go to the customer through their process. [SRC:safety-privacy-footage]
+- **Some places never get cameras:** restrooms, locker rooms, changing areas, and anywhere people have a reasonable expectation of privacy. If a customer asks, the answer is no. [SRC:privacy-areas]
+- **Audio is a different law.** Recording conversations falls under wiretap laws, and some states require every party's consent. Leave audio off unless the customer has legal sign-off. Module 8 covers this. [SRC:audio-consent]
 
 ---
 

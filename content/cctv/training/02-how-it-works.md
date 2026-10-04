@@ -30,7 +30,7 @@ Two things to remember:
 
 - About **15 fps** looks smooth enough for most surveillance and is a common default.
 - **25 to 30 fps** for fast action: cash handling, gaming tables, traffic.
-- **1 to 7 fps** for wide overviews where you only need to know what happened, to save storage. [VERIFY:frame-rate]
+- **1 to 7 fps** for wide overviews where you only need to know what happened, to save storage. [SRC:frame-rate]
 
 Storage and bandwidth go up with frame rate, but not in a straight line, because compression (Lesson 2.3) only sends what changed between frames.
 
@@ -53,7 +53,7 @@ Raw video is enormous. A **codec** compresses it so it fits on the network and t
 | Codec | Notes |
 |---|---|
 | **H.264 (AVC)** | Plays on everything. The safe choice for evidence export. |
-| **H.265 (HEVC)** | Roughly 30 to 50% less bitrate than H.264 at similar quality. [VERIFY:codec-savings] Some older clients and browsers can't play it. |
+| **H.265 (HEVC)** | Roughly 30 to 50% less bitrate than H.264 at similar quality. [SRC:codec-savings] Some older clients and browsers can't play it. |
 | **Smart codecs** (vendor names vary) | Make the background change rarely and spend bits on moving objects. Big savings on quiet scenes; watch for smeared motion. |
 | **MJPEG** | Every frame a full JPEG. Huge. Only for special cases. |
 
@@ -75,7 +75,7 @@ Bitrate goes **up** with resolution, frame rate, scene motion (trees, rain, traf
 
 Viewing a 16-camera grid on main streams will choke a recorder or a phone. Set grids to the sub stream.
 
-**Planning numbers** for a first pass (measure the real cameras on site): a 4 MP camera at 15 fps runs roughly 4 to 6 Mbps in H.264 and 2 to 4 Mbps in H.265. Reference: *Bitrate and storage planning* has the table. [VERIFY:bitrate-typical]
+**Planning numbers** for a first pass (measure the real cameras on site): a 4 MP camera at 15 fps runs roughly 4 to 6 Mbps in H.264 and 2 to 4 Mbps in H.265. Reference: *Bitrate and storage planning* has the table. [SRC:bitrate-typical]
 
 ---
 
@@ -86,7 +86,7 @@ Cameras need light. When there isn't enough, they cheat, and every cheat has a c
 - **Gain** amplifies the signal: brighter image, more noise, higher bitrate.
 - **Slow shutter:** brighter image, motion blur.
 - **Day/night (ICR):** at dusk, a filter swings out of the way so the sensor can see infrared; the image switches to black and white.
-- **IR illuminators:** built-in IR LEDs light the scene at night. **850 nm** gives a faint red glow at the LEDs and more range; **940 nm** is invisible but has less range. [VERIFY:ir-wavelength]
+- **IR illuminators:** built-in IR LEDs light the scene at night. **850 nm** gives a faint red glow at the LEDs and more range; **940 nm** is invisible but has less range. [SRC:ir-wavelength]
 
 **WDR (wide dynamic range)** handles scenes with very bright and very dark areas at once, like a person standing in front of a glass door at noon. Without it, the face is a black silhouette. True WDR is listed in dB (120 dB or more is good); "digital WDR" is weaker. BLC (backlight compensation) is the older, cruder fix.
 

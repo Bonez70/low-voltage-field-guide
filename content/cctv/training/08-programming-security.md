@@ -12,7 +12,7 @@ On a new camera:
 2. **Address it:** static IP (or reservation), subnet mask, gateway, DNS, from your IP schedule.
 3. **Update firmware** to the current release before it goes on the wall.
 4. **Name it** by location ("East Lobby Door"), the same name on the camera and the recorder.
-5. **Set time:** time zone, daylight saving, and an NTP server (usually the recorder or the site's router). [VERIFY:time-sync]
+5. **Set time:** time zone, daylight saving, and an NTP server (usually the recorder or the site's router). [SRC:time-sync]
 6. **Set streams:** main stream resolution, frame rate, codec, VBR with a maximum bitrate; sub stream for live grids and phones.
 7. **Image settings** (Lesson 7.3), then add it to the recorder.
 
@@ -24,10 +24,10 @@ Recorders: create the recording schedule, motion or analytics zones, drive alert
 
 Video systems are among the most hacked devices on the internet. Every job:
 
-- **Change every default password,** unique to the site, and don't reuse your company's "standard" password on every customer. [VERIFY:hardening]
-- **Turn off what isn't used:** UPnP, P2P cloud if the customer doesn't use it, Telnet, SSH, and older protocols. [VERIFY:hardening]
-- **Update firmware** on install and on service visits. [VERIFY:hardening]
-- **No port forwarding** (Lesson 4.5). [VERIFY:no-port-forward]
+- **Change every default password,** unique to the site, and don't reuse your company's "standard" password on every customer. [SRC:hardening]
+- **Turn off what isn't used:** UPnP, P2P cloud if the customer doesn't use it, Telnet, SSH, and older protocols. [SRC:hardening]
+- **Update firmware** on install and on service visits. [SRC:hardening]
+- **No port forwarding** (Lesson 4.5). [SRC:no-port-forward]
 - **Separate the cameras** from the office network: the NVR's internal PoE network or a camera VLAN.
 - **HTTPS** for web logins where the device supports it.
 - **Write down** passwords and hand them over securely to the customer, not in a text message or on a sticker on the recorder.
@@ -48,7 +48,7 @@ Video systems are among the most hacked devices on the internet. Every job:
 
 ## Lesson 8.4: Privacy, audio, and signage
 
-**Never in private spaces.** Restrooms, locker rooms, changing areas, and anywhere people have a reasonable expectation of privacy. Many states make it a crime. [VERIFY:privacy-areas]
+**Never in private spaces.** Restrooms, locker rooms, changing areas, and anywhere people have a reasonable expectation of privacy. Many states make it a crime. [SRC:privacy-areas]
 
 **Privacy masks** block parts of the view that the customer has no right to record: a neighbor's windows or yard, keypads where people enter codes, and the doorway into a restroom. Masks are recorded black; they can't be removed later from the recording.
 
@@ -56,9 +56,9 @@ Video systems are among the most hacked devices on the internet. Every job:
 
 - Federal law allows recording when **one party** to the conversation consents, but a camera recording other people's conversations isn't a party to them.
 - **Some states require every party's consent.**
-- **Default: audio off.** Turn it on only when the customer has legal sign-off in writing. [VERIFY:audio-consent]
+- **Default: audio off.** Turn it on only when the customer has legal sign-off in writing. [SRC:audio-consent]
 
-**Signs:** "video surveillance in use" signs deter crime and, in some states and workplaces, are required notice to employees or the public. Recommend them on every job; the customer's legal advice decides where they're required. [VERIFY:signage]
+**Signs:** "video surveillance in use" signs deter crime and, in some states and workplaces, are required notice to employees or the public. Recommend them on every job; the customer's legal advice decides where they're required. [SRC:signage]
 
 ---
 
@@ -70,14 +70,14 @@ When the customer or police need video, how you export it decides whether it's u
 - **Keep timestamps** on, and the original time zone; note the recorder's time error if you know it.
 - **Watermark or hash** if the recorder offers it, so the file can be shown unchanged.
 - **Write down** who exported, when, which cameras, and which times (chain of custody).
-- **Check the export plays** on another computer before you leave. [VERIFY:evidence-export]
+- **Check the export plays** on another computer before you leave. [SRC:evidence-export]
 - **Protect the original:** lock or protect the clip on the recorder so it isn't overwritten while police or insurance decide what they need.
 
 ---
 
 ## Lesson 8.6: Compliance: NDAA and listings
 
-**NDAA Section 889** (from the 2019 National Defense Authorization Act) bars US federal agencies from buying, and federal contractors from using, video surveillance and telecom equipment made by certain companies (Hikvision, Dahua, Hytera, Huawei, and ZTE) and their affiliates, including products made by them and sold under other brand names. The FCC also bars new equipment authorizations for these companies' video gear. Government, school, and many corporate specs require "NDAA compliant" products. [VERIFY:ndaa-889]
+**NDAA Section 889** (from the 2019 National Defense Authorization Act) bars US federal agencies from buying, and federal contractors from using, video surveillance and telecom equipment made by certain companies (Hikvision, Dahua, Hytera, Huawei, and ZTE) and their affiliates, including products made by them and sold under other brand names. The FCC also bars new equipment authorizations for these companies' video gear. Government, school, and many corporate specs require "NDAA compliant" products. [SRC:ndaa-889]
 
 - Ask for the manufacturer's NDAA compliance letter for each model; relabeled products are the trap.
 - The product listing (UL 62368-1) and the ratings in Lesson 3.5 apply to every job.

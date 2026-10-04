@@ -2,7 +2,7 @@
 
 One guide per common video service call, for the Troubleshoot tab. Each guide is a step-by-step flowchart: do the step, then follow the result.
 
-**Every guide starts the same way:** tell the customer before you take a camera or the recorder offline, and put monitored video on test with the monitoring center. [VERIFY:safety-notify] Leave footage on the recorder, not on your phone. [VERIFY:safety-privacy-footage] Ladders and lifts by the rules in Lesson 1.4. [VERIFY:safety-height]
+**Every guide starts the same way:** tell the customer before you take a camera or the recorder offline, and put monitored video on test with the monitoring center. [SRC:safety-notify] Leave footage on the recorder, not on your phone. [SRC:safety-privacy-footage] Ladders and lifts by the rules in Lesson 1.4. [SRC:safety-height]
 
 ---
 
@@ -25,9 +25,9 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 
 **Symptom:** the camera goes offline for a minute and comes back, often at dusk or in cold weather.
 
-1. **Night only?** IR turning on raises power draw. Check the switch's PoE budget and the port's draw. Over budget → move cameras, lower the load, or upgrade the switch. Use the **PoE Budget calculator** with maximum draws. [VERIFY:poe-headroom]
-2. **Cold weather only?** The heater turned on. Cameras with heaters often need PoE+ or 802.3bt; check the port's class against the spec sheet. [VERIFY:poe-classes]
-3. **Non-PoE camera:** measure voltage at the camera with IR on. Low → voltage drop or a weak power supply output; use the **Voltage Drop calculator**. [VERIFY:camera-voltage]
+1. **Night only?** IR turning on raises power draw. Check the switch's PoE budget and the port's draw. Over budget → move cameras, lower the load, or upgrade the switch. Use the **PoE Budget calculator** with maximum draws. [SRC:poe-headroom]
+2. **Cold weather only?** The heater turned on. Cameras with heaters often need PoE+ or 802.3bt; check the port's class against the spec sheet. [SRC:poe-classes]
+3. **Non-PoE camera:** measure voltage at the camera with IR on. Low → voltage drop or a weak power supply output; use the **Voltage Drop calculator**. [SRC:camera-voltage]
 4. **Random times:** check the switch log for PoE faults and link flaps. Re-terminate both ends; check for water in the junction box.
 5. **Every day at the same time:** a scheduled reboot in the camera's maintenance settings, or a timer on the outlet or UPS powering the switch.
 6. Still rebooting on a known-good cable and port → update firmware, then replace the camera.
@@ -53,7 +53,7 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 
 **Symptom:** the image is sharp by day but soft, hazy, or washed out at night.
 
-1. **Soft at night only:** the lens focus shifts under IR. Refocus with IR on (auto-focus in night mode on motorized lenses). [VERIFY:ir-wavelength]
+1. **Soft at night only:** the lens focus shifts under IR. Refocus with IR on (auto-focus in night mode on motorized lenses). [SRC:ir-wavelength]
 2. **White haze or glow:** IR bouncing back into the lens.
    - Dome: clean the bubble inside and out (no fingerprints), and seat the IR skirt against the bubble.
    - Eaves, walls, or a soffit in the bottom or edge of the view: re-aim or move the camera away from the surface.
@@ -86,7 +86,7 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 3. **Recording choppy too:** check the recorder's incoming bandwidth against its rating, and the switch uplink against the total bitrate (Lesson 4.2).
 4. **Smeared motion:** the bitrate cap is too low for the scene (CBR or VBR maximum), or a smart codec is too aggressive. Raise the cap or turn the smart codec down.
 5. **Drops on one camera:** cable errors on that switch port (CRC errors), a duplex mismatch, or a failing termination. Re-terminate and test.
-6. **Frame rate set low** on purpose to save storage? Raise it where motion matters (Lesson 2.2). [VERIFY:frame-rate]
+6. **Frame rate set low** on purpose to save storage? Raise it where motion matters (Lesson 2.2). [SRC:frame-rate]
 
 ---
 
@@ -98,7 +98,7 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 2. Check the **schedule** for that camera: continuous, motion, or nothing at that time?
 3. **Motion recording missed it:** look at the motion or analytics zones and sensitivity. Walk the scene and watch the event indicator. Small or distant motion needs a closer zone or analytics.
 4. **Gaps at the same time every night:** day/night switching or IR causing camera reboots (Guide 2), or the bitrate exceeding the recorder's limit at night.
-5. **Gaps after power outages:** the recorder isn't on a UPS, or its drive took time to come back. [VERIFY:ups-recorder]
+5. **Gaps after power outages:** the recorder isn't on a UPS, or its drive took time to come back. [SRC:ups-recorder]
 6. **Gaps that match network drops:** edge recording on the camera can fill them; check the switch and uplink.
 7. After fixing: set alerts for recording failure and video loss, sent to someone who acts.
 
@@ -108,11 +108,11 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 
 **Symptom:** the recorder keeps fewer days than the customer was promised.
 
-1. Read the **actual bitrate** of every camera from the recorder. Night, rain, and busy scenes run higher than the planning numbers. [VERIFY:bitrate-typical]
-2. Redo the math with real bitrates in the **Storage calculator**, with headroom. [VERIFY:storage-margin]
-3. **Fixes without buying drives:** H.265 or a smart codec, VBR with a sensible cap, lower frame rate on overviews, motion or analytics recording on quiet cameras, sub stream recording off when not needed. [VERIFY:codec-savings]
+1. Read the **actual bitrate** of every camera from the recorder. Night, rain, and busy scenes run higher than the planning numbers. [SRC:bitrate-typical]
+2. Redo the math with real bitrates in the **Storage calculator**, with headroom. [SRC:storage-margin]
+3. **Fixes without buying drives:** H.265 or a smart codec, VBR with a sensible cap, lower frame rate on overviews, motion or analytics recording on quiet cameras, sub stream recording off when not needed. [SRC:codec-savings]
 4. Check the drive health and RAID status: a degraded RAID or a drive dropped out leaves less space.
-5. Still short → add drives (check the recorder's maximum size and bays) or a larger recorder. Confirm the required days in writing. [VERIFY:retention]
+5. Still short → add drives (check the recorder's maximum size and bays) or a larger recorder. Confirm the required days in writing. [SRC:retention]
 
 > **Field tip (David to add):** the setting change that recovers the most days on an existing system.
 
@@ -126,7 +126,7 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 2. Check the recorder's cloud or P2P status page: online? Offline → check the recorder's gateway and DNS settings and the site's internet. A firewall blocking outbound traffic needs the customer's IT.
 3. Using a VPN → check the VPN connection on the phone first.
 4. Connects but won't play → the phone is pulling the main stream on a slow connection. Set the app to the sub stream.
-5. The old setup used **port forwarding** → don't restore it. Move the customer to the cloud service with multi-factor login, or a VPN. [VERIFY:no-port-forward]
+5. The old setup used **port forwarding** → don't restore it. Move the customer to the cloud service with multi-factor login, or a VPN. [SRC:no-port-forward]
 
 ---
 
@@ -135,11 +135,11 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 **Symptom:** recordings are off by minutes or an hour, or cameras disagree with each other.
 
 1. Check the recorder's time, time zone, and daylight saving setting.
-2. Is it synced to an NTP server? It needs a working gateway and DNS to reach an internet time server, or point it at a local time source. [VERIFY:time-sync]
+2. Is it synced to an NTP server? It needs a working gateway and DNS to reach an internet time server, or point it at a local time source. [SRC:time-sync]
 3. Set every camera to sync to the recorder or the same NTP source. Cameras added to many NVRs sync automatically; check that the option is on.
 4. Off by exactly an hour → daylight saving setting or the wrong time zone.
 5. Slowly drifting → no NTP at all; the clock is running free.
-6. Note the time error before you fix it if there's an incident under review, so the exported video can be corrected. [VERIFY:evidence-export]
+6. Note the time error before you fix it if there's an incident under review, so the exported video can be corrected. [SRC:evidence-export]
 
 ---
 
@@ -148,7 +148,7 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 **Symptom:** horizontal bars rolling up the picture, hum lines, snow, or color loss on coax cameras.
 
 1. **Rolling dark bars:** a ground loop. The camera and DVR are grounded at different potentials (a camera on a metal pole or a different building). Use a ground loop isolator, isolate the camera from the pole, or go to fiber or UTP with baluns.
-2. **Snow or loss on long runs:** too long for the format, or copper-clad steel coax. Check the distance against the spec. [VERIFY:coax-distance]
+2. **Snow or loss on long runs:** too long for the format, or copper-clad steel coax. Check the distance against the spec. [SRC:coax-distance]
 3. **Intermittent video:** BNC connectors. Replace twist-on BNCs with compression connectors matched to the cable.
 4. **Interference near motors or lights:** reroute away from line voltage, or use shielded or twisted-pair with baluns.
 5. **No video and wrong format:** set the camera's output format (TVI, CVI, AHD, CVBS) to one the DVR accepts, usually with the camera's menu button or the DVR's auto-detect.
@@ -160,7 +160,7 @@ One guide per common video service call, for the Troubleshoot tab. Each guide is
 **Symptom:** the PTZ doesn't respond to controls, or presets point at the wrong place.
 
 1. Can you move it from its own web page? Yes → the recorder's PTZ setup: protocol, address, or user rights (the user needs PTZ permission).
-2. No movement at all → power. PTZs need much more power than fixed cameras; check PoE class (often 802.3bt) or the 24 VAC supply under load. [VERIFY:poe-classes]
+2. No movement at all → power. PTZs need much more power than fixed cameras; check PoE class (often 802.3bt) or the 24 VAC supply under load. [SRC:poe-classes]
 3. **Analog PTZ** (RS-485 control): check the address, protocol, baud rate, and polarity of the data pair.
 4. **Presets drift:** run the PTZ's calibration or home function; check for a loose mount letting the housing twist.
 5. **Moves on its own:** a guard tour, park action, or auto-tracking is set. Check the schedule and park settings.

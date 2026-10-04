@@ -6,7 +6,7 @@
  * Fonts: cached the first time they load; the app falls back to system fonts before that.
  */
 'use strict';
-var VERSION = '629dd25f36';
+var VERSION = '8e8c3c4fe5';
 var CACHE = 'slv-' + VERSION;
 var FILES = [
   "./",
@@ -24,7 +24,8 @@ var FILES = [
   "packs/index.js",
   "packs/intrusion.js",
   "packs/fire.js",
-  "packs/access.js"
+  "packs/access.js",
+  "packs/cctv.js"
 ];
 
 self.addEventListener('install', function (e) {

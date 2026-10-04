@@ -26,7 +26,7 @@ Quick cards for the Reference tab. Each `##` section is one card. Values are com
 
 ## Card: Pixel density targets (DORI)
 
-IEC 62676-4 targets on the target, at the target's distance. [VERIFY:dori-ppm]
+IEC 62676-4 targets on the target, at the target's distance. [SRC:dori-ppm]
 
 | Level | px/m | px/ft (about) | You can tell |
 |---|---|---|---|
@@ -74,7 +74,7 @@ Design uses the **width** in pixels.
 
 ## Card: PoE classes and power
 
-IEEE 802.3. Budget each camera's **maximum** draw (IR, heater, PTZ). [VERIFY:poe-classes]
+IEEE 802.3. Budget each camera's **maximum** draw (IR, heater, PTZ). [SRC:poe-classes]
 
 | Standard | Class | At the port | At the device |
 |---|---|---|---|
@@ -87,7 +87,7 @@ IEEE 802.3. Budget each camera's **maximum** draw (IR, heater, PTZ). [VERIFY:poe
 | 802.3bt Type 4 | 7 | 75 W | 62 W |
 | 802.3bt Type 4 | 8 | 90 W | 71.3 W |
 
-- Load a switch to no more than about **80% of its PoE budget**. [VERIFY:poe-headroom]
+- Load a switch to no more than about **80% of its PoE budget**. [SRC:poe-headroom]
 - Switches that allocate by class reserve the class's port watts, whatever the camera really draws.
 - Use the **PoE Budget calculator**.
 
@@ -95,12 +95,12 @@ IEEE 802.3. Budget each camera's **maximum** draw (IR, heater, PTZ). [VERIFY:poe
 
 ## Card: Network cable and distance
 
-- **100 m (328 ft)** channel: 90 m installed + 10 m cords. [VERIFY:ethernet-100m]
+- **100 m (328 ft)** channel: 90 m installed + 10 m cords. [SRC:ethernet-100m]
 - Cat5e or Cat6, **solid copper**, never CCA.
 - Terminate T568B (or A) the same both ends; test every run.
 - Past 100 m: PoE extender, fiber to a remote switch, or media converters.
 - Between buildings: **fiber**.
-- PoE bundles with more than 0.3 A per conductor: NEC bundle limits, or -LP cable. [VERIFY:poe-bundle]
+- PoE bundles with more than 0.3 A per conductor: NEC bundle limits, or -LP cable. [SRC:poe-bundle]
 
 ---
 
@@ -115,7 +115,7 @@ IEEE 802.3. Budget each camera's **maximum** draw (IR, heater, PTZ). [VERIFY:poe
 | HD over coax 1080p | About 500 m (1,600 ft) on RG59 |
 | HD over coax 4K / 8 MP | About 300 m (1,000 ft) |
 
-Distances vary by maker and format (HD-TVI, HD-CVI, AHD); check the specs. [VERIFY:coax-distance]
+Distances vary by maker and format (HD-TVI, HD-CVI, AHD); check the specs. [SRC:coax-distance]
 
 Baluns: matched passive pairs, one camera per twisted pair.
 
@@ -123,7 +123,7 @@ Baluns: matched passive pairs, one camera per twisted pair.
 
 ## Card: Bitrate and storage planning
 
-**Planning bitrates at 15 fps** (measure the real cameras on site): [VERIFY:bitrate-typical]
+**Planning bitrates at 15 fps** (measure the real cameras on site): [SRC:bitrate-typical]
 
 | Resolution | H.264 | H.265 |
 |---|---|---|
@@ -131,10 +131,10 @@ Baluns: matched passive pairs, one camera per twisted pair.
 | 4 MP | 4 to 6 Mbps | 2 to 4 Mbps |
 | 8 MP / 4K | 8 to 16 Mbps | 4 to 8 Mbps |
 
-Night, rain, trees, and busy scenes push bitrate up; smart codecs push it down. H.265 runs roughly 30 to 50% below H.264. [VERIFY:codec-savings]
+Night, rain, trees, and busy scenes push bitrate up; smart codecs push it down. H.265 runs roughly 30 to 50% below H.264. [SRC:codec-savings]
 
 **GB per camera per day = Mbps × 3600 × hours × fraction recorded ÷ 8 ÷ 1000**
-**TB total = GB per day (all cameras) × days ÷ 1000**, then add about **20%**. [VERIFY:storage-margin]
+**TB total = GB per day (all cameras) × days ÷ 1000**, then add about **20%**. [SRC:storage-margin]
 
 | Bitrate | GB per day (24 h continuous) | TB for 30 days |
 |---|---|---|
@@ -149,7 +149,7 @@ Use the **Storage calculator**.
 
 ## Card: IP addressing basics
 
-- **Private ranges:** 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16. [VERIFY:private-ip]
+- **Private ranges:** 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16. [SRC:private-ip]
 - **/24 = 255.255.255.0:** 254 usable addresses (.1 to .254).
 - **Gateway:** the router; needed for time, cloud, and remote access.
 - Cameras: **static IP or DHCP reservation.**
@@ -160,7 +160,7 @@ Use the **Storage calculator**.
 
 ## Card: Common ports and protocols
 
-Check the device manual for the real list. [VERIFY:ports]
+Check the device manual for the real list. [SRC:ports]
 
 | Port | What |
 |---|---|
@@ -169,7 +169,7 @@ Check the device manual for the real list. [VERIFY:ports]
 | 3702 UDP | ONVIF discovery (WS-Discovery) |
 | 123 UDP | NTP time |
 
-**ONVIF profiles:** S streaming and PTZ; T H.265, advanced streaming, events; G edge storage and playback; M analytics metadata. [VERIFY:onvif-profiles]
+**ONVIF profiles:** S streaming and PTZ; T H.265, advanced streaming, events; G edge storage and playback; M analytics metadata. [SRC:onvif-profiles]
 
 **RTSP stream:** most cameras give an RTSP address for the main and sub stream, used for testing with a media player and for third-party recorders.
 
@@ -177,13 +177,13 @@ Check the device manual for the real list. [VERIFY:ports]
 
 ## Card: Camera placement and mounting
 
-- **Identify at doors:** 8 to 10 ft high, small vertical angle to faces (under about 15 to 30°). [VERIFY:mount-height]
+- **Identify at doors:** 8 to 10 ft high, small vertical angle to faces (under about 15 to 30°). [SRC:mount-height]
 - **Overviews:** 10 to 14 ft, out of reach.
 - **Pair every entrance:** a wide overview plus a tight identify camera.
 - **Hallways:** corridor mode (portrait).
 - **Avoid:** sky, sun, headlights, bright windows behind the subject.
-- **Mount to structure** or listed hardware; PTZs get blocking. [VERIFY:safety-mount]
-- **LPR:** dedicated lane camera, shutter 1/1000 s or faster, under about 30° to the plate. [VERIFY:lpr-settings]
+- **Mount to structure** or listed hardware; PTZs get blocking. [SRC:safety-mount]
+- **LPR:** dedicated lane camera, shutter 1/1000 s or faster, under about 30° to the plate. [SRC:lpr-settings]
 
 ---
 
@@ -194,7 +194,7 @@ Check the device manual for the real list. [VERIFY:ports]
 | 850 nm IR | Faint red glow, longer range |
 | 940 nm IR | Invisible, shorter range |
 
-[VERIFY:ir-wavelength]
+[SRC:ir-wavelength]
 
 - IR bounces off eaves, walls, webs, and dirty dome bubbles: white haze.
 - Focus with IR on; lenses shift focus under infrared.
@@ -212,43 +212,43 @@ Check the device manual for the real list. [VERIFY:ports]
 | Riser | CMR / CL2R | CATVR |
 | Plenum | CMP / CL2P | CATVP |
 
-[VERIFY:nec-cable-type]
+[SRC:nec-cable-type]
 
-- Support from structure, not ceiling tile, grid wires, pipes, or conduit. [VERIFY:nec-support]
-- Firestop every rated wall and floor penetration. [VERIFY:firestop]
-- Plenum-space devices listed for plenum use. [VERIFY:plenum-devices]
-- Outdoor: UV-rated; gel-filled or direct burial underground; buried conduit is a wet location. [VERIFY:outdoor-cable]
-- Copper leaving the building: surge protection bonded to building ground. [VERIFY:outdoor-surge]
-- Metal poles bonded and grounded; lightning protection where designed. [VERIFY:pole-grounding]
+- Support from structure, not ceiling tile, grid wires, pipes, or conduit. [SRC:nec-support]
+- Firestop every rated wall and floor penetration. [SRC:firestop]
+- Plenum-space devices listed for plenum use. [SRC:plenum-devices]
+- Outdoor: UV-rated; gel-filled or direct burial underground; buried conduit is a wet location. [SRC:outdoor-cable]
+- Copper leaving the building: surge protection bonded to building ground. [SRC:outdoor-surge]
+- Metal poles bonded and grounded; lightning protection where designed. [SRC:pole-grounding]
 
 ---
 
 ## Card: Cybersecurity checklist
 
-- [ ] Default passwords changed, unique to the site. [VERIFY:hardening]
+- [ ] Default passwords changed, unique to the site. [SRC:hardening]
 - [ ] Firmware current on cameras and recorder.
 - [ ] UPnP, unused P2P, Telnet, SSH off.
-- [ ] No port forwarding; cloud with multi-factor login, or VPN. [VERIFY:no-port-forward]
+- [ ] No port forwarding; cloud with multi-factor login, or VPN. [SRC:no-port-forward]
 - [ ] Cameras on the NVR's PoE network or a camera VLAN.
 - [ ] Named user accounts with only the rights they need.
 - [ ] Passwords handed over securely, not stuck on the recorder.
-- [ ] NDAA-compliant models where the spec requires it. [VERIFY:ndaa-889]
+- [ ] NDAA-compliant models where the spec requires it. [SRC:ndaa-889]
 
 ---
 
 ## Card: Privacy, audio, and signage
 
-- **Never** in restrooms, locker rooms, changing areas, or other private spaces. [VERIFY:privacy-areas]
+- **Never** in restrooms, locker rooms, changing areas, or other private spaces. [SRC:privacy-areas]
 - **Mask** neighbors' windows, keypads, and restroom doorways.
-- **Audio off** unless the customer has written legal sign-off; some states need all-party consent. [VERIFY:audio-consent]
-- **Signs** recommended everywhere; required notice in some states and workplaces. [VERIFY:signage]
-- **Footage** stays with the customer: no copies on your phone. [VERIFY:safety-privacy-footage]
+- **Audio off** unless the customer has written legal sign-off; some states need all-party consent. [SRC:audio-consent]
+- **Signs** recommended everywhere; required notice in some states and workplaces. [SRC:signage]
+- **Footage** stays with the customer: no copies on your phone. [SRC:safety-privacy-footage]
 
 ---
 
 ## Card: Evidence export checklist
 
-- [ ] Native format with the player, plus an MP4 copy. [VERIFY:evidence-export]
+- [ ] Native format with the player, plus an MP4 copy. [SRC:evidence-export]
 - [ ] Timestamps on; time zone noted; recorder time error noted.
 - [ ] Watermark or hash if the recorder offers it.
 - [ ] Record who exported, when, which cameras, which times.
@@ -262,12 +262,12 @@ Check the device manual for the real list. [VERIFY:ports]
 - [ ] Every camera recording: right schedule, resolution, fps, codec.
 - [ ] Day and night views checked on playback with a walk test.
 - [ ] Focus checked with IR on.
-- [ ] Time synced to one NTP source on recorder and cameras. [VERIFY:time-sync]
-- [ ] Drives healthy; expected retention days shown; recheck after a few weeks. [VERIFY:retention]
+- [ ] Time synced to one NTP source on recorder and cameras. [SRC:time-sync]
+- [ ] Drives healthy; expected retention days shown; recheck after a few weeks. [SRC:retention]
 - [ ] Alerts for drive failure and video loss go to someone who acts.
 - [ ] Hardening done (Reference: *Cybersecurity checklist*).
 - [ ] Remote viewing on the customer's phone via cloud or VPN.
-- [ ] Recorder, core switch, and modem on a UPS. [VERIFY:ups-recorder]
+- [ ] Recorder, core switch, and modem on a UPS. [SRC:ups-recorder]
 - [ ] Customer trained on playback and export.
 - [ ] As-built: plan, IP schedule, views captured, passwords handed over.
 
