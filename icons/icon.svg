@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xmlns:c2pa="http://c2pa.org/manifest">
+  <rect width="512" height="512" rx="96" fill="#0d0d0d"/>
+  <path d="M256 84 L396 136 V252 C396 340 336 404 256 432 C176 404 116 340 116 252 V136 Z" fill="none" stroke="#e01e37" stroke-width="28" stroke-linejoin="round"/>
+  <path d="M150 262 H196 L212 222 L240 302 L268 222 L296 302 L316 262 H362" fill="none" stroke="#ffffff" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
