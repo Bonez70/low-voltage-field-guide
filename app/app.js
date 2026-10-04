@@ -319,19 +319,32 @@
 
   /* ---------- install + offline ---------- */
   var deferredPrompt = null;
+  var manualInstall = false;
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var embedded = false;
   try { embedded = window.top !== window; } catch (e) { embedded = true; }
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferredPrompt = e; if (state.tab === 'learn') render(); });
+  window.addEventListener('appinstalled', function () { deferredPrompt = null; standalone = true; toast('Installed. Open it from your home screen.'); if (state.tab === 'learn') render(); });
   function installCard() {
     if (standalone || embedded || prefs.hideInstall) return '';
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    var how = deferredPrompt ? '<div class="actions"><button class="btn primary" type="button" id="install">Install app</button><button class="btn" type="button" id="install-x">Not now</button></div>'
+    var how = deferredPrompt && !manualInstall ? '<div class="actions"><button class="btn primary" type="button" id="install">Install app</button><button class="btn" type="button" id="install-x">Not now</button></div>'
       : '<p class="note">' + (ios ? 'In Safari, tap the Share button, then <strong>Add to Home Screen</strong>.' : 'Open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.') +
         ' <a href="#" id="install-x">Hide this</a></p>';
     setTimeout(function () {
       var b = $('install'), x = $('install-x');
-      if (b) b.addEventListener('click', function () { deferredPrompt.prompt(); deferredPrompt = null; });
+      if (b) b.addEventListener('click', function () {
+        var ev = deferredPrompt;
+        deferredPrompt = null;
+        if (!ev) { manualInstall = true; render(); return; }
+        // A prompt can only be used once. Whatever happens, swap the button for
+        // the menu instructions so a second tap never looks dead.
+        var shown;
+        try { shown = Promise.resolve(ev.prompt()); } catch (err) { shown = Promise.reject(err); }
+        shown.then(function () { return ev.userChoice; })
+          .then(function (c) { if (!c || c.outcome !== 'accepted') manualInstall = true; }, function () { manualInstall = true; })
+          .then(function () { if (state.tab === 'learn') render(); });
+      });
       if (x) x.addEventListener('click', function (e) { e.preventDefault(); prefs.hideInstall = true; savePrefs(); render(); });
     });
     return '<section class="card"><h2>Put it on your home screen</h2><p class="note" style="color:var(--ink)">Installed, it opens like an app and works with no signal: basements, mechanical rooms, new construction.</p>' + how + '</section>';
