@@ -17,31 +17,43 @@
       { name: 'Interior siren', qty: 1, standbyMa: 0, alarmMa: 800 }
     ] },
     d: { amps: 0.5, gauge: 18, len: 150, vs: 12, vmin: 10.5 },
-    g: { amps: 0.5, len: 150, vs: 12, mode: 'vmin', allow: 10.5 }
+    g: { amps: 0.5, len: 150, vs: 12, mode: 'vmin', allow: 10.5 },
+    fb: { preset: 'hs', hours: 24, alarm: 5, devices: [
+      { name: 'Fire alarm control panel', qty: 1, standbyMa: 180, alarmMa: 300 },
+      { name: 'Addressable smoke detector', qty: 30, standbyMa: 0.3, alarmMa: 0.3 },
+      { name: 'Monitor module', qty: 4, standbyMa: 0.4, alarmMa: 0.4 },
+      { name: 'Horn/strobe 15 cd', qty: 10, standbyMa: 0, alarmMa: 60 },
+      { name: 'Horn/strobe 75 cd', qty: 4, standbyMa: 0, alarmMa: 150 }
+    ] },
+    n: { vs: 20.4, gauge: 14, len: 250, vmin: 16, rating: 2, apps: [
+      { name: 'Horn/strobe 15 cd', qty: 6, ma: 75 },
+      { name: 'Horn/strobe 75 cd', qty: 3, ma: 160 },
+      { name: 'Horn/strobe 110 cd', qty: 1, ma: 230 }
+    ] }
   };
   var S;
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
-  if (!S || !S.b || !S.d || !S.g) S = JSON.parse(JSON.stringify(DEFAULTS));
+  if (!S || typeof S !== 'object') S = {};
+  Object.keys(DEFAULTS).forEach(function (k) { if (!S[k]) S[k] = JSON.parse(JSON.stringify(DEFAULTS[k])); });
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
-  function isExample() { return JSON.stringify(S.b.devices) === JSON.stringify(DEFAULTS.b.devices); }
+
+  // Battery screens: intrusion (b) and fire (fb) share one screen with different presets and sizes.
+  var BATT = {
+    battery: { key: 'b', presets: C.STANDBY_PRESETS, sizes: C.BATTERY_SIZES_AH, calc: C.batteryStandby,
+      who: 'Include the panel itself, keypads, modules, detectors, and sirens (siren draw goes in alarm only).' },
+    firebatt: { key: 'fb', presets: C.FIRE_STANDBY_PRESETS, sizes: C.FIRE_BATTERY_SIZES_AH, calc: C.fireBattery,
+      who: 'Include the panel, every detector and module, annunciators, and every horn, strobe, and speaker (appliance draw goes in alarm only). NAC extenders have their own batteries; calculate them separately.' }
+  };
 
   var CALCS = {
     battery: { label: 'Battery', title: 'Battery standby' },
     drop: { label: 'Volt drop', title: 'Voltage drop' },
-    gauge: { label: 'Wire gauge', title: 'Wire gauge' }
+    gauge: { label: 'Wire gauge', title: 'Wire gauge' },
+    firebatt: { label: 'Battery', title: 'Fire battery' },
+    nac: { label: 'NAC drop', title: 'NAC voltage drop' }
   };
 
   var HTML = {
-    battery:
-      '<div class="readout" aria-live="polite"><div class="lbl">Battery to install</div><div class="big" id="b-batt">–</div><div class="sub" id="b-req"></div><div id="b-flag"></div></div>' +
-      '<p class="example" id="b-example">Example job loaded. Replace the devices with your own from their spec sheets.</p>' +
-      '<section class="card"><h2>Standby requirement</h2><div class="seg" id="b-presets"></div><div class="fields">' +
-      '<label>Standby time<div class="unit"><input id="b-hours" type="number" inputmode="decimal" min="0" step="any"><span>hours</span></div></label>' +
-      '<label>Alarm time<div class="unit"><input id="b-alarm" type="number" inputmode="decimal" min="0" step="any"><span>min</span></div></label></div>' +
-      '<p class="note">Confirm the required standby and alarm times with the applicable standard, the AHJ, and the panel installation manual.</p></section>' +
-      '<section class="card"><h2>Devices on the battery</h2><p class="note">Current in milliamps, per device. Include the panel itself, keypads, modules, detectors, and sirens (siren draw goes in alarm only).</p>' +
-      '<div class="devices" id="b-devices"></div><div class="actions"><button class="add" id="b-add" type="button">+ Add device</button><button class="add" id="b-reset" type="button">Load example</button></div><div class="totals" id="b-totals"></div></section>' +
-      '<section class="card"><h2>The math</h2><div class="math" id="b-math"></div><p class="note">Formula: Required Ah = [(standby A × standby h) + (alarm A × alarm h)] × 1.2. Common sizes 4, 5, 7, 8, 12, 18 Ah. Check the panel\'s maximum battery size and charger capability.</p></section>',
     drop:
       '<div class="readout" aria-live="polite"><div class="lbl">Voltage at the device</div><div class="big" id="d-end">–</div><div class="sub" id="d-sub"></div><div id="d-flag"></div></div>' +
       '<p class="example">Example values loaded. Enter your run.</p>' +
@@ -66,34 +78,64 @@
       '<p class="note">Max run is the longest one-way length that stays within your allowance at this current. Based on solid copper at 68 °F.</p></section>'
   };
 
+  function batteryHtml(cfg) {
+    var fire = cfg.key === 'fb';
+    return '<div class="readout" aria-live="polite"><div class="lbl">Battery to install</div><div class="big" id="b-batt">–</div><div class="sub" id="b-req"></div><div id="b-flag"></div></div>' +
+      '<p class="example" id="b-example">Example job loaded. Replace the devices with your own from their spec sheets.</p>' +
+      '<section class="card"><h2>Standby requirement</h2><div class="seg" id="b-presets"></div><div class="fields">' +
+      '<label>Standby time<div class="unit"><input id="b-hours" type="number" inputmode="decimal" min="0" step="any"><span>hours</span></div></label>' +
+      '<label>Alarm time<div class="unit"><input id="b-alarm" type="number" inputmode="decimal" min="0" step="any"><span>min</span></div></label></div>' +
+      '<p class="note">Confirm the required standby and alarm times with the applicable standard, the AHJ, and the panel installation manual.</p></section>' +
+      '<section class="card"><h2>Devices on the battery</h2><p class="note">Current in milliamps, per device. ' + cfg.who + '</p>' +
+      '<div class="devices" id="b-devices"></div><div class="actions"><button class="add" id="b-add" type="button">+ Add device</button><button class="add" id="b-reset" type="button">Load example</button></div><div class="totals" id="b-totals"></div></section>' +
+      '<section class="card"><h2>The math</h2><div class="math" id="b-math"></div><p class="note">Formula: Required Ah = [(standby A × standby h) + (alarm A × alarm h)] × 1.2. Common sizes ' + cfg.sizes.join(', ') + ' Ah. ' +
+      (fire ? 'Most fire panels use two 12 V batteries in series for 24 V; both the same size and age. ' : '') +
+      'Check the panel\'s maximum battery size and charger capability.</p></section>';
+  }
+    HTML.nac =
+    '<div class="readout" aria-live="polite"><div class="lbl">Voltage at the last appliance</div><div class="big" id="n-end">–</div><div class="sub" id="n-sub"></div><div id="n-flag"></div></div>' +
+    '<p class="example" id="n-example">Example circuit loaded. Replace the appliances with your own from their spec sheets.</p>' +
+    '<section class="card"><h2>The circuit</h2><div class="fields">' +
+    '<label>Source voltage<div class="unit"><input id="n-vs" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+    '<label>Wire gauge<select id="n-gauge"></select></label>' +
+    '<label>One-way length to last appliance<div class="unit"><input id="n-len" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label>' +
+    '<label>Appliance minimum voltage<div class="unit"><input id="n-vmin" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+    '<label class="full">NAC output rating (panel or extender manual)<div class="unit"><input id="n-rating" type="number" inputmode="decimal" min="0" step="any"><span>A</span></div></label></div>' +
+    '<p class="note">Start from the battery voltage at the end of standby (commonly 20.4 V), not 24 V. Regulated 24 V appliances commonly work down to 16 V; use the spec sheet value.</p></section>' +
+    '<section class="card"><h2>Appliances on this NAC</h2><p class="note">Current per appliance in milliamps at its candela setting, using the current at minimum voltage when the spec sheet lists it.</p>' +
+    '<div class="devices" id="n-apps"></div><div class="actions"><button class="add" id="n-add" type="button">+ Add appliance</button><button class="add" id="n-reset" type="button">Load example</button></div><div class="totals" id="n-totals"></div></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="n-math"></div><p class="note">All current is treated as if it were at the last appliance, the conservative method. If this fails, the manufacturer\'s point-to-point calculation may still pass. Solid copper at 68 °F.</p></section>';
+
   function mount(el, which) {
     var $ = function (id) { return el.querySelector('#' + id); };
-    el.innerHTML = '<div class="panel">' + HTML[which] + '</div>';
-    if (which === 'battery') battery($); else if (which === 'drop') drop($); else gauge($);
+    el.innerHTML = '<div class="panel">' + (BATT[which] ? batteryHtml(BATT[which]) : HTML[which]) + '</div>';
+    if (BATT[which]) battery($, BATT[which]); else if (which === 'drop') drop($); else if (which === 'nac') nac($); else gauge($);
   }
 
   /* ---------- battery ---------- */
-  function battery($) {
-    var presets = C.STANDBY_PRESETS.concat([{ id: 'custom', label: 'Custom', hours: null }]);
+  function battery($, cfg) {
+    var B = S[cfg.key], DEF = DEFAULTS[cfg.key];
+    var isExample = function () { return JSON.stringify(B.devices) === JSON.stringify(DEF.devices); };
+    var presets = cfg.presets.concat([{ id: 'custom', label: 'Custom', hours: null }]);
     $('b-presets').innerHTML = presets.map(function (p) {
-      return '<button type="button" data-id="' + p.id + '">' + esc(p.label) + (p.hours ? ' · ' + p.hours + ' h' : '') + '</button>';
+      return '<button type="button" data-id="' + p.id + '">' + esc(p.label) + (p.hours ? ' · ' + p.hours + ' h' : '') + (p.alarm ? ' + ' + p.alarm + ' min' : '') + '</button>';
     }).join('');
     $('b-presets').addEventListener('click', function (e) {
       var btn = e.target.closest('button'); if (!btn) return;
       var p = presets.filter(function (x) { return x.id === btn.dataset.id; })[0];
-      S.b.preset = p.id; if (p.hours) S.b.hours = p.hours;
-      $('b-hours').value = S.b.hours; calc();
+      B.preset = p.id; if (p.hours) B.hours = p.hours; if (p.alarm) B.alarm = p.alarm;
+      $('b-hours').value = B.hours; $('b-alarm').value = B.alarm; calc();
     });
-    $('b-hours').value = S.b.hours; $('b-alarm').value = S.b.alarm;
-    $('b-hours').addEventListener('input', function () {
-      S.b.hours = this.value;
-      var m = presets.filter(function (p) { return p.hours === Number(S.b.hours); })[0];
-      S.b.preset = m ? m.id : 'custom'; calc();
-    });
-    $('b-alarm').addEventListener('input', function () { S.b.alarm = this.value; calc(); });
+    $('b-hours').value = B.hours; $('b-alarm').value = B.alarm;
+    function matchPreset() {
+      var m = presets.filter(function (p) { return p.hours === Number(B.hours) && (!p.alarm || p.alarm === Number(B.alarm)); })[0];
+      B.preset = m ? m.id : 'custom';
+    }
+    $('b-hours').addEventListener('input', function () { B.hours = this.value; matchPreset(); calc(); });
+    $('b-alarm').addEventListener('input', function () { B.alarm = this.value; matchPreset(); calc(); });
 
     function renderDevices() {
-      $('b-devices').innerHTML = S.b.devices.map(function (d, i) {
+      $('b-devices').innerHTML = B.devices.map(function (d, i) {
         return '<div class="dev" data-i="' + i + '">' +
           '<label class="name">Device<input id="dv-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
           '<label>Qty<input id="dv-q-' + i + '" data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
@@ -104,30 +146,30 @@
     }
     $('b-devices').addEventListener('input', function (e) {
       var row = e.target.closest('.dev'); if (!row) return;
-      S.b.devices[+row.dataset.i][e.target.dataset.k] = e.target.value; calc();
+      B.devices[+row.dataset.i][e.target.dataset.k] = e.target.value; calc();
     });
     $('b-devices').addEventListener('click', function (e) {
       if (!e.target.classList.contains('del')) return;
-      S.b.devices.splice(+e.target.closest('.dev').dataset.i, 1); renderDevices(); calc();
+      B.devices.splice(+e.target.closest('.dev').dataset.i, 1); renderDevices(); calc();
     });
     $('b-add').addEventListener('click', function () {
-      S.b.devices.push({ name: '', qty: 1, standbyMa: '', alarmMa: '' });
+      B.devices.push({ name: '', qty: 1, standbyMa: '', alarmMa: '' });
       renderDevices(); calc();
-      var i = S.b.devices.length - 1; var el = $('dv-n-' + i); if (el) el.focus();
+      var i = B.devices.length - 1; var el = $('dv-n-' + i); if (el) el.focus();
     });
     $('b-reset').addEventListener('click', function () {
-      S.b = JSON.parse(JSON.stringify(DEFAULTS.b));
-      $('b-hours').value = S.b.hours; $('b-alarm').value = S.b.alarm; renderDevices(); calc();
+      S[cfg.key] = B = JSON.parse(JSON.stringify(DEF));
+      $('b-hours').value = B.hours; $('b-alarm').value = B.alarm; renderDevices(); calc();
     });
 
     function calc() {
       save();
       $('b-example').hidden = !isExample();
       $('b-reset').hidden = isExample();
-      Array.prototype.forEach.call($('b-presets').children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.id === S.b.preset)); });
-      var devs = S.b.devices.map(function (d) { return { qty: d.qty || 0, standbyMa: d.standbyMa || 0, alarmMa: d.alarmMa || 0 }; });
+      Array.prototype.forEach.call($('b-presets').children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.id === B.preset)); });
+      var devs = B.devices.map(function (d) { return { qty: d.qty || 0, standbyMa: d.standbyMa || 0, alarmMa: d.alarmMa || 0 }; });
       try {
-        var r = C.batteryStandby(devs, S.b.hours === '' ? NaN : S.b.hours, S.b.alarm === '' ? NaN : S.b.alarm);
+        var r = cfg.calc(devs, B.hours === '' ? NaN : B.hours, B.alarm === '' ? NaN : B.alarm);
         $('b-batt').innerHTML = r.battery ? r.battery + '<small>Ah</small>' : 'Over ' + r.largestCommon + '<small>Ah</small>';
         $('b-req').textContent = 'Required ' + f(r.requiredAh, 2) + ' Ah with 20% margin';
         $('b-flag').innerHTML = r.battery ? '<span class="pill ok">Next standard size up</span>'
@@ -138,7 +180,7 @@
           'Alarm    ' + f(r.alarmA, 3) + ' A × ' + f(r.alarmHours, 3) + ' h = ' + f(r.alarmAh, 3) + ' Ah\n' +
           'Subtotal                  = ' + f(r.baseAh, 3) + ' Ah\n' +
           '× 1.2 safety factor       = ' + f(r.requiredAh, 3) + ' Ah\n' +
-          'Next standard size        → ' + (r.battery ? r.battery + ' Ah' : 'none (over 18 Ah)');
+          'Next standard size        → ' + (r.battery ? r.battery + ' Ah' : 'none (over ' + r.largestCommon + ' Ah)');
       } catch (err) {
         $('b-batt').textContent = '–'; $('b-req').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
         $('b-flag').innerHTML = ''; $('b-math').textContent = '';
@@ -208,6 +250,71 @@
       }
     }
     calc();
+  }
+
+  /* ---------- NAC voltage drop (fire) ---------- */
+  function nac($) {
+    var N = S.n;
+    var isExample = function () { return JSON.stringify(N.apps) === JSON.stringify(DEFAULTS.n.apps); };
+    $('n-gauge').innerHTML = C.FIRE_GAUGES.map(function (g) { return '<option value="' + g + '">' + g + ' AWG (' + C.WIRE_OHMS_PER_FT[g] + ' Ω/ft)</option>'; }).join('');
+    ['vs', 'gauge', 'len', 'vmin', 'rating'].forEach(function (k) {
+      var el = $('n-' + k); el.value = N[k];
+      el.addEventListener('input', function () { N[k] = el.value; calc(); });
+    });
+    function renderApps() {
+      $('n-apps').innerHTML = N.apps.map(function (d, i) {
+        return '<div class="dev nac" data-i="' + i + '">' +
+          '<label class="name">Appliance<input id="na-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
+          '<label>Qty<input data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
+          '<label>mA each<input data-k="ma" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d.ma) + '"></label>' +
+          '<button type="button" class="del" aria-label="Remove ' + esc(d.name || 'appliance') + '">×</button></div>';
+      }).join('');
+    }
+    $('n-apps').addEventListener('input', function (e) {
+      var row = e.target.closest('.dev'); if (!row) return;
+      N.apps[+row.dataset.i][e.target.dataset.k] = e.target.value; calc();
+    });
+    $('n-apps').addEventListener('click', function (e) {
+      if (!e.target.classList.contains('del')) return;
+      N.apps.splice(+e.target.closest('.dev').dataset.i, 1); renderApps(); calc();
+    });
+    $('n-add').addEventListener('click', function () {
+      N.apps.push({ name: '', qty: 1, ma: '' }); renderApps(); calc();
+      var el = $('na-n-' + (N.apps.length - 1)); if (el) el.focus();
+    });
+    $('n-reset').addEventListener('click', function () {
+      S.n = N = JSON.parse(JSON.stringify(DEFAULTS.n));
+      ['vs', 'gauge', 'len', 'vmin', 'rating'].forEach(function (k) { $('n-' + k).value = N[k]; });
+      renderApps(); calc();
+    });
+    function calc() {
+      save();
+      $('n-example').hidden = !isExample();
+      $('n-reset').hidden = isExample();
+      try {
+        ['vs', 'len', 'vmin'].forEach(function (k) { if (N[k] === '') throw new Error('Fill in every field'); });
+        var apps = N.apps.map(function (a) { return { qty: a.qty || 0, ma: a.ma || 0 }; });
+        var r = C.nacDrop(apps, Number(N.gauge), N.len, N.vs, N.vmin, N.rating);
+        $('n-end').innerHTML = f(r.endV, 2) + '<small>V</small>';
+        $('n-sub').textContent = 'Drop ' + f(r.drop, 2) + ' V (' + f(r.pct, 1) + '%) · ' + f(r.currentA, 2) + ' A on the circuit';
+        var flags = r.pass ? '<span class="pill ok">Pass · ' + f(r.marginV, 2) + ' V to spare</span>'
+          : '<span class="pill bad">Fail · ' + f(-r.marginV, 2) + ' V short</span>';
+        if (r.overRating) flags += ' <span class="pill bad">Over the ' + f(r.ratingA, 2) + ' A NAC rating</span>';
+        if (!r.pass || r.overRating) flags += '<p class="sub" style="margin:8px 0 0">Go to a heavier gauge, split the appliances onto another NAC, or add a NAC power extender near the appliances.</p>';
+        $('n-flag').innerHTML = flags;
+        $('n-totals').innerHTML = '<span>Total ' + f(r.currentA * 1000, 0) + ' mA</span><span>Max run at this gauge ' + (isFinite(r.maxRunFt) ? Math.floor(r.maxRunFt) + ' ft' : '—') + '</span>';
+        $('n-math').textContent =
+          'Current  sum of qty × mA          = ' + f(r.currentA, 3) + ' A\n' +
+          'Loop     2 × ' + N.len + ' ft × ' + r.ohmsPerFt + ' Ω/ft = ' + f(r.loopOhms, 3) + ' Ω\n' +
+          'Drop     ' + f(r.loopOhms, 3) + ' Ω × ' + f(r.currentA, 3) + ' A     = ' + f(r.drop, 3) + ' V\n' +
+          'End      ' + N.vs + ' V − ' + f(r.drop, 3) + ' V        = ' + f(r.endV, 3) + ' V\n' +
+          'Minimum  ' + N.vmin + ' V → ' + (r.pass ? 'pass' : 'fail');
+      } catch (err) {
+        $('n-end').textContent = '–'; $('n-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('n-flag').innerHTML = ''; $('n-math').textContent = ''; $('n-totals').innerHTML = '';
+      }
+    }
+    renderApps(); calc();
   }
 
   window.SLVCalcUI = { CALCS: CALCS, mount: mount };
