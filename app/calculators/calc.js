@@ -2,7 +2,9 @@
  * Security Low Voltage App: calculator math.
  * Pure functions, no DOM. Intrusion values come from content/intrusion/reference.md,
  * signed off by David on 2026-10-04. Fire values come from content/fire/reference.md
- * and were signed off by David on 2026-10-04 (content/fire/VERIFY-SHEET.md).
+ * and were signed off by David on 2026-10-04 (content/fire/VERIFY-SHEET.md). Access values come from
+ * content/access/reference.md (pending sign-off: access verify items psu-80, batt-factor,
+ * ul294-standby, wiegand-distance, osdp-distance).
  * Change values in the content first, then here.
  */
 (function (root, factory) {
@@ -31,6 +33,18 @@
   var FIRE_GAUGES = [18, 16, 14, 12];
   var NAC_START_V = 20.4;   // battery at end of standby (85% of 24 V)
   var NAC_MIN_V = 16;       // regulated 24 VDC appliance minimum
+
+  // Access control (pending sign-off; see the comment at the top).
+  var ACCESS_PSU_SIZES_A = [1.5, 2.5, 4, 6, 10];       // common access power supply ratings
+  var ACCESS_LOAD_LIMIT = 0.8;                          // load a supply to no more than 80% of its rating
+  var ACCESS_BATTERY_SIZES_AH = [4, 7, 12, 18, 26, 40];
+  var ACCESS_STANDBY_PRESETS = [
+    { id: 'l2', label: 'UL 294 Level II', hours: 0.5 },
+    { id: 'l3', label: 'UL 294 Level III', hours: 2 },
+    { id: 'l4', label: 'UL 294 Level IV', hours: 4 }
+  ];
+  var READER_GAUGES = [22, 20, 18];
+  var READER_MAX_FT = { wiegand: 500, osdp: 4000 };
 
   function num(x, name) {
     var n = Number(x);
@@ -144,7 +158,56 @@
     return vd;
   }
 
+  /**
+   * Access power supply and battery.
+   * devices: [{ qty, normalMa, peakMa }]. normal = what draws all the time (maglocks, readers,
+   * controller); peak = everything energized at once (strikes unlocked too). The supply is sized
+   * on peak at 80% loading; the battery on normal current for the standby hours, with the 1.2 factor.
+   */
+  function accessPower(devices, standbyHours) {
+    var nMa = 0, pMa = 0;
+    (devices || []).forEach(function (d) {
+      var q = num(d.qty, 'Quantity');
+      nMa += q * num(d.normalMa, 'Normal current');
+      pMa += q * num(d.peakMa, 'Peak current');
+    });
+    var h = num(standbyHours, 'Standby hours');
+    var normalA = nMa / 1000, peakA = Math.max(pMa, nMa) / 1000;
+    var minPsuA = peakA / ACCESS_LOAD_LIMIT;
+    var psu = null, i;
+    for (i = 0; i < ACCESS_PSU_SIZES_A.length; i++) if (ACCESS_PSU_SIZES_A[i] >= minPsuA - 1e-9) { psu = ACCESS_PSU_SIZES_A[i]; break; }
+    var baseAh = normalA * h, requiredAh = baseAh * SAFETY_FACTOR, battery = null;
+    if (requiredAh > 0) for (i = 0; i < ACCESS_BATTERY_SIZES_AH.length; i++) if (ACCESS_BATTERY_SIZES_AH[i] >= requiredAh - 1e-9) { battery = ACCESS_BATTERY_SIZES_AH[i]; break; }
+    return {
+      normalA: normalA, peakA: peakA, minPsuA: minPsuA, psu: psu, loadPct: psu ? peakA / psu * 100 : null,
+      largestPsu: ACCESS_PSU_SIZES_A[ACCESS_PSU_SIZES_A.length - 1], standbyHours: h, baseAh: baseAh,
+      requiredAh: requiredAh, battery: requiredAh > 0 ? battery : 0,
+      largestBattery: ACCESS_BATTERY_SIZES_AH[ACCESS_BATTERY_SIZES_AH.length - 1], factor: SAFETY_FACTOR
+    };
+  }
+
+  /**
+   * Reader cable: data distance limit for the protocol plus reader power voltage drop.
+   * protocol 'wiegand' or 'osdp'; readerMa in mA.
+   */
+  function readerRun(protocol, gauge, oneWayFt, supplyV, readerMa, minV) {
+    var maxFt = READER_MAX_FT[protocol];
+    if (maxFt === undefined) throw new Error('Unknown reader protocol');
+    var I = num(readerMa, 'Reader current') / 1000;
+    var vd = voltageDrop(I, gauge, oneWayFt, supplyV, minV);
+    vd.currentA = I;
+    vd.protocol = protocol;
+    vd.maxDataFt = maxFt;
+    vd.dataOk = num(oneWayFt, 'Length') <= maxFt;
+    var Vs = num(supplyV, 'Supply voltage');
+    vd.maxPowerFt = minV !== undefined && minV !== null && minV !== '' ? (Vs > Number(minV) ? maxRunFt(I, gauge, Vs - Number(minV)) : 0) : null;
+    return vd;
+  }
+
   return {
+    ACCESS_PSU_SIZES_A: ACCESS_PSU_SIZES_A, ACCESS_LOAD_LIMIT: ACCESS_LOAD_LIMIT, ACCESS_BATTERY_SIZES_AH: ACCESS_BATTERY_SIZES_AH,
+    ACCESS_STANDBY_PRESETS: ACCESS_STANDBY_PRESETS, READER_GAUGES: READER_GAUGES, READER_MAX_FT: READER_MAX_FT,
+    accessPower: accessPower, readerRun: readerRun,
     FIRE_BATTERY_SIZES_AH: FIRE_BATTERY_SIZES_AH, FIRE_STANDBY_PRESETS: FIRE_STANDBY_PRESETS,
     FIRE_GAUGES: FIRE_GAUGES, NAC_START_V: NAC_START_V, NAC_MIN_V: NAC_MIN_V,
     fireBattery: fireBattery, nacDrop: nacDrop,
