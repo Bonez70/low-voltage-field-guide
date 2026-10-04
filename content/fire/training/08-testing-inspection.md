@@ -27,12 +27,12 @@ After acceptance, the **owner** is responsible for periodic inspection, testing,
 
 | Item | Common frequency |
 |---|---|
-| Control panel, trouble signals, power | Visual inspection semiannually or annually, functional test **annually** [VERIFY:itm-freq] |
-| Smoke, heat (restorable), duct detectors, pull stations | Functional test **annually** [VERIFY:itm-freq] |
-| Notification appliances | Functional test **annually** [VERIFY:itm-freq] |
-| Waterflow and valve supervisory switches | **Semiannually** [VERIFY:itm-waterflow] |
-| Batteries (sealed lead-acid) | Inspect and test **semiannually**, replace about every **5 years** [VERIFY:itm-freq] |
-| Monitoring transmission | Tested **annually**, plus automatic test signals daily or more often [VERIFY:itm-freq] |
+| Control panel, trouble signals, power | Visual inspection semiannually or annually, functional test **annually** [SRC:itm-freq] |
+| Smoke, heat (restorable), duct detectors, pull stations | Functional test **annually** [SRC:itm-freq] |
+| Notification appliances | Functional test **annually** [SRC:itm-freq] |
+| Waterflow and valve supervisory switches | **Semiannually** [SRC:itm-waterflow] |
+| Batteries (sealed lead-acid) | Inspect and test **semiannually**, replace about every **5 years** [SRC:itm-freq] |
+| Monitoring transmission | Tested **annually**, plus automatic test signals daily or more often [SRC:itm-freq] |
 | Smoke detector sensitivity | See Lesson 8.3 |
 
 Sprinkler-related devices are often also on the sprinkler inspection schedule (NFPA 25); coordinate with the sprinkler inspector so a valve closed for their test doesn't surprise you.
@@ -43,17 +43,17 @@ Sprinkler-related devices are often also on the sprinkler inspection schedule (N
 
 | Device | Test method |
 |---|---|
-| **Smoke detector** | Listed aerosol smoke or a smoke generator that actually puts smoke into the chamber. A magnet test only checks the electronics, not the chamber. [VERIFY:test-smoke] |
-| **Smoke sensitivity** | Measure with the panel's sensitivity readout (addressable) or a listed sensitivity tester. Required within **1 year** after install, then every **other year**. If results stay in range, the interval can be extended up to **5 years**. [VERIFY:test-sensitivity] |
+| **Smoke detector** | Listed aerosol smoke or a smoke generator that actually puts smoke into the chamber. A magnet test only checks the electronics, not the chamber. [SRC:test-smoke] |
+| **Smoke sensitivity** | Measure with the panel's sensitivity readout (addressable) or a listed sensitivity tester. Required within **1 year** after install, then every **other year**. If results stay in range, the interval can be extended up to **5 years**. [SRC:test-sensitivity] |
 | **Heat detector (restorable)** | Listed heat source (heat gun or cup tester), within the manufacturer's guidelines. Don't overheat plastic housings. |
-| **Heat detector (non-restorable)** | Not heat tested; test the circuit with a mechanical or electrical method. Replaced or sample-tested after a set number of years per NFPA 72. [VERIFY:test-heat-nonrestorable] |
+| **Heat detector (non-restorable)** | Not heat tested; test the circuit with a mechanical or electrical method. Replaced or sample-tested after a set number of years per NFPA 72. [SRC:test-heat-nonrestorable] |
 | **Pull station** | Operate it as a person would, then reset it. |
 | **Duct detector** | Smoke through the test port or as the manufacturer directs, plus confirm airflow in the sampling tubes. |
 | **Waterflow switch** | Flow water through the inspector's test valve; time the signal. |
 | **Tamper switch** | Close the valve (with the sprinkler contractor or building), confirm the signal by two turns, open fully, confirm restore. |
 | **Horn/strobe** | Activate and confirm every appliance works and sync looks right. |
 
-**Never use an open flame** to test a detector. [VERIFY:test-smoke]
+**Never use an open flame** to test a detector. [SRC:test-smoke]
 
 > **Field tip (David to add):** how you keep track of which devices you've tested on a large building.
 
@@ -63,8 +63,8 @@ Sprinkler-related devices are often also on the sprinkler inspection schedule (N
 
 An **impairment** is any time the system (or part of it) can't do its job: a circuit disabled, a panel down for repair, devices removed during a remodel.
 
-- **Notify the AHJ and the owner** when the system will be out of service for more than **4 hours in a 24-hour period**, and the monitoring center whenever signals will be affected. [VERIFY:impairment-4h]
-- The AHJ may require a **fire watch**: trained people walking the building looking for fire, with a way to call the fire department, until the system is restored. [VERIFY:impairment-4h]
+- **Notify the AHJ and the owner** when the system will be out of service for more than **4 hours in a 24-hour period**, and the monitoring center whenever signals will be affected. [SRC:impairment-4h]
+- The AHJ may require a **fire watch**: trained people walking the building looking for fire, with a way to call the fire department, until the system is restored. [SRC:impairment-4h]
 - **Tag the panel** with what's impaired and who to call, and remove the tag when you restore it.
 - **Never leave a site** with a circuit, device, or output disabled unless the owner and AHJ know and the impairment is documented.
 
@@ -77,9 +77,9 @@ An **impairment** is any time the system (or part of it) can't do its job: a cir
 Every fire job produces paperwork. Leave it complete; the next tech and the inspector depend on it.
 
 - **Record of Completion:** the form (from NFPA 72) describing the system, its power, circuits, devices, and monitoring, signed at acceptance.
-- **Record (as-built) drawings, sequence of operations, battery and voltage drop calculations, and manufacturer manuals:** kept on site, often in a **documentation cabinet** at the panel. [VERIFY:docs]
-- **Inspection and test reports:** a record of each device tested, the result, and any deficiencies. Retained at least until the next test plus one year. [VERIFY:docs]
-- **Site-specific software and passwords:** a copy of the panel program kept on site or with the owner, so the system can be serviced if the original installer is gone. [VERIFY:docs]
+- **Record (as-built) drawings, sequence of operations, battery and voltage drop calculations, and manufacturer manuals:** kept on site, often in a **documentation cabinet** at the panel. [SRC:docs]
+- **Inspection and test reports:** a record of each device tested, the result, and any deficiencies. Retained at least until the next test plus one year. [SRC:docs]
+- **Site-specific software and passwords:** a copy of the panel program kept on site or with the owner, so the system can be serviced if the original installer is gone. [SRC:docs]
 
 ---
 

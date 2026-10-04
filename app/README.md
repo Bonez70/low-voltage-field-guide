@@ -1,6 +1,6 @@
 # Low Voltage Field Guide (v1 app)
 
-Installable, offline mobile web app (PWA) for security low voltage techs. v1 carries the Intrusion pack; Fire, Access control and CCTV show in the system switcher as coming.
+Installable, offline mobile web app (PWA) for security low voltage techs. Carries the Intrusion and Fire alarm packs; Access control and CCTV show in the system switcher as coming.
 
 ## Layout
 

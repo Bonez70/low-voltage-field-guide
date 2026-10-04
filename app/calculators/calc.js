@@ -2,7 +2,7 @@
  * Security Low Voltage App: calculator math.
  * Pure functions, no DOM. Intrusion values come from content/intrusion/reference.md,
  * signed off by David on 2026-10-04. Fire values come from content/fire/reference.md
- * and are pending David's sign-off (content/fire/VERIFY-SHEET.md).
+ * and were signed off by David on 2026-10-04 (content/fire/VERIFY-SHEET.md).
  * Change values in the content first, then here.
  */
 (function (root, factory) {

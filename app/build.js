@@ -29,7 +29,7 @@ const PACKS = [
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   },
   {
-    id: 'fire', name: 'Fire alarm', blurb: 'Fire alarm, NFPA 72 based, small to mid-size commercial', draft: true,
+    id: 'fire', name: 'Fire alarm', blurb: 'Fire alarm, NFPA 72 based, small to mid-size commercial',
     calculators: ['firebatt', 'nac', 'gauge'],
     training: 'training', reference: 'reference.md', troubleshooting: 'troubleshooting.md'
   }

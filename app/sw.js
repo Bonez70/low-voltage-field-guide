@@ -5,7 +5,7 @@
  * Fonts: cached the first time they load; the app falls back to system fonts before that.
  */
 'use strict';
-var VERSION = 'b1f0104439';
+var VERSION = '0b79c08e0e';
 var CACHE = 'slv-' + VERSION;
 var FILES = [
   "./",
@@ -21,7 +21,8 @@ var FILES = [
   "icons/apple-touch-icon.png",
   "icons/icon.svg",
   "packs/index.js",
-  "packs/intrusion.js"
+  "packs/intrusion.js",
+  "packs/fire.js"
 ];
 
 self.addEventListener('install', function (e) {

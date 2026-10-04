@@ -94,7 +94,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 4. Check the location: within 3 ft of a supply diffuser or return? Air drawing dust into it or blowing across it? [SRC:smoke-hvac]
 5. Construction dust? Clean or replace, and make sure dust covers are used next time. [SRC:construction-dust]
 6. Fix the cause: clean, replace, or relocate or change the detector type **with the designer's or AHJ's approval**. Don't change device types on your own.
-7. **Never leave a nuisance detector disabled** without notifying the owner and AHJ and documenting the impairment. [VERIFY:impairment-4h]
+7. **Never leave a nuisance detector disabled** without notifying the owner and AHJ and documenting the impairment. [SRC:impairment-4h]
 
 > **Field tip (David to add):** a nuisance alarm cause that took you a long time to find.
 
@@ -135,7 +135,7 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 4. **IP:** check the network cable, the switch port, and that the network still allows the communicator out.
 5. Check the account number and receiver numbers in the panel or communicator programming.
 6. Send a test signal and confirm with the operator that the account and event came in correctly.
-7. Until the path is restored, the system is impaired for off-site reporting; notify the owner. [VERIFY:impairment-4h]
+7. Until the path is restored, the system is impaired for off-site reporting; notify the owner. [SRC:impairment-4h]
 
 ---
 
@@ -175,5 +175,5 @@ One guide per common fire service call, for the Troubleshoot tab. Each guide is 
 2. Put the account on test and disable the device or zone. [SRC:safety-notify]
 3. Replace the head (or base and head), set the same address on addressable systems.
 4. Confirm the panel sees the correct device type at the correct address, with no troubles.
-5. Test the new device with listed smoke or the correct method. [VERIFY:test-smoke]
+5. Test the new device with listed smoke or the correct method. [SRC:test-smoke]
 6. Record the replacement on the test report.

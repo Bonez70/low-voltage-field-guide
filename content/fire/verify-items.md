@@ -330,33 +330,40 @@ Chapter references are to NFPA 72 (2019 and 2022 editions) from general industry
 **Proposed:** smoke, restorable heat, duct detectors, pull stations, notification appliances, and the panel functionally tested annually; batteries inspected and tested semiannually; transmission to the monitoring center tested annually.
 **Source:** NFPA 72 Ch. 14 testing frequency table.
 **Cite:** NFPA 72 Ch. 14
+**Status:** signed off by David 2026-10-04
 
 ### itm-waterflow: Waterflow and tamper frequency
 **Proposed:** waterflow and valve supervisory switches tested semiannually (NFPA 25 may require some quarterly).
 **Source:** NFPA 72 Ch. 14 and NFPA 25.
 **Cite:** NFPA 72 Ch. 14; NFPA 25
+**Status:** signed off by David 2026-10-04
 
 ### test-smoke: Smoke detector test method
 **Proposed:** test with listed aerosol smoke or a smoke generator that puts smoke in the chamber; a magnet test only checks electronics; never use an open flame.
 **Source:** NFPA 72 Ch. 14 test methods.
 **Cite:** NFPA 72 Ch. 14
+**Status:** signed off by David 2026-10-04
 
 ### test-sensitivity: Sensitivity testing
 **Proposed:** within 1 year after installation, then every other year; if results stay in range, the interval can be extended up to 5 years.
 **Source:** NFPA 72 Ch. 14 (sensitivity testing).
 **Cite:** NFPA 72 Ch. 14
+**Status:** signed off by David 2026-10-04
 
 ### test-heat-nonrestorable: Non-restorable heat detectors
 **Proposed:** not heat tested; the circuit is tested mechanically or electrically, and heads are replaced or sample lab-tested after a set number of years (commonly 15 years, 2 per 100).
 **Source:** NFPA 72 Ch. 14.
 **Cite:** NFPA 72 Ch. 14
+**Status:** signed off by David 2026-10-04
 
 ### impairment-4h: Impairments and fire watch
 **Proposed:** notify the AHJ and owner when the system will be out of service more than 4 hours in a 24-hour period; the AHJ may require a fire watch.
 **Source:** NFPA 72 Ch. 10 (impairments) and IFC 901.7.
 **Cite:** NFPA 72 Ch. 10; IFC 901.7
+**Status:** signed off by David 2026-10-04
 
 ### docs: Documentation on site
 **Proposed:** record drawings, sequence of operations, calculations, manuals, and site-specific software kept on site (often in a documentation cabinet); inspection and test records kept at least until the next test plus one year.
 **Source:** NFPA 72 Ch. 7 (documentation) and Ch. 14 (records retention).
 **Cite:** NFPA 72 Ch. 7 and 14
+**Status:** signed off by David 2026-10-04

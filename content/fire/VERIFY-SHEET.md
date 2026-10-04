@@ -1,6 +1,6 @@
 # Verify Sheet: Fire Alarm Draft
 
-**Status: 51 of 58 signed off, 7 waiting on David** (items 52 to 58). Nothing in the fire alarm pack goes live until every item is signed off.
+**Status: all 58 items signed off.**
 
 Every code value and safety step in the draft, numbered, with the full paragraph it sits in. The value being checked is marked **⟦#n⟧** in the quote. Where the same value appears in several places, the first two are quoted and the rest are listed; one answer covers them all.
 
@@ -9,115 +9,6 @@ Every code value and safety step in the draft, numbered, with the full paragraph
 `all ok except 7, 22`
 
 "Source" is my honest note of where the value comes from. None of it was checked against the code book itself; it's general industry knowledge of NFPA 72 and the NEC, so your field experience and your adopted edition win.
-
----
-
-## Testing, impairments, and documentation
-
-### 52. Inspection and testing frequencies
-**Where:** Module 8, Lesson 8.2 "Inspection and testing schedule"
-> | Item | Common frequency |
-> |---|---|
-> | Control panel, trouble signals, power | Visual inspection semiannually or annually, functional test **annually** **⟦#52⟧** |
-
-**Where:** Reference card "Inspection and testing frequencies"
-> | Item | Common frequency |
-> |---|---|
-> | Smoke, heat, duct detectors, pull stations | Annual functional test **⟦#52⟧** |
-
-**Proposed:** smoke, restorable heat, duct detectors, pull stations, notification appliances, and the panel functionally tested annually; batteries inspected and tested semiannually; transmission to the monitoring center tested annually.
-
-**Source:** NFPA 72 Ch. 14 testing frequency table.
-
-**Shown in the app as:** (NFPA 72 Ch. 14)
-
-### 53. Waterflow and tamper frequency
-**Where:** Module 8, Lesson 8.2 "Inspection and testing schedule"
-> | Item | Common frequency |
-> |---|---|
-> | Waterflow and valve supervisory switches | **Semiannually** **⟦#53⟧** |
-
-**Where:** Reference card "Inspection and testing frequencies"
-> | Item | Common frequency |
-> |---|---|
-> | Waterflow, tamper | Semiannual **⟦#53⟧** |
-
-**Proposed:** waterflow and valve supervisory switches tested semiannually (NFPA 25 may require some quarterly).
-
-**Source:** NFPA 72 Ch. 14 and NFPA 25.
-
-**Shown in the app as:** (NFPA 72 Ch. 14; NFPA 25)
-
-### 54. Smoke detector test method
-**Where:** Module 8, Lesson 8.3 "How to test each device"
-> | Device | Test method |
-> |---|---|
-> | **Smoke detector** | Listed aerosol smoke or a smoke generator that actually puts smoke into the chamber. A magnet test only checks the electronics, not the chamber. **⟦#54⟧** |
-
-**Where:** Troubleshooting Guide 12 "Detector or device needs replacing"
-> 5. Test the new device with listed smoke or the correct method. **⟦#54⟧**
-
-**Proposed:** test with listed aerosol smoke or a smoke generator that puts smoke in the chamber; a magnet test only checks electronics; never use an open flame.
-
-**Source:** NFPA 72 Ch. 14 test methods.
-
-**Shown in the app as:** (NFPA 72 Ch. 14)
-
-### 55. Sensitivity testing
-**Where:** Module 8, Lesson 8.3 "How to test each device"
-> | Device | Test method |
-> |---|---|
-> | **Smoke sensitivity** | Measure with the panel's sensitivity readout (addressable) or a listed sensitivity tester. Required within **1 year** after install, then every **other year**. If results stay in range, the interval can be extended up to **5 years**. **⟦#55⟧** |
-
-**Where:** Reference card "Inspection and testing frequencies"
-> | Item | Common frequency |
-> |---|---|
-> | Smoke sensitivity | 1 year after install, then every other year; up to 5 years if stable **⟦#55⟧** |
-
-**Proposed:** within 1 year after installation, then every other year; if results stay in range, the interval can be extended up to 5 years.
-
-**Source:** NFPA 72 Ch. 14 (sensitivity testing).
-
-**Shown in the app as:** (NFPA 72 Ch. 14)
-
-### 56. Non-restorable heat detectors
-**Where:** Module 8, Lesson 8.3 "How to test each device"
-> | Device | Test method |
-> |---|---|
-> | **Heat detector (non-restorable)** | Not heat tested; test the circuit with a mechanical or electrical method. Replaced or sample-tested after a set number of years per NFPA 72. **⟦#56⟧** |
-
-**Proposed:** not heat tested; the circuit is tested mechanically or electrically, and heads are replaced or sample lab-tested after a set number of years (commonly 15 years, 2 per 100).
-
-**Source:** NFPA 72 Ch. 14.
-
-**Shown in the app as:** (NFPA 72 Ch. 14)
-
-### 57. Impairments and fire watch
-**Where:** Module 8, Lesson 8.4 "Impairments, fire watch, and nuisance alarms"
-> - **Notify the AHJ and the owner** when the system will be out of service for more than **4 hours in a 24-hour period**, and the monitoring center whenever signals will be affected. **⟦#57⟧**
-
-**Where:** Reference card "Inspection and testing frequencies"
-> | Item | Common frequency |
-> |---|---|
-> | Impairment over 4 h in 24 h | Notify AHJ; fire watch may be required **⟦#57⟧** |
-
-**Also in:** Troubleshooting Guide 6 "Nuisance smoke alarms"; Troubleshooting Guide 9 "Failure to communicate with the monitoring center"
-
-**Proposed:** notify the AHJ and owner when the system will be out of service more than 4 hours in a 24-hour period; the AHJ may require a fire watch.
-
-**Source:** NFPA 72 Ch. 10 (impairments) and IFC 901.7.
-
-**Shown in the app as:** (NFPA 72 Ch. 10; IFC 901.7)
-
-### 58. Documentation on site
-**Where:** Module 8, Lesson 8.5 "Documentation"
-> - **Record (as-built) drawings, sequence of operations, battery and voltage drop calculations, and manufacturer manuals:** kept on site, often in a **documentation cabinet** at the panel. **⟦#58⟧**
-
-**Proposed:** record drawings, sequence of operations, calculations, manuals, and site-specific software kept on site (often in a documentation cabinet); inspection and test records kept at least until the next test plus one year.
-
-**Source:** NFPA 72 Ch. 7 (documentation) and Ch. 14 (records retention).
-
-**Shown in the app as:** (NFPA 72 Ch. 7 and 14)
 
 ---
 
@@ -174,4 +65,11 @@ Every code value and safety step in the draft, numbered, with the full paragraph
 - **49. NAC calculation starting voltage** (signed off by David 2026-10-04): calculate NAC voltage drop from 20.4 VDC (85% of 24 V, battery at end of standby), not 24 V. *Source: Manufacturer worksheets.*
 - **50. Communication paths and test signals** (signed off by David 2026-10-04): DACTs traditionally need two separate paths; many single-path cellular or IP communicators are now listed as an acceptable sole means when the path itself is supervised. Test signals go to the monitoring center on a regular schedule (commonly at least every 24 h). *Source: NFPA 72 Ch. 26.*
 - **51. Contact ID fire codes** (signed off by David 2026-10-04): 110 fire, 111 smoke, 113 waterflow, 114 heat, 115 pull station, 116 duct, 200 fire supervisory, 203 gate valve, 301 AC loss, 302 low battery, 373 fire trouble, 602 periodic test. *Source: SIA DC-05.*
+- **52. Inspection and testing frequencies** (signed off by David 2026-10-04): smoke, restorable heat, duct detectors, pull stations, notification appliances, and the panel functionally tested annually; batteries inspected and tested semiannually; transmission to the monitoring center tested annually. *Source: NFPA 72 Ch. 14.*
+- **53. Waterflow and tamper frequency** (signed off by David 2026-10-04): waterflow and valve supervisory switches tested semiannually (NFPA 25 may require some quarterly). *Source: NFPA 72 Ch. 14; NFPA 25.*
+- **54. Smoke detector test method** (signed off by David 2026-10-04): test with listed aerosol smoke or a smoke generator that puts smoke in the chamber; a magnet test only checks electronics; never use an open flame. *Source: NFPA 72 Ch. 14.*
+- **55. Sensitivity testing** (signed off by David 2026-10-04): within 1 year after installation, then every other year; if results stay in range, the interval can be extended up to 5 years. *Source: NFPA 72 Ch. 14.*
+- **56. Non-restorable heat detectors** (signed off by David 2026-10-04): not heat tested; the circuit is tested mechanically or electrically, and heads are replaced or sample lab-tested after a set number of years (commonly 15 years, 2 per 100). *Source: NFPA 72 Ch. 14.*
+- **57. Impairments and fire watch** (signed off by David 2026-10-04): notify the AHJ and owner when the system will be out of service more than 4 hours in a 24-hour period; the AHJ may require a fire watch. *Source: NFPA 72 Ch. 10; IFC 901.7.*
+- **58. Documentation on site** (signed off by David 2026-10-04): record drawings, sequence of operations, calculations, manuals, and site-specific software kept on site (often in a documentation cabinet); inspection and test records kept at least until the next test plus one year. *Source: NFPA 72 Ch. 7 and 14.*
 

@@ -226,13 +226,13 @@ Use the NAC Voltage Drop calculator.
 
 | Item | Common frequency |
 |---|---|
-| Smoke, heat, duct detectors, pull stations | Annual functional test [VERIFY:itm-freq] |
-| Horns, strobes, speakers | Annual [VERIFY:itm-freq] |
-| Panel and power, trouble signals | Annual [VERIFY:itm-freq] |
-| Waterflow, tamper | Semiannual [VERIFY:itm-waterflow] |
-| Batteries | Semiannual inspection and test [VERIFY:itm-freq] |
-| Smoke sensitivity | 1 year after install, then every other year; up to 5 years if stable [VERIFY:test-sensitivity] |
-| Impairment over 4 h in 24 h | Notify AHJ; fire watch may be required [VERIFY:impairment-4h] |
+| Smoke, heat, duct detectors, pull stations | Annual functional test [SRC:itm-freq] |
+| Horns, strobes, speakers | Annual [SRC:itm-freq] |
+| Panel and power, trouble signals | Annual [SRC:itm-freq] |
+| Waterflow, tamper | Semiannual [SRC:itm-waterflow] |
+| Batteries | Semiannual inspection and test [SRC:itm-freq] |
+| Smoke sensitivity | 1 year after install, then every other year; up to 5 years if stable [SRC:test-sensitivity] |
+| Impairment over 4 h in 24 h | Notify AHJ; fire watch may be required [SRC:impairment-4h] |
 
 ---
 
