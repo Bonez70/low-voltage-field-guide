@@ -121,4 +121,46 @@ t('reader run: Wiegand too long, OSDP ok', () => {
   assert.strictEqual(C.readerRun('osdp', 18, 800, 12, 150, 10).dataOk, true);
   assert.throws(() => C.readerRun('rs232', 18, 100, 12, 150, 10));
 });
+t('PoE class lookup', () => {
+  assert.strictEqual(C.poeClassFor(6.5).cls, 3); assert.strictEqual(C.poeClassFor(12.95).cls, 3);
+  assert.strictEqual(C.poeClassFor(13).cls, 4); assert.strictEqual(C.poeClassFor(50).cls, 6);
+  assert.strictEqual(C.poeClassFor(72), null);
+});
+t('PoE budget: example job, max-draw mode', () => {
+  const r = C.poeBudget([{ qty: 8, watts: 6.5 }, { qty: 4, watts: 12.5 }, { qty: 1, watts: 50 }, { qty: 1, watts: 22 }], 370, 'bt60', 'max');
+  const exp = 8 * 6.5 * 15.4 / 12.95 + 4 * 12.5 * 15.4 / 12.95 + 50 * 60 / 51 + 22 * 30 / 25.5;
+  near(r.portW, exp); near(r.deviceW, 52 + 50 + 50 + 22); assert.strictEqual(r.ports, 14);
+  near(r.limitW, 296); assert.strictEqual(r.pass, true); near(r.minBudgetW, exp / 0.8);
+});
+t('PoE budget: class mode, port too small, over budget', () => {
+  const r = C.poeBudget([{ qty: 8, watts: 6.5 }, { qty: 1, watts: 50 }], 150, 'at', 'class');
+  near(r.portW, 8 * 15.4 + 60); assert.strictEqual(r.overPort, 1); assert.strictEqual(r.overBudget, true); assert.strictEqual(r.pass, false);
+  assert.strictEqual(C.poeBudget([{ qty: 1, watts: 80 }], 370, 'bt90', 'max').tooBig, 1);
+  assert.throws(() => C.poeBudget([], 100, 'xx', 'max'));
+});
+t('storage: lesson example 12 cameras at 4 Mbps for 30 days', () => {
+  const r = C.storage([{ qty: 12, mbps: 4 }], 24, 100, 30);
+  near(r.gbPerDay, 518.4); near(r.tb, 15.552); near(r.requiredTb, 18.6624); near(r.mbps, 48);
+  assert.strictEqual(r.drives, undefined);
+});
+t('storage: drives and RAID', () => {
+  const groups = [{ qty: 8, mbps: 3 }, { qty: 4, mbps: 6 }, { qty: 1, mbps: 12 }];
+  const r = C.storage(groups, 24, 100, 30, 8, 'raid5'); // 648 GB/day, 19.44 TB, 23.328 TB
+  near(r.requiredTb, 23.328); assert.strictEqual(r.drives, 4); near(r.usableTb, 24);
+  assert.strictEqual(C.storage(groups, 24, 100, 30, 8, 'raid6').drives, 5);
+  assert.strictEqual(C.storage(groups, 24, 100, 30, 8, 'raid1').drives, 6);
+  assert.strictEqual(C.storage([{ qty: 1, mbps: 1 }], 24, 100, 1, 8, 'raid6').drives, 4);
+  near(C.storage(groups, 12, 50, 30).tb, 19.44 / 4);
+  assert.throws(() => C.storage(groups, 25, 100, 30));
+});
+t('field of view: width, density, DORI', () => {
+  const r = C.fieldOfView(2560, 90, 20); // width 40 ft, 64 px/ft
+  near(r.widthFt, 40); near(r.ppf, 64); assert.strictEqual(r.level.id, 'recognize');
+  const id = r.levels.find(l => l.id === 'identify');
+  near(id.maxFt, 2560 / (250 / 3.28084) / 2, 0.01); assert.strictEqual(id.ok, false);
+  assert.strictEqual(C.fieldOfView(2560, 40, 30).level.id, 'identify');
+  assert.strictEqual(C.fieldOfView(640, 120, 200).level, null);
+  near(C.hfovFromFocal(2.8, 5.6), 90, 0.001);
+  assert.throws(() => C.fieldOfView(2560, 180, 20));
+});
 console.log(`${n} tests passed`);
