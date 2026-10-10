@@ -266,3 +266,62 @@ mark.verify { background: var(--warn-bg); color: var(--ink); border: 1px dashed 
   .rows a, .pager a, .hit, .sys-tile, .tool { transition: background-color .15s; }
 }
 @media (max-width: 360px) { .tabs a { font-size: .62rem; padding: 0 2px; } }
+
+/* ---------- wiring diagrams ----------
+   Inline SVG from diagram-kit.js. Every wire is a colored core over a gray casing, so black wire shows on the
+   dark theme and white wire on the light one. Wire colors are conductor colors, not theme colors. */
+:root {
+  --wd-dev: #fafafa; --wd-edge: #3a3a3a; --wd-case: #6e6e6e; --wd-tag: #ffffff;
+  --wr-red: #d4182b; --wr-blk: #161616; --wr-grn: #1d9a4a; --wr-wht: #ffffff; --wr-blu: #1f63d6;
+  --wr-yel: #f3c400; --wr-brn: #8a5a2b; --wr-org: #f07c1a; --wr-vio: #7d4cc4; --wr-gry: #9a9a9a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --wd-dev: #1f1f1f; --wd-edge: #bdbdbd; --wd-case: #9a9a9a; --wd-tag: #171717;
+    --wr-red: #ff4d4d; --wr-blk: #050505; --wr-grn: #3ccf6e; --wr-wht: #f5f5f5; --wr-blu: #5c9bff;
+    --wr-yel: #ffd43b; --wr-brn: #b98150; --wr-org: #ff9a3c; --wr-vio: #b28cff; --wr-gry: #a8a8a8;
+  }
+}
+:root[data-theme="dark"] {
+  --wd-dev: #1f1f1f; --wd-edge: #bdbdbd; --wd-case: #9a9a9a; --wd-tag: #171717;
+  --wr-red: #ff4d4d; --wr-blk: #050505; --wr-grn: #3ccf6e; --wr-wht: #f5f5f5; --wr-blu: #5c9bff;
+  --wr-yel: #ffd43b; --wr-brn: #b98150; --wr-org: #ff9a3c; --wr-vio: #b28cff; --wr-gry: #a8a8a8;
+}
+.wd-fig { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.wd-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 4px; }
+.wd-svg { display: block; width: 100%; height: auto; margin: 0 auto; max-width: 560px; }
+.wd-fig.zoomed .wd-svg { width: 200%; max-width: none; }
+.wd-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 14px; border-top: 1px solid var(--line); font-size: .8rem; color: var(--muted); }
+.wd-bar button { white-space: nowrap; flex: none; min-height: 40px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 8px; padding: 6px 14px; font: 600 .85rem var(--font-body); cursor: pointer; }
+.wd-svg text { font-family: var(--font-body); }
+.wd-dev { fill: var(--wd-dev); stroke: var(--wd-edge); stroke-width: 1.2; }
+.wd-dev-dash { stroke-dasharray: 4 3; }
+.wd-title { fill: var(--ink); font-size: 11.5px; font-weight: 600; }
+.wd-sub { fill: var(--muted); font-size: 9.5px; }
+.wd-tl { fill: var(--ink); font-family: var(--font-data) !important; font-size: 9.5px; font-weight: 500; }
+.wd-lbl { fill: var(--ink); font-size: 9.5px; }
+.wd-em { fill: var(--ink); font-size: 9.5px; font-weight: 600; }
+.wd-term { fill: var(--surface); stroke: var(--wd-edge); stroke-width: 1.2; }
+.wd-svg .wc { fill: none; stroke: var(--wd-case); stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; }
+.wd-svg .w { fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.wd-svg .wd-dash.w { stroke-dasharray: 7 5; stroke-linecap: butt; }
+.wd-svg .wd-dash.wc { stroke-dasharray: 7 5; stroke-dashoffset: 0; stroke-linecap: butt; }
+.w-red { stroke: var(--wr-red); } .w-blk { stroke: var(--wr-blk); } .w-grn { stroke: var(--wr-grn); } .w-wht { stroke: var(--wr-wht); }
+.w-blu { stroke: var(--wr-blu); } .w-yel { stroke: var(--wr-yel); } .w-brn { stroke: var(--wr-brn); } .w-org { stroke: var(--wr-org); }
+.w-vio { stroke: var(--wr-vio); } .w-gry { stroke: var(--wr-gry); }
+.wd-dot { fill: var(--ink); stroke: var(--surface); stroke-width: 1; }
+.wd-part { fill: var(--surface); stroke: var(--ink); stroke-width: 1.4; stroke-linejoin: round; }
+.wd-band { stroke: var(--ink); stroke-width: 2.4; }
+.wd-gap { stroke: var(--surface); stroke-width: 7; }
+.wd-sw { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.wd-pin { fill: var(--ink); }
+.wd-zone { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.wd-zl { fill: var(--muted); font-size: 8.5px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+.wd-tag { fill: var(--wd-tag); stroke: var(--line); }
+.wd-tagt { fill: var(--ink); font-size: 8.5px; font-weight: 600; }
+.wd-link { display: flex; align-items: center; gap: 12px; margin: 16px 0 4px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; }
+.wd-link small { display: block; color: var(--muted); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.wd-link b { font-weight: 600; }
+.wd-link .chev { margin-left: auto; flex: none; color: var(--muted); }
+.wd-ico { flex: none; color: var(--accent); }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; border: 1.5px solid var(--wd-case); }

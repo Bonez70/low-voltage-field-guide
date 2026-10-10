@@ -53,6 +53,11 @@ function cites(pack) {
 function contentFiles(pack) {
   const dir = path.join(CONTENT, pack);
   const files = [];
+  if (pack === 'diagrams') {
+    // Wiring diagrams: one Markdown file per system pack (access.md, intrusion.md, ...).
+    fs.readdirSync(dir).filter(f => /^[a-z]+\.md$/.test(f) && f !== 'verify-items.md').sort().forEach(f => files.push({ rel: f, kind: 'diagrams' }));
+    return files.map(f => Object.assign(f, { lines: fs.readFileSync(path.join(dir, f.rel), 'utf8').replace(/\r/g, '').split('\n') }));
+  }
   const tdir = path.join(dir, 'training');
   if (fs.existsSync(tdir)) fs.readdirSync(tdir).filter(f => /^\d+.*\.md$/.test(f)).sort().forEach(f => files.push({ rel: 'training/' + f, kind: 'training' }));
   ['reference.md', 'troubleshooting.md'].forEach(f => { if (fs.existsSync(path.join(dir, f))) files.push({ rel: f, kind: f.replace('.md', '') }); });
@@ -73,6 +78,7 @@ function whereAt(file, idx) {
     const lm = h2.match(/^(Lesson \d+\.\d+):\s*(.*)$/);
     return lm ? `${mod}, ${lm[1]} "${lm[2]}"` : `${mod}, ${h2}`;
   }
+  if (file.kind === 'diagrams') return h2 ? `${h1.replace(/ Wiring Diagrams$/, '')} wiring diagram "${h2.replace(/^Diagram:\s*/, '')}"` : h1;
   if (file.kind === 'reference') return h2 ? `Reference card "${h2.replace(/^Card:\s*/, '')}"` : 'Reference introduction';
   const gm = h2.match(/^(\d+)\.\s*(.*)$/);
   return gm ? `Troubleshooting Guide ${gm[1]} "${gm[2]}"` : 'Troubleshooting introduction';
@@ -129,7 +135,8 @@ function collect(pack) {
 function check(pack) {
   const items = loadItems(pack) || [];
   const uses = collect(pack);
-  const known = new Set(items.map(i => i.key));
+  // Diagram notes may reuse values already signed off in a pack ([SRC:key] from content/<pack>/verify-items.md).
+  const known = new Set(items.map(i => i.key).concat(pack === 'diagrams' ? packKeys() : []));
   const allKeys = new Set();
   contentFiles(pack).forEach(f => f.lines.forEach(l => { let m; ANY.lastIndex = 0; while ((m = ANY.exec(l))) allKeys.add(m[1]); }));
   const unknown = [...allKeys].filter(k => !known.has(k));
@@ -137,6 +144,11 @@ function check(pack) {
   const stillTagged = items.filter(i => i.status && uses[i.key]).map(i => i.key);
   const pending = items.filter(i => !i.status);
   return { items, pending, uses, unknown, unused, stillTagged, count: Object.values(uses).reduce((n, u) => n + u.length, 0) };
+}
+
+function packKeys() {
+  return fs.readdirSync(CONTENT).filter(d => d !== 'diagrams' && fs.existsSync(path.join(CONTENT, d, 'verify-items.md')))
+    .reduce((keys, d) => keys.concat(loadItems(d).map(i => i.key)), []);
 }
 
 function sheet(pack, packName) {
@@ -152,13 +164,17 @@ function sheet(pack, packName) {
   }).join('\n');
   const out = [];
   out.push(`# Verify Sheet: ${packName} Draft`, '');
+  const gate = pack === 'diagrams' ? 'Each diagram goes live once none of its items are waiting.'
+    : `Nothing in the ${packName.toLowerCase()} pack goes live until every item is signed off.`;
   out.push(pending.length
-    ? `**Status: ${done.length} of ${items.length} signed off, ${pending.length} waiting on David** (items ${ranges(pending.map(i => i.num))}). Nothing in the ${packName.toLowerCase()} pack goes live until every item is signed off.`
+    ? `**Status: ${done.length} of ${items.length} signed off, ${pending.length} waiting on David** (items ${ranges(pending.map(i => i.num))}). ${gate}`
     : `**Status: all ${items.length} items signed off.**`, '');
   out.push('Every code value and safety step in the draft, numbered, with the full paragraph it sits in. The value being checked is marked **⟦#n⟧** in the quote. Where the same value appears in several places, the first two are quoted and the rest are listed; one answer covers them all.', '');
   out.push('**How to answer:** reply with the item number and your call, for example:', '`1 ok, 4 should be 6 to 8 ft, 13 not sure, 18 remove`', '`all ok except 7, 22`', '');
   const books = { fire: 'NFPA 72 and the NEC', access: 'the IBC, NFPA 101, NFPA 80, the NEC, the ADA Standards, and UL 294',
-    cctv: 'the NEC, IEEE 802.3, TIA-568, IEC 62676-4, ONVIF, OSHA, and federal and state privacy law' }[pack] || 'the codes and standards named';
+    cctv: 'the NEC, IEEE 802.3, TIA-568, IEC 62676-4, ONVIF, OSHA, and federal and state privacy law',
+    diagrams: 'manufacturer installation instructions, the IBC, NFPA 101, and NFPA 80' }[pack] || 'the codes and standards named';
+  if (pack === 'diagrams') out.push('Each diagram has an "as drawn" item: open it in the review preview (Reference tab of its system, Wiring diagrams) and check the drawing and its connection table, not just the quoted paragraph.', '');
   out.push(`"Source" is my honest note of where the value comes from. None of it was checked against the code book itself; it's general industry knowledge of ${books}, so your field experience and your adopted edition win.`, '');
   let group = null;
   pending.forEach(it => {
@@ -194,7 +210,7 @@ module.exports = { loadItems, numbers, cites, check, sheet, TAG, ANY };
 if (require.main === module) {
   const pack = process.argv[2];
   if (!pack) { console.error('Usage: node verify-sheet.js <pack>'); process.exit(1); }
-  const name = { fire: 'Fire Alarm', access: 'Access Control', cctv: 'CCTV', intrusion: 'Intrusion' }[pack] || pack;
+  const name = { fire: 'Fire Alarm', access: 'Access Control', cctv: 'CCTV', intrusion: 'Intrusion', diagrams: 'Wiring Diagrams' }[pack] || pack;
   const md = sheet(pack, name);
   const f = path.join(CONTENT, pack, 'VERIFY-SHEET.md');
   fs.writeFileSync(f, md);

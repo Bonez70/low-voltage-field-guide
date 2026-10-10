@@ -102,7 +102,7 @@
       return;
     }
 
-    var packId = parts[0], tab = TABS[parts[1]] ? parts[1] : 'learn';
+    var packId = parts[0], tab = parts[1] === 'diagrams' ? 'reference' : TABS[parts[1]] ? parts[1] : 'learn';
     state.pack = packId; state.tab = tab;
     sys.value = packId;
     setTabs(packId, tab);
@@ -110,6 +110,7 @@
     var html;
     if (!pack) html = upcomingById(packId) ? viewUpcoming(upcomingById(packId), tab) : viewMissing();
     else if (tab === 'learn') html = viewLearn(pack, parts[2], parts[3]);
+    else if (parts[1] === 'diagrams') html = viewDiagram(pack, parts[2]);
     else if (tab === 'reference') html = viewReference(pack, parts[2]);
     else if (tab === 'calculators') html = viewCalculators(pack, parts[2]);
     else html = viewTroubleshoot(pack, parts[2]);
@@ -171,6 +172,11 @@
         '<span class="t"><b>' + esc(p.name) + ' service calls</b><small>' + plural(g.length, 'guide') + ', by symptom</small></span>' + chev + '</a></li>';
     }).join('');
 
+    var wiring = PACKS.filter(function (p) { return (p.diagrams || []).length; }).map(function (p) {
+      return '<li><a href="#/' + p.id + '/reference"><span class="n sm" aria-hidden="true">' + WD_ICON + '</span>' +
+        '<span class="t"><b>' + esc(p.name) + ' wiring</b><small>' + plural(p.diagrams.length, 'diagram') + '</small></span>' + chev + '</a></li>';
+    }).join('');
+
     return '<button class="home-search" type="button" id="home-search">' +
       '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>' +
       '<span>Search lessons, cards, guides</span></button>' +
@@ -178,6 +184,7 @@
       '<h2 class="group-h">Systems</h2><div class="sys-grid">' + tiles + '</div>' +
       (calcs.length ? '<h2 class="group-h">Calculators</h2><div class="tool-grid">' + calcs.join('') + '</div>' : '') +
       '<h2 class="group-h">Troubleshoot</h2><ul class="rows">' + fixes + '</ul>' +
+      (wiring ? '<h2 class="group-h">Wiring diagrams</h2><ul class="rows">' + wiring + '</ul>' : '') +
       installCard() + DISCLAIMER;
   }
   view.addEventListener('click', function (e) {
@@ -246,7 +253,7 @@
     var nextLink = next ? '<a class="next primary" href="#' + mbase + '/' + next.id + '"><small>Next lesson</small><b>' + esc(next.title) + '</b></a>'
       : mod.quiz ? '<a class="next primary" href="#' + mbase + '/quiz"><small>Next</small><b>Module ' + mod.num + ' quiz</b></a>' : '';
     return '<div class="page-h"><p class="eyebrow">Module ' + mod.num + ' · Lesson ' + lesson.id + '</p><h2>' + esc(lesson.title) + '</h2></div>' +
-      '<div class="prose">' + lesson.html + '</div>' +
+      '<div class="prose">' + lesson.html + '</div>' + diagramLinks(pack, 'lessons', lesson.id) +
       '<div class="pager">' + (prev ? '<a href="#' + mbase + '/' + prev.id + '"><small>Previous</small><b>' + esc(prev.title) + '</b></a>' : '') + nextLink + '</div>' + DISCLAIMER;
   }
   function quizClick(e) {
@@ -271,8 +278,13 @@
     var cards = pack.reference.cards;
     if (!cardId) {
       setHeader('Reference', '');
+      var dgs = pack.diagrams || [];
       return '<div class="page-h"><p class="eyebrow">' + esc(pack.name) + ' field reference</p><h2>Quick cards</h2>' +
         '<p class="lede">One screen each, built for a quick look on the job. Panel-specific values always defer to the installation manual.</p></div>' +
+        (dgs.length ? '<h2 class="group-h">Wiring diagrams</h2><ul class="rows">' + dgs.map(function (d) {
+          return '<li><a href="#/' + pack.id + '/diagrams/' + d.id + '"><span class="n sm" aria-hidden="true">' + WD_ICON + '</span><span class="t"><b>' + esc(d.title) + '</b>' +
+            (d.draft ? '<small>Draft for review</small>' : '') + '</span>' + chev + '</a></li>';
+        }).join('') + '</ul><h2 class="group-h">Cards</h2>' : '') +
         '<ul class="rows">' + cards.map(function (c) {
           return '<li><a href="#' + base + '/' + c.id + '"><span class="n sm" aria-hidden="true">' + refGlyph(c) + '</span><span class="t"><b>' + esc(c.title) + '</b></span>' + chev + '</a></li>';
         }).join('') + '</ul>' + DISCLAIMER;
@@ -283,7 +295,7 @@
     var c = cards[i], prev = cards[i - 1], next = cards[i + 1];
     setHeader('Reference', base);
     return '<div class="page-h"><p class="eyebrow">Reference card</p><h2>' + esc(c.title) + '</h2></div>' +
-      '<div class="prose">' + c.html + '</div>' +
+      '<div class="prose">' + c.html + '</div>' + diagramLinks(pack, 'cards', c.id) +
       '<div class="pager">' + (prev ? '<a href="#' + base + '/' + prev.id + '"><small>Previous</small><b>' + esc(prev.title) + '</b></a>' : '') +
       (next ? '<a class="next" href="#' + base + '/' + next.id + '"><small>Next</small><b>' + esc(next.title) + '</b></a>' : '') + '</div>' + DISCLAIMER;
   }
@@ -298,6 +310,42 @@
     if (/glossary/.test(t)) return 'A–Z';
     return esc(c.title.charAt(0));
   }
+
+  /* ---------- Wiring diagrams ---------- */
+  var WD_ICON = '<svg viewBox="0 0 24 24" width="20" height="20"><rect x="2.5" y="5" width="6" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+    '<rect x="15.5" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="15.5" y="14" width="6" height="5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+    '<path d="M8.5 8h7M8.5 16.5h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+  function viewDiagram(pack, id) {
+    var base = '/' + pack.id + '/reference';
+    var dgs = pack.diagrams || [];
+    var i = -1;
+    dgs.forEach(function (d, j) { if (d.id === id) i = j; });
+    if (i < 0) return viewMissing();
+    var d = dgs[i], prev = dgs[i - 1], next = dgs[i + 1];
+    setHeader('Diagram', base);
+    return '<div class="page-h"><p class="eyebrow">' + esc(pack.name) + ' wiring diagram</p><h2>' + esc(d.title) + '</h2></div>' +
+      '<figure class="wd-fig"><div class="wd-scroll">' + d.svg + '</div>' +
+      '<figcaption class="wd-bar"><span>Generic wiring. Match your hardware by function.</span><button type="button" class="wd-zoom" aria-pressed="false">Zoom in</button></figcaption></figure>' +
+      '<div class="prose">' + d.html + (d.relatedHtml ? '<p><strong>Related:</strong> ' + d.relatedHtml + '</p>' : '') + '</div>' +
+      '<div class="pager">' + (prev ? '<a href="#/' + pack.id + '/diagrams/' + prev.id + '"><small>Previous</small><b>' + esc(prev.title) + '</b></a>' : '') +
+      (next ? '<a class="next" href="#/' + pack.id + '/diagrams/' + next.id + '"><small>Next</small><b>' + esc(next.title) + '</b></a>' : '') + '</div>' + DISCLAIMER;
+  }
+  // "See the wiring" links under a lesson, card, or guide that a diagram lists as related.
+  function diagramLinks(pack, kind, key) {
+    return (pack.diagrams || []).filter(function (d) { return d.rel && d.rel[kind].indexOf(key) >= 0; }).map(function (d) {
+      return '<a class="wd-link" href="#/' + pack.id + '/diagrams/' + d.id + '"><span class="wd-ico" aria-hidden="true">' + WD_ICON + '</span>' +
+        '<span><small>Wiring diagram</small><b>' + esc(d.title) + '</b></span>' + chev + '</a>';
+    }).join('');
+  }
+  view.addEventListener('click', function (e) {
+    var b = e.target.closest('.wd-zoom');
+    if (!b) return;
+    var fig = b.closest('.wd-fig'), on = !fig.classList.contains('zoomed');
+    fig.classList.toggle('zoomed', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.textContent = on ? 'Fit to screen' : 'Zoom in';
+  });
 
   /* ---------- Calculators ---------- */
   function viewCalculators(pack, which) {
@@ -335,7 +383,7 @@
     return '<div class="page-h"><p class="eyebrow">Troubleshooting guide ' + g.num + '</p><h2>' + esc(g.title) + '</h2></div>' +
       (g.symptomHtml ? '<div class="symptom"><span class="lbl">Symptom</span><p>' + g.symptomHtml + '</p></div>' : '') +
       '<p class="on-test">Account on test before you trip anything. Do each step, then follow the result.</p>' +
-      '<div class="prose">' + g.html + '</div>' +
+      '<div class="prose">' + g.html + '</div>' + diagramLinks(pack, 'guides', g.num) +
       '<div class="pager">' + (prev ? '<a href="#' + base + '/' + prev.num + '"><small>Guide ' + prev.num + '</small><b>' + esc(prev.title) + '</b></a>' : '') +
       (next ? '<a class="next" href="#' + base + '/' + next.num + '"><small>Guide ' + next.num + '</small><b>' + esc(next.title) + '</b></a>' : '') + '</div>' + DISCLAIMER;
   }
