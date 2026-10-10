@@ -1,0 +1,40 @@
+/*
+ * Offline support. build.js fills in the version and file list and writes sw.js.
+ * App files: served from cache first, so the app opens with no signal. They are fetched with
+ * cache: 'reload' so a new version never copies stale files out of the browser's HTTP cache.
+ * Fonts: cached the first time they load; the app falls back to system fonts before that.
+ */
+'use strict';
+var VERSION = '__VERSION__';
+var CACHE = 'slv-' + VERSION;
+var FILES = __FILES__;
+
+self.addEventListener('install', function (e) {
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES.map(function (f) { return new Request(f, { cache: 'reload' }); })); }).then(function () { return self.skipWaiting(); }));
+});
+
+self.addEventListener('activate', function (e) {
+  e.waitUntil(caches.keys().then(function (keys) {
+    return Promise.all(keys.filter(function (k) { return k.indexOf('slv-') === 0 && k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+  }).then(function () { return self.clients.claim(); }));
+});
+
+self.addEventListener('fetch', function (e) {
+  var req = e.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
+  if (url.origin === location.origin) {
+    // Navigations always get the app shell; the app routes by #hash.
+    var key = req.mode === 'navigate' ? 'index.html' : req;
+    e.respondWith(caches.match(key, { ignoreSearch: true }).then(function (hit) {
+      return hit || fetch(req);
+    }));
+  } else if (/fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) {
+    e.respondWith(caches.open('slv-fonts').then(function (c) {
+      return c.match(req).then(function (hit) {
+        var net = fetch(req).then(function (res) { c.put(req, res.clone()); return res; }).catch(function () { return hit; });
+        return hit || net;
+      });
+    }));
+  }
+});

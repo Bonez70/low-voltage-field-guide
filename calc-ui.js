@@ -1,0 +1,687 @@
+/*
+ * Calculator screens for the app. Same screens and math as app/calculators/index.html,
+ * mounted one at a time into the Calculators tab. Math lives in calculators/calc.js.
+ */
+(function () {
+  'use strict';
+  var C = window.SLVCalc;
+  var KEY = 'slv-calc-v1';
+  var f = function (n, d) { return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
+
+  var DEFAULTS = {
+    b: { preset: 'res', hours: 4, alarm: 4, devices: [
+      { name: 'Control panel', qty: 1, standbyMa: 120, alarmMa: 150 },
+      { name: 'Keypad', qty: 2, standbyMa: 40, alarmMa: 60 },
+      { name: 'PIR motion', qty: 4, standbyMa: 15, alarmMa: 15 },
+      { name: 'Interior siren', qty: 1, standbyMa: 0, alarmMa: 800 }
+    ] },
+    d: { amps: 0.5, gauge: 18, len: 150, vs: 12, vmin: 10.5 },
+    g: { amps: 0.5, len: 150, vs: 12, mode: 'vmin', allow: 10.5 },
+    fb: { preset: 'hs', hours: 24, alarm: 5, devices: [
+      { name: 'Fire alarm control panel', qty: 1, standbyMa: 180, alarmMa: 300 },
+      { name: 'Addressable smoke detector', qty: 30, standbyMa: 0.3, alarmMa: 0.3 },
+      { name: 'Monitor module', qty: 4, standbyMa: 0.4, alarmMa: 0.4 },
+      { name: 'Horn/strobe 15 cd', qty: 10, standbyMa: 0, alarmMa: 60 },
+      { name: 'Horn/strobe 75 cd', qty: 4, standbyMa: 0, alarmMa: 150 }
+    ] },
+    n: { vs: 20.4, gauge: 14, len: 250, vmin: 16, rating: 2, apps: [
+      { name: 'Horn/strobe 15 cd', qty: 6, ma: 75 },
+      { name: 'Horn/strobe 75 cd', qty: 3, ma: 160 },
+      { name: 'Horn/strobe 110 cd', qty: 1, ma: 230 }
+    ] },
+    ap: { preset: 'l4', hours: 4, devices: [
+      { name: 'Door controller', qty: 1, normalMa: 250, peakMa: 250 },
+      { name: 'Card reader', qty: 4, normalMa: 100, peakMa: 150 },
+      { name: 'Maglock 600 lb (fail-safe)', qty: 2, normalMa: 500, peakMa: 500 },
+      { name: 'Electric strike (fail-secure)', qty: 2, normalMa: 0, peakMa: 300 },
+      { name: 'Motion REX', qty: 2, normalMa: 25, peakMa: 25 }
+    ] },
+    r: { protocol: 'wiegand', gauge: 22, len: 300, vs: 12, ma: 150, vmin: 10 },
+    pe: { budget: 370, port: 'bt60', mode: 'max', devices: [
+      { name: 'Turret 4 MP with IR', qty: 8, w: 6.5 },
+      { name: 'Bullet 8 MP with IR and heater', qty: 4, w: 12.5 },
+      { name: 'Outdoor PTZ with heater', qty: 1, w: 50 },
+      { name: 'Multi-sensor 4 × 4 MP', qty: 1, w: 22 }
+    ] },
+    st: { hours: 24, pct: 100, days: 30, drive: 8, raid: 'raid5', groups: [
+      { name: 'Turret 4 MP, H.265', qty: 8, mbps: 3 },
+      { name: 'Bullet 8 MP, H.265', qty: 4, mbps: 6 },
+      { name: 'Multi-sensor 4 × 4 MP', qty: 1, mbps: 12 }
+    ] },
+    fv: { mode: 'hfov', px: 2560, hfov: 40, focal: 6, sensor: 5.6, dist: 30 }
+  };
+  var S;
+  try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
+  if (!S || typeof S !== 'object') S = {};
+  Object.keys(DEFAULTS).forEach(function (k) { if (!S[k]) S[k] = JSON.parse(JSON.stringify(DEFAULTS[k])); });
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+  // Battery screens: intrusion (b) and fire (fb) share one screen with different presets and sizes.
+  var BATT = {
+    battery: { key: 'b', presets: C.STANDBY_PRESETS, sizes: C.BATTERY_SIZES_AH, calc: C.batteryStandby,
+      who: 'Include the panel itself, keypads, modules, detectors, and sirens (siren draw goes in alarm only).' },
+    firebatt: { key: 'fb', presets: C.FIRE_STANDBY_PRESETS, sizes: C.FIRE_BATTERY_SIZES_AH, calc: C.fireBattery,
+      who: 'Include the panel, every detector and module, annunciators, and every horn, strobe, and speaker (appliance draw goes in alarm only). NAC extenders have their own batteries; calculate them separately.' }
+  };
+
+  var CALCS = {
+    battery: { label: 'Battery', title: 'Battery standby' },
+    drop: { label: 'Volt drop', title: 'Voltage drop' },
+    gauge: { label: 'Wire gauge', title: 'Wire gauge' },
+    firebatt: { label: 'Battery', title: 'Fire battery' },
+    nac: { label: 'NAC drop', title: 'NAC voltage drop' },
+    lockpsu: { label: 'Power', title: 'Access power' },
+    reader: { label: 'Reader', title: 'Reader cable' },
+    poe: { label: 'PoE', title: 'PoE budget' },
+    storage: { label: 'Storage', title: 'Video storage' },
+    fov: { label: 'View', title: 'Field of view' }
+  };
+
+  var HTML = {
+    drop:
+      '<div class="readout" aria-live="polite"><div class="lbl">Voltage at the device</div><div class="big" id="d-end">–</div><div class="sub" id="d-sub"></div><div id="d-flag"></div></div>' +
+      '<p class="example">Example values loaded. Enter your run.</p>' +
+      '<section class="card"><h2>The run</h2><div class="fields">' +
+      '<label>Load current<div class="unit"><input id="d-amps" type="number" inputmode="decimal" min="0" step="any"><span>A</span></div></label>' +
+      '<label>Wire gauge<select id="d-gauge"></select></label>' +
+      '<label>One-way length<div class="unit"><input id="d-len" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label>' +
+      '<label>Supply voltage<div class="unit"><input id="d-vs" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+      '<label class="full">Device minimum operating voltage (spec sheet)<div class="unit"><input id="d-vmin" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label></div>' +
+      '<p class="note">Add up every device on the run for the load current. Use the alarm current if devices draw more in alarm.</p></section>' +
+      '<section class="card"><h2>The math</h2><div class="math" id="d-math"></div><p class="note">Voltage drop = 2 × one-way length × current × Ω per foot. The 2 counts the wire out and back. Solid copper at 68 °F; hot spaces and stranded wire run a little higher.</p></section>',
+    gauge:
+      '<div class="readout" aria-live="polite"><div class="lbl">Smallest wire that works</div><div class="big" id="g-pick">–</div><div class="sub" id="g-sub"></div><div id="g-flag"></div></div>' +
+      '<p class="example">Example values loaded. Enter your run.</p>' +
+      '<section class="card"><h2>The run</h2><div class="fields">' +
+      '<label>Load current<div class="unit"><input id="g-amps" type="number" inputmode="decimal" min="0" step="any"><span>A</span></div></label>' +
+      '<label>One-way length<div class="unit"><input id="g-len" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label>' +
+      '<label>Supply voltage<div class="unit"><input id="g-vs" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+      '<label>Allowed by<select id="g-mode"><option value="vmin">Device minimum voltage</option><option value="pct">Percent drop</option><option value="volts">Volts of drop</option></select></label>' +
+      '<label class="full"><span id="g-allow-txt">Device minimum operating voltage</span><div class="unit"><input id="g-allow" type="number" inputmode="decimal" min="0" step="any"><span id="g-allow-unit">VDC</span></div></label></div></section>' +
+      '<section class="card"><h2>Every gauge for this run</h2><div class="tbl"><table><thead><tr><th>AWG</th><th>Drop</th><th>At device</th><th>Max run</th></tr></thead><tbody id="g-rows"></tbody></table></div>' +
+      '<p class="note">Max run is the longest one-way length that stays within your allowance at this current. Based on solid copper at 68 °F.</p></section>'
+  };
+
+  function batteryHtml(cfg) {
+    var fire = cfg.key === 'fb';
+    return '<div class="readout" aria-live="polite"><div class="lbl">Battery to install</div><div class="big" id="b-batt">–</div><div class="sub" id="b-req"></div><div id="b-flag"></div></div>' +
+      '<p class="example" id="b-example">Example job loaded. Replace the devices with your own from their spec sheets.</p>' +
+      '<section class="card"><h2>Standby requirement</h2><div class="seg" id="b-presets"></div><div class="fields">' +
+      '<label>Standby time<div class="unit"><input id="b-hours" type="number" inputmode="decimal" min="0" step="any"><span>hours</span></div></label>' +
+      '<label>Alarm time<div class="unit"><input id="b-alarm" type="number" inputmode="decimal" min="0" step="any"><span>min</span></div></label></div>' +
+      '<p class="note">Confirm the required standby and alarm times with the applicable standard, the AHJ, and the panel installation manual.</p></section>' +
+      '<section class="card"><h2>Devices on the battery</h2><p class="note">Current in milliamps, per device. ' + cfg.who + '</p>' +
+      '<div class="devices" id="b-devices"></div><div class="actions"><button class="add" id="b-add" type="button">+ Add device</button><button class="add" id="b-reset" type="button">Load example</button></div><div class="totals" id="b-totals"></div></section>' +
+      '<section class="card"><h2>The math</h2><div class="math" id="b-math"></div><p class="note">Formula: Required Ah = [(standby A × standby h) + (alarm A × alarm h)] × 1.2. Common sizes ' + cfg.sizes.join(', ') + ' Ah. ' +
+      (fire ? 'Most fire panels use two 12 V batteries in series for 24 V; both the same size and age. ' : '') +
+      'Check the panel\'s maximum battery size and charger capability.</p></section>';
+  }
+    HTML.nac =
+    '<div class="readout" aria-live="polite"><div class="lbl">Voltage at the last appliance</div><div class="big" id="n-end">–</div><div class="sub" id="n-sub"></div><div id="n-flag"></div></div>' +
+    '<p class="example" id="n-example">Example circuit loaded. Replace the appliances with your own from their spec sheets.</p>' +
+    '<section class="card"><h2>The circuit</h2><div class="fields">' +
+    '<label>Source voltage<div class="unit"><input id="n-vs" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+    '<label>Wire gauge<select id="n-gauge"></select></label>' +
+    '<label>One-way length to last appliance<div class="unit"><input id="n-len" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label>' +
+    '<label>Appliance minimum voltage<div class="unit"><input id="n-vmin" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+    '<label class="full">NAC output rating (panel or extender manual)<div class="unit"><input id="n-rating" type="number" inputmode="decimal" min="0" step="any"><span>A</span></div></label></div>' +
+    '<p class="note">Start from the battery voltage at the end of standby (commonly 20.4 V), not 24 V. Regulated 24 V appliances commonly work down to 16 V; use the spec sheet value.</p></section>' +
+    '<section class="card"><h2>Appliances on this NAC</h2><p class="note">Current per appliance in milliamps at its candela setting, using the current at minimum voltage when the spec sheet lists it.</p>' +
+    '<div class="devices" id="n-apps"></div><div class="actions"><button class="add" id="n-add" type="button">+ Add appliance</button><button class="add" id="n-reset" type="button">Load example</button></div><div class="totals" id="n-totals"></div></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="n-math"></div><p class="note">All current is treated as if it were at the last appliance, the conservative method. If this fails, the manufacturer\'s point-to-point calculation may still pass. Solid copper at 68 °F.</p></section>';
+
+  HTML.lockpsu =
+    '<div class="readout" aria-live="polite"><div class="lbl">Power supply to install</div><div class="big" id="p-psu">–</div><div class="sub" id="p-sub"></div><div id="p-flag"></div></div>' +
+    '<p class="example" id="p-example">Example 4-door job loaded. Replace the devices with your own from their spec sheets.</p>' +
+    '<section class="card"><h2>Devices on this supply</h2><p class="note">Current in milliamps, per device, all at the supply voltage. <b>Normal</b> is what it draws all the time (maglocks while locked, readers, controller). <b>Peak</b> is with every door unlocking at once (strikes and locksets energized). Solenoid latch retraction exit devices need a supply made for their inrush.</p>' +
+    '<div class="devices" id="p-devices"></div><div class="actions"><button class="add" id="p-add" type="button">+ Add device</button><button class="add" id="p-reset" type="button">Load example</button></div><div class="totals" id="p-totals"></div></section>' +
+    '<section class="card"><h2>Battery standby</h2><div class="seg" id="p-presets"></div><div class="fields">' +
+    '<label>Standby time<div class="unit"><input id="p-hours" type="number" inputmode="decimal" min="0" step="any"><span>hours</span></div></label></div>' +
+    '<p class="note">UL 294 standby levels: Level I none, II 30 min, III 2 h, IV 4 h (UL 294). The specification or the customer picks the level. Fail-safe locks left off the battery on purpose come out of Normal.</p></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="p-math"></div><p class="note">Supply: peak current ÷ 0.8, so it runs at no more than 80% of its rating (design practice). Common sizes ' + C.ACCESS_PSU_SIZES_A.join(', ') + ' A. ' +
+    'Battery: normal current × standby hours × 1.2 (industry practice). Common sizes ' + C.ACCESS_BATTERY_SIZES_AH.join(', ') + ' Ah; for 24 V use two 12 V batteries of that size in series. Keep lock power separate from controller power where you can.</p></section>';
+  HTML.reader =
+    '<div class="readout" aria-live="polite"><div class="lbl">Voltage at the reader</div><div class="big" id="r-end">–</div><div class="sub" id="r-sub"></div><div id="r-flag"></div></div>' +
+    '<p class="example" id="r-example">Example values loaded. Enter your run and the reader\'s spec sheet values.</p>' +
+    '<section class="card"><h2>The run</h2><div class="fields">' +
+    '<label>Reader wiring<select id="r-protocol"><option value="wiegand">Wiegand</option><option value="osdp">OSDP (RS-485)</option></select></label>' +
+    '<label>Power conductors<select id="r-gauge"></select></label>' +
+    '<label>One-way length<div class="unit"><input id="r-len" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label>' +
+    '<label>Supply voltage<div class="unit"><input id="r-vs" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label>' +
+    '<label>Reader current (max)<div class="unit"><input id="r-ma" type="number" inputmode="decimal" min="0" step="any"><span>mA</span></div></label>' +
+    '<label>Reader minimum voltage<div class="unit"><input id="r-vmin" type="number" inputmode="decimal" min="0" step="any"><span>VDC</span></div></label></div>' +
+    '<p class="note">Data distance: Wiegand about ' + C.READER_MAX_FT.wiegand + ' ft on 22 AWG shielded (SIA AC-01); OSDP about ' + C.READER_MAX_FT.osdp.toLocaleString('en-US') + ' ft on twisted pair (SIA OSDP). Use the reader\'s maximum current (heater or display on).</p></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="r-math"></div><p class="note">Voltage drop = 2 × one-way length × current × Ω per foot on the power pair. Solid copper at 68 °F.</p></section>';
+
+  HTML.poe =
+    '<div class="readout" aria-live="polite"><div class="lbl">PoE power on this switch</div><div class="big" id="pe-w">–</div><div class="sub" id="pe-sub"></div><div id="pe-flag"></div></div>' +
+    '<p class="example" id="pe-example">Example job loaded. Replace the cameras with your own from their spec sheets.</p>' +
+    '<section class="card"><h2>The switch</h2><div class="fields">' +
+    '<label>Total PoE budget (switch spec)<div class="unit"><input id="pe-budget" type="number" inputmode="decimal" min="0" step="any"><span>W</span></div></label>' +
+    '<label>Port type<select id="pe-port"></select></label>' +
+    '<label class="full">Budget each port by<select id="pe-mode"><option value="max">Camera maximum draw + cable loss</option><option value="class">Class allocation (switch reserves the class watts)</option></select></label></div>' +
+    '<p class="note">Check the switch manual for how it allocates power. Many switches reserve the full class watts for each port.</p></section>' +
+    '<section class="card"><h2>Cameras on this switch</h2><p class="note">Watts per camera: the <b>maximum</b> draw from the spec sheet, with IR, heater, and PTZ motors on.</p>' +
+    '<div class="devices" id="pe-devices"></div><div class="actions"><button class="add" id="pe-add" type="button">+ Add camera</button><button class="add" id="pe-reset" type="button">Load example</button></div><div class="totals" id="pe-totals"></div></section>' +
+    '<section class="card"><h2>Each camera</h2><div class="tbl"><table><thead><tr><th>Camera</th><th>Max W</th><th>Class</th><th>Port W each</th></tr></thead><tbody id="pe-rows"></tbody></table></div></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="pe-math"></div><p class="note">Classes (IEEE 802.3): ' + C.POE_CLASSES.map(function (c) { return c.cls + ' = ' + c.pse + ' W port / ' + c.pd + ' W device'; }).join('; ') +
+    '. Maximum-draw mode adds worst-case cable loss: camera W × port W ÷ device W for its class. Design the switch to no more than ' + (C.POE_LOAD_LIMIT * 100) + '% of its budget (design practice). Each run 100 m (328 ft) or less.</p></section>';
+  HTML.storage =
+    '<div class="readout" aria-live="polite"><div class="lbl">Storage to install</div><div class="big" id="st-tb">–</div><div class="sub" id="st-sub"></div><div id="st-flag"></div></div>' +
+    '<p class="example" id="st-example">Example job loaded. Replace the cameras with your own; use measured bitrates when you have them.</p>' +
+    '<section class="card"><h2>Cameras</h2><p class="note">Bitrate per camera in Mbps (main stream, as recorded). Group cameras with the same settings.</p>' +
+    '<div class="devices" id="st-groups"></div><div class="actions"><button class="add" id="st-add" type="button">+ Add cameras</button><button class="add" id="st-reset" type="button">Load example</button></div><div class="totals" id="st-totals"></div></section>' +
+    '<section class="card"><h2>Recording</h2><div class="fields">' +
+    '<label>Hours recorded per day<div class="unit"><input id="st-hours" type="number" inputmode="decimal" min="0" max="24" step="any"><span>h</span></div></label>' +
+    '<label>Time recorded (motion)<div class="unit"><input id="st-pct" type="number" inputmode="decimal" min="0" max="100" step="any"><span>%</span></div></label>' +
+    '<label class="full">Days to keep<div class="unit"><input id="st-days" type="number" inputmode="decimal" min="0" step="any"><span>days</span></div></label></div>' +
+    '<p class="note">100% is continuous recording. For motion recording, measure the real fraction for a week, then redo this.</p></section>' +
+    '<section class="card"><h2>Drives</h2><div class="fields">' +
+    '<label>Drive size<div class="unit"><input id="st-drive" type="number" inputmode="decimal" min="0" step="any"><span>TB</span></div></label>' +
+    '<label>RAID<select id="st-raid"></select></label></div>' +
+    '<p class="note">Check the recorder\'s bays, maximum drive size, and RAID support. Use surveillance-rated drives. RAID isn\'t backup.</p></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="st-math"></div><p class="note">GB per day = Mbps × 3600 × hours × fraction recorded ÷ 8 ÷ 1000. TB = GB per day × days ÷ 1000, then +' + Math.round((C.STORAGE_MARGIN - 1) * 100) + '% headroom (design practice). Decimal TB, as drives are sold; recorders showing TiB read about 9% lower.</p></section>';
+  HTML.fov =
+    '<div class="readout" aria-live="polite"><div class="lbl">Pixel density on the target</div><div class="big" id="fv-ppf">–</div><div class="sub" id="fv-sub"></div><div id="fv-flag"></div></div>' +
+    '<p class="example" id="fv-example">Example values loaded. Enter the camera from its spec sheet and your distance.</p>' +
+    '<section class="card"><h2>Camera</h2><div class="fields">' +
+    '<label class="full">Horizontal pixels<div class="unit"><input id="fv-px" type="number" inputmode="numeric" min="0" step="1"><span>px</span></div></label>' +
+    '<label class="full">Field of view from<select id="fv-mode"><option value="hfov">Spec sheet HFOV</option><option value="focal">Focal length and sensor width</option></select></label>' +
+    '<label id="fv-hfov-l">Horizontal field of view<div class="unit"><input id="fv-hfov" type="number" inputmode="decimal" min="0" step="any"><span>°</span></div></label>' +
+    '<label id="fv-focal-l">Focal length<div class="unit"><input id="fv-focal" type="number" inputmode="decimal" min="0" step="any"><span>mm</span></div></label>' +
+    '<label id="fv-sensor-l">Sensor width (spec sheet)<div class="unit"><input id="fv-sensor" type="number" inputmode="decimal" min="0" step="any"><span>mm</span></div></label>' +
+    '<label>Distance to target<div class="unit"><input id="fv-dist" type="number" inputmode="decimal" min="0" step="any"><span>ft</span></div></label></div>' +
+    '<p class="note">Common widths: 1920 (2 MP), 2560 or 2688 (4 MP), 2592 or 2880 (5 MP), 3840 (4K). Use the spec sheet HFOV at your zoom setting when you have it.</p></section>' +
+    '<section class="card"><h2>What it can do (IEC 62676-4)</h2><div class="tbl"><table><thead><tr><th>Level</th><th>Needs</th><th>Here</th><th>Max distance</th></tr></thead><tbody id="fv-rows"></tbody></table></div>' +
+    '<p class="note">Max distance is the farthest the target can be and still get that level with this camera and view.</p></section>' +
+    '<section class="card"><h2>The math</h2><div class="math" id="fv-math"></div><p class="note">Scene width = 2 × distance × tan(HFOV ÷ 2). Pixels per foot = horizontal pixels ÷ scene width. HFOV = 2 × atan(sensor width ÷ (2 × focal length)). Lens distortion makes wide lenses differ a little from the math.</p></section>';
+
+  function mount(el, which) {
+    var $ = function (id) { return el.querySelector('#' + id); };
+    el.innerHTML = '<div class="panel">' + (BATT[which] ? batteryHtml(BATT[which]) : HTML[which]) + '</div>';
+    if (BATT[which]) battery($, BATT[which]); else if (which === 'drop') drop($); else if (which === 'nac') nac($);
+    else if (which === 'lockpsu') lockpsu($); else if (which === 'reader') reader($);
+    else if (which === 'poe') poe($); else if (which === 'storage') storageCalc($); else if (which === 'fov') fov($); else gauge($);
+  }
+
+  /* ---------- battery ---------- */
+  function battery($, cfg) {
+    var B = S[cfg.key], DEF = DEFAULTS[cfg.key];
+    var isExample = function () { return JSON.stringify(B.devices) === JSON.stringify(DEF.devices); };
+    var presets = cfg.presets.concat([{ id: 'custom', label: 'Custom', hours: null }]);
+    $('b-presets').innerHTML = presets.map(function (p) {
+      return '<button type="button" data-id="' + p.id + '">' + esc(p.label) + (p.hours ? ' · ' + p.hours + ' h' : '') + (p.alarm ? ' + ' + p.alarm + ' min' : '') + '</button>';
+    }).join('');
+    $('b-presets').addEventListener('click', function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      var p = presets.filter(function (x) { return x.id === btn.dataset.id; })[0];
+      B.preset = p.id; if (p.hours) B.hours = p.hours; if (p.alarm) B.alarm = p.alarm;
+      $('b-hours').value = B.hours; $('b-alarm').value = B.alarm; calc();
+    });
+    $('b-hours').value = B.hours; $('b-alarm').value = B.alarm;
+    function matchPreset() {
+      var m = presets.filter(function (p) { return p.hours === Number(B.hours) && (!p.alarm || p.alarm === Number(B.alarm)); })[0];
+      B.preset = m ? m.id : 'custom';
+    }
+    $('b-hours').addEventListener('input', function () { B.hours = this.value; matchPreset(); calc(); });
+    $('b-alarm').addEventListener('input', function () { B.alarm = this.value; matchPreset(); calc(); });
+
+    function renderDevices() {
+      $('b-devices').innerHTML = B.devices.map(function (d, i) {
+        return '<div class="dev" data-i="' + i + '">' +
+          '<label class="name">Device<input id="dv-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
+          '<label>Qty<input id="dv-q-' + i + '" data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
+          '<label>Standby mA<input id="dv-s-' + i + '" data-k="standbyMa" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d.standbyMa) + '"></label>' +
+          '<label>Alarm mA<input id="dv-a-' + i + '" data-k="alarmMa" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d.alarmMa) + '"></label>' +
+          '<button type="button" class="del" aria-label="Remove ' + esc(d.name || 'device') + '">×</button></div>';
+      }).join('');
+    }
+    $('b-devices').addEventListener('input', function (e) {
+      var row = e.target.closest('.dev'); if (!row) return;
+      B.devices[+row.dataset.i][e.target.dataset.k] = e.target.value; calc();
+    });
+    $('b-devices').addEventListener('click', function (e) {
+      if (!e.target.classList.contains('del')) return;
+      B.devices.splice(+e.target.closest('.dev').dataset.i, 1); renderDevices(); calc();
+    });
+    $('b-add').addEventListener('click', function () {
+      B.devices.push({ name: '', qty: 1, standbyMa: '', alarmMa: '' });
+      renderDevices(); calc();
+      var i = B.devices.length - 1; var el = $('dv-n-' + i); if (el) el.focus();
+    });
+    $('b-reset').addEventListener('click', function () {
+      S[cfg.key] = B = JSON.parse(JSON.stringify(DEF));
+      $('b-hours').value = B.hours; $('b-alarm').value = B.alarm; renderDevices(); calc();
+    });
+
+    function calc() {
+      save();
+      $('b-example').hidden = !isExample();
+      $('b-reset').hidden = isExample();
+      Array.prototype.forEach.call($('b-presets').children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.id === B.preset)); });
+      var devs = B.devices.map(function (d) { return { qty: d.qty || 0, standbyMa: d.standbyMa || 0, alarmMa: d.alarmMa || 0 }; });
+      try {
+        var r = cfg.calc(devs, B.hours === '' ? NaN : B.hours, B.alarm === '' ? NaN : B.alarm);
+        $('b-batt').innerHTML = r.battery ? r.battery + '<small>Ah</small>' : 'Over ' + r.largestCommon + '<small>Ah</small>';
+        $('b-req').textContent = 'Required ' + f(r.requiredAh, 2) + ' Ah with 20% margin';
+        $('b-flag').innerHTML = r.battery ? '<span class="pill ok">Next standard size up</span>'
+          : '<span class="pill bad">Larger than common sizes</span><p class="sub" style="margin:8px 0 0">Use a larger battery only if the panel charger allows it, or move load to a supervised power supply with its own battery.</p>';
+        $('b-totals').innerHTML = '<span>Standby ' + f(r.standbyA * 1000, 0) + ' mA</span><span>Alarm ' + f(r.alarmA * 1000, 0) + ' mA</span>';
+        $('b-math').textContent =
+          'Standby  ' + f(r.standbyA, 3) + ' A × ' + f(r.standbyHours, 2) + ' h  = ' + f(r.standbyAh, 3) + ' Ah\n' +
+          'Alarm    ' + f(r.alarmA, 3) + ' A × ' + f(r.alarmHours, 3) + ' h = ' + f(r.alarmAh, 3) + ' Ah\n' +
+          'Subtotal                  = ' + f(r.baseAh, 3) + ' Ah\n' +
+          '× 1.2 safety factor       = ' + f(r.requiredAh, 3) + ' Ah\n' +
+          'Next standard size        → ' + (r.battery ? r.battery + ' Ah' : 'none (over ' + r.largestCommon + ' Ah)');
+      } catch (err) {
+        $('b-batt').textContent = '–'; $('b-req').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('b-flag').innerHTML = ''; $('b-math').textContent = '';
+      }
+    }
+    renderDevices(); calc();
+  }
+
+  /* ---------- voltage drop ---------- */
+  function drop($) {
+    $('d-gauge').innerHTML = C.GAUGES.map(function (g) { return '<option value="' + g + '">' + g + ' AWG (' + C.WIRE_OHMS_PER_FT[g] + ' Ω/ft)</option>'; }).join('');
+    ['amps', 'gauge', 'len', 'vs', 'vmin'].forEach(function (k) {
+      var el = $('d-' + k); el.value = S.d[k];
+      el.addEventListener('input', function () { S.d[k] = el.value; calc(); });
+    });
+    function calc() {
+      save();
+      try {
+        ['amps', 'len', 'vs'].forEach(function (k) { if (S.d[k] === '') throw new Error('Fill in every field'); });
+        var r = C.voltageDrop(S.d.amps, Number(S.d.gauge), S.d.len, S.d.vs, S.d.vmin);
+        $('d-end').innerHTML = f(r.endV, 2) + '<small>V</small>';
+        $('d-sub').textContent = 'Drop ' + f(r.drop, 2) + ' V (' + f(r.pct, 1) + '%)';
+        $('d-flag').innerHTML = r.pass === undefined ? '<span class="pill warn">Enter device minimum</span>'
+          : r.pass ? '<span class="pill ok">Pass · ' + f(r.marginV, 2) + ' V to spare</span>'
+          : '<span class="pill bad">Fail · ' + f(-r.marginV, 2) + ' V short</span><p class="sub" style="margin:8px 0 0">Go to a heavier gauge, shorten the run, split the load, or add a power supply near the devices.</p>';
+        $('d-math').textContent =
+          'Loop  2 × ' + S.d.len + ' ft × ' + r.ohmsPerFt + ' Ω/ft = ' + f(r.loopOhms, 3) + ' Ω\n' +
+          'Drop  ' + f(r.loopOhms, 3) + ' Ω × ' + S.d.amps + ' A       = ' + f(r.drop, 3) + ' V\n' +
+          'End   ' + S.d.vs + ' V − ' + f(r.drop, 3) + ' V          = ' + f(r.endV, 3) + ' V';
+      } catch (err) {
+        $('d-end').textContent = '–'; $('d-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('d-flag').innerHTML = ''; $('d-math').textContent = '';
+      }
+    }
+    calc();
+  }
+
+  /* ---------- wire gauge ---------- */
+  function gauge($) {
+    var MODES = { vmin: ['Device minimum operating voltage', 'VDC'], pct: ['Allowed drop', '%'], volts: ['Allowed drop', 'V'] };
+    ['amps', 'len', 'vs', 'mode', 'allow'].forEach(function (k) {
+      var el = $('g-' + k); el.value = S.g[k];
+      el.addEventListener('input', function () { S.g[k] = el.value; calc(); });
+    });
+    function calc() {
+      save();
+      $('g-allow-txt').textContent = MODES[S.g.mode][0]; $('g-allow-unit').textContent = MODES[S.g.mode][1];
+      try {
+        ['amps', 'len', 'vs', 'allow'].forEach(function (k) { if (S.g[k] === '') throw new Error('Fill in every field'); });
+        var allowance = S.g.mode === 'pct' ? { percent: S.g.allow }
+          : S.g.mode === 'volts' ? { volts: S.g.allow }
+          : { volts: Number(S.g.vs) - Number(S.g.allow) };
+        if (allowance.volts < 0) throw new Error('Device minimum is above the supply voltage');
+        var r = C.wireGauge(S.g.amps, S.g.len, S.g.vs, allowance);
+        var pick = r.rows.filter(function (x) { return x.gauge === r.gauge; })[0];
+        $('g-pick').innerHTML = r.gauge ? r.gauge + '<small>AWG</small>' : 'None';
+        $('g-sub').textContent = 'Allowed drop ' + f(r.allowedV, 2) + ' V' + (pick ? ' · this gauge drops ' + f(pick.drop, 2) + ' V' : '');
+        $('g-flag').innerHTML = r.gauge ? '<span class="pill ok">Heavier wire also works</span>'
+          : '<span class="pill bad">Even 12 AWG is too much drop</span><p class="sub" style="margin:8px 0 0">Add a power supply near the devices or split the load across runs.</p>';
+        $('g-rows').innerHTML = r.rows.map(function (x) {
+          return '<tr class="' + (x.gauge === r.gauge ? 'pick' : '') + '"><td>' + x.gauge + '</td><td class="' + (x.ok ? 'ok' : 'bad') + '">' +
+            f(x.drop, 2) + ' V</td><td>' + f(x.endV, 2) + ' V</td><td>' + (isFinite(x.maxRunFt) ? Math.floor(x.maxRunFt) + ' ft' : '—') + '</td></tr>';
+        }).join('');
+      } catch (err) {
+        $('g-pick').textContent = '–'; $('g-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('g-flag').innerHTML = ''; $('g-rows').innerHTML = '';
+      }
+    }
+    calc();
+  }
+
+  /* ---------- NAC voltage drop (fire) ---------- */
+  function nac($) {
+    var N = S.n;
+    var isExample = function () { return JSON.stringify(N.apps) === JSON.stringify(DEFAULTS.n.apps); };
+    $('n-gauge').innerHTML = C.FIRE_GAUGES.map(function (g) { return '<option value="' + g + '">' + g + ' AWG (' + C.WIRE_OHMS_PER_FT[g] + ' Ω/ft)</option>'; }).join('');
+    ['vs', 'gauge', 'len', 'vmin', 'rating'].forEach(function (k) {
+      var el = $('n-' + k); el.value = N[k];
+      el.addEventListener('input', function () { N[k] = el.value; calc(); });
+    });
+    function renderApps() {
+      $('n-apps').innerHTML = N.apps.map(function (d, i) {
+        return '<div class="dev nac" data-i="' + i + '">' +
+          '<label class="name">Appliance<input id="na-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
+          '<label>Qty<input data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
+          '<label>mA each<input data-k="ma" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d.ma) + '"></label>' +
+          '<button type="button" class="del" aria-label="Remove ' + esc(d.name || 'appliance') + '">×</button></div>';
+      }).join('');
+    }
+    $('n-apps').addEventListener('input', function (e) {
+      var row = e.target.closest('.dev'); if (!row) return;
+      N.apps[+row.dataset.i][e.target.dataset.k] = e.target.value; calc();
+    });
+    $('n-apps').addEventListener('click', function (e) {
+      if (!e.target.classList.contains('del')) return;
+      N.apps.splice(+e.target.closest('.dev').dataset.i, 1); renderApps(); calc();
+    });
+    $('n-add').addEventListener('click', function () {
+      N.apps.push({ name: '', qty: 1, ma: '' }); renderApps(); calc();
+      var el = $('na-n-' + (N.apps.length - 1)); if (el) el.focus();
+    });
+    $('n-reset').addEventListener('click', function () {
+      S.n = N = JSON.parse(JSON.stringify(DEFAULTS.n));
+      ['vs', 'gauge', 'len', 'vmin', 'rating'].forEach(function (k) { $('n-' + k).value = N[k]; });
+      renderApps(); calc();
+    });
+    function calc() {
+      save();
+      $('n-example').hidden = !isExample();
+      $('n-reset').hidden = isExample();
+      try {
+        ['vs', 'len', 'vmin'].forEach(function (k) { if (N[k] === '') throw new Error('Fill in every field'); });
+        var apps = N.apps.map(function (a) { return { qty: a.qty || 0, ma: a.ma || 0 }; });
+        var r = C.nacDrop(apps, Number(N.gauge), N.len, N.vs, N.vmin, N.rating);
+        $('n-end').innerHTML = f(r.endV, 2) + '<small>V</small>';
+        $('n-sub').textContent = 'Drop ' + f(r.drop, 2) + ' V (' + f(r.pct, 1) + '%) · ' + f(r.currentA, 2) + ' A on the circuit';
+        var flags = r.pass ? '<span class="pill ok">Pass · ' + f(r.marginV, 2) + ' V to spare</span>'
+          : '<span class="pill bad">Fail · ' + f(-r.marginV, 2) + ' V short</span>';
+        if (r.overRating) flags += ' <span class="pill bad">Over the ' + f(r.ratingA, 2) + ' A NAC rating</span>';
+        if (!r.pass || r.overRating) flags += '<p class="sub" style="margin:8px 0 0">Go to a heavier gauge, split the appliances onto another NAC, or add a NAC power extender near the appliances.</p>';
+        $('n-flag').innerHTML = flags;
+        $('n-totals').innerHTML = '<span>Total ' + f(r.currentA * 1000, 0) + ' mA</span><span>Max run at this gauge ' + (isFinite(r.maxRunFt) ? Math.floor(r.maxRunFt) + ' ft' : '—') + '</span>';
+        $('n-math').textContent =
+          'Current  sum of qty × mA          = ' + f(r.currentA, 3) + ' A\n' +
+          'Loop     2 × ' + N.len + ' ft × ' + r.ohmsPerFt + ' Ω/ft = ' + f(r.loopOhms, 3) + ' Ω\n' +
+          'Drop     ' + f(r.loopOhms, 3) + ' Ω × ' + f(r.currentA, 3) + ' A     = ' + f(r.drop, 3) + ' V\n' +
+          'End      ' + N.vs + ' V − ' + f(r.drop, 3) + ' V        = ' + f(r.endV, 3) + ' V\n' +
+          'Minimum  ' + N.vmin + ' V → ' + (r.pass ? 'pass' : 'fail');
+      } catch (err) {
+        $('n-end').textContent = '–'; $('n-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('n-flag').innerHTML = ''; $('n-math').textContent = ''; $('n-totals').innerHTML = '';
+      }
+    }
+    renderApps(); calc();
+  }
+
+  /* ---------- access power supply (access) ---------- */
+  function lockpsu($) {
+    var P = S.ap, DEF = DEFAULTS.ap;
+    var isExample = function () { return JSON.stringify(P.devices) === JSON.stringify(DEF.devices); };
+    var presets = C.ACCESS_STANDBY_PRESETS.concat([{ id: 'custom', label: 'Custom', hours: null }]);
+    $('p-presets').innerHTML = presets.map(function (p) {
+      return '<button type="button" data-id="' + p.id + '">' + esc(p.label) + (p.hours ? ' · ' + (p.hours < 1 ? p.hours * 60 + ' min' : p.hours + ' h') : '') + '</button>';
+    }).join('');
+    $('p-presets').addEventListener('click', function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      var p = presets.filter(function (x) { return x.id === btn.dataset.id; })[0];
+      P.preset = p.id; if (p.hours) P.hours = p.hours;
+      $('p-hours').value = P.hours; calc();
+    });
+    $('p-hours').value = P.hours;
+    $('p-hours').addEventListener('input', function () {
+      P.hours = this.value;
+      var m = presets.filter(function (p) { return p.hours === Number(P.hours); })[0];
+      P.preset = m ? m.id : 'custom'; calc();
+    });
+    function renderDevices() {
+      $('p-devices').innerHTML = P.devices.map(function (d, i) {
+        return '<div class="dev" data-i="' + i + '">' +
+          '<label class="name">Device<input id="pv-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
+          '<label>Qty<input data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
+          '<label>Normal mA<input data-k="normalMa" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d.normalMa) + '"></label>' +
+          '<label>Peak mA<input data-k="peakMa" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d.peakMa) + '"></label>' +
+          '<button type="button" class="del" aria-label="Remove ' + esc(d.name || 'device') + '">×</button></div>';
+      }).join('');
+    }
+    $('p-devices').addEventListener('input', function (e) {
+      var row = e.target.closest('.dev'); if (!row) return;
+      P.devices[+row.dataset.i][e.target.dataset.k] = e.target.value; calc();
+    });
+    $('p-devices').addEventListener('click', function (e) {
+      if (!e.target.classList.contains('del')) return;
+      P.devices.splice(+e.target.closest('.dev').dataset.i, 1); renderDevices(); calc();
+    });
+    $('p-add').addEventListener('click', function () {
+      P.devices.push({ name: '', qty: 1, normalMa: '', peakMa: '' }); renderDevices(); calc();
+      var el = $('pv-n-' + (P.devices.length - 1)); if (el) el.focus();
+    });
+    $('p-reset').addEventListener('click', function () {
+      S.ap = P = JSON.parse(JSON.stringify(DEF));
+      $('p-hours').value = P.hours; renderDevices(); calc();
+    });
+    function calc() {
+      save();
+      $('p-example').hidden = !isExample();
+      $('p-reset').hidden = isExample();
+      Array.prototype.forEach.call($('p-presets').children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.id === P.preset)); });
+      var devs = P.devices.map(function (d) { return { qty: d.qty || 0, normalMa: d.normalMa || 0, peakMa: d.peakMa || 0 }; });
+      try {
+        var r = C.accessPower(devs, P.hours === '' ? NaN : P.hours);
+        $('p-psu').innerHTML = r.psu ? r.psu + '<small>A</small>' : 'Over ' + r.largestPsu + '<small>A</small>';
+        $('p-sub').textContent = 'Needs ' + f(r.minPsuA, 2) + ' A at 80% loading · battery ' +
+          (r.battery === 0 ? 'none' : r.battery ? r.battery + ' Ah' : 'over ' + r.largestBattery + ' Ah') + ' for ' + f(r.standbyHours, 1) + ' h';
+        var flags = r.psu ? '<span class="pill ok">Loaded to ' + f(r.loadPct, 0) + '% at peak</span>'
+          : '<span class="pill bad">Larger than one supply</span><p class="sub" style="margin:8px 0 0">Split the doors across more than one power supply.</p>';
+        if (r.battery === null) flags += ' <span class="pill bad">Battery over ' + r.largestBattery + ' Ah</span><p class="sub" style="margin:8px 0 0">Split the load across supplies, or confirm with the customer which locks stay on battery.</p>';
+        $('p-flag').innerHTML = flags;
+        $('p-totals').innerHTML = '<span>Normal ' + f(r.normalA * 1000, 0) + ' mA</span><span>Peak ' + f(r.peakA * 1000, 0) + ' mA</span>';
+        $('p-math').textContent =
+          'Supply   ' + f(r.peakA, 3) + ' A peak ÷ 0.8   = ' + f(r.minPsuA, 3) + ' A\n' +
+          'Next common size         → ' + (r.psu ? r.psu + ' A' : 'none (over ' + r.largestPsu + ' A)') + '\n' +
+          'Battery  ' + f(r.normalA, 3) + ' A × ' + f(r.standbyHours, 2) + ' h = ' + f(r.baseAh, 3) + ' Ah\n' +
+          '× 1.2 safety factor      = ' + f(r.requiredAh, 3) + ' Ah\n' +
+          'Next common size         → ' + (r.battery === 0 ? 'none needed' : r.battery ? r.battery + ' Ah' : 'none (over ' + r.largestBattery + ' Ah)');
+      } catch (err) {
+        $('p-psu').textContent = '–'; $('p-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('p-flag').innerHTML = ''; $('p-math').textContent = ''; $('p-totals').innerHTML = '';
+      }
+    }
+    renderDevices(); calc();
+  }
+
+  /* ---------- reader cable (access) ---------- */
+  function reader($) {
+    var R = S.r;
+    var isExample = function () { return JSON.stringify(R) === JSON.stringify(DEFAULTS.r); };
+    $('r-gauge').innerHTML = C.READER_GAUGES.map(function (g) { return '<option value="' + g + '">' + g + ' AWG (' + C.WIRE_OHMS_PER_FT[g] + ' Ω/ft)</option>'; }).join('');
+    ['protocol', 'gauge', 'len', 'vs', 'ma', 'vmin'].forEach(function (k) {
+      var el = $('r-' + k); el.value = R[k];
+      el.addEventListener('input', function () { R[k] = el.value; calc(); });
+    });
+    function calc() {
+      save();
+      $('r-example').hidden = !isExample();
+      try {
+        ['len', 'vs', 'ma', 'vmin'].forEach(function (k) { if (R[k] === '') throw new Error('Fill in every field'); });
+        var r = C.readerRun(R.protocol, Number(R.gauge), R.len, R.vs, R.ma, R.vmin);
+        var name = R.protocol === 'osdp' ? 'OSDP' : 'Wiegand';
+        $('r-end').innerHTML = f(r.endV, 2) + '<small>V</small>';
+        $('r-sub').textContent = 'Drop ' + f(r.drop, 2) + ' V (' + f(r.pct, 1) + '%) · max power run ' + (isFinite(r.maxPowerFt) ? Math.floor(r.maxPowerFt) + ' ft' : '—');
+        var flags = (r.pass ? '<span class="pill ok">Power OK · ' + f(r.marginV, 2) + ' V to spare</span>' : '<span class="pill bad">Power low · ' + f(-r.marginV, 2) + ' V short</span>') +
+          ' ' + (r.dataOk ? '<span class="pill ok">' + name + ' distance OK</span>' : '<span class="pill bad">Over ' + name + ' ' + r.maxDataFt.toLocaleString('en-US') + ' ft</span>');
+        if (!r.pass || !r.dataOk) flags += '<p class="sub" style="margin:8px 0 0">' +
+          (!r.dataOk && R.protocol === 'wiegand' ? 'Switch to OSDP, or move the controller or an interface module closer to the door. ' : '') +
+          (!r.pass ? 'Use a heavier power pair or power the reader from a supply near the door (common ground with the controller).' : '') + '</p>';
+        $('r-flag').innerHTML = flags;
+        $('r-math').textContent =
+          'Loop  2 × ' + R.len + ' ft × ' + r.ohmsPerFt + ' Ω/ft = ' + f(r.loopOhms, 3) + ' Ω\n' +
+          'Drop  ' + f(r.loopOhms, 3) + ' Ω × ' + f(r.currentA, 3) + ' A       = ' + f(r.drop, 3) + ' V\n' +
+          'End   ' + R.vs + ' V − ' + f(r.drop, 3) + ' V          = ' + f(r.endV, 3) + ' V\n' +
+          'Data  ' + R.len + ' ft vs ' + name + ' ' + r.maxDataFt + ' ft  → ' + (r.dataOk ? 'OK' : 'too long');
+      } catch (err) {
+        $('r-end').textContent = '–'; $('r-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('r-flag').innerHTML = ''; $('r-math').textContent = '';
+      }
+    }
+    calc();
+  }
+
+  // Rows of { name, qty, <field> } for the PoE and storage screens.
+  function rowList($, opts) {
+    var box = $(opts.box);
+    function render() {
+      box.innerHTML = opts.list().map(function (d, i) {
+        return '<div class="dev nac" data-i="' + i + '">' +
+          '<label class="name">' + opts.nameLabel + '<input id="' + opts.box + '-n-' + i + '" data-k="name" value="' + esc(d.name) + '"></label>' +
+          '<label>Qty<input data-k="qty" type="number" inputmode="numeric" min="0" step="1" value="' + esc(d.qty) + '"></label>' +
+          '<label>' + opts.valLabel + '<input data-k="' + opts.key + '" type="number" inputmode="decimal" min="0" step="any" value="' + esc(d[opts.key]) + '"></label>' +
+          '<button type="button" class="del" aria-label="Remove ' + esc(d.name || 'row') + '">×</button></div>';
+      }).join('');
+    }
+    box.addEventListener('input', function (e) {
+      var row = e.target.closest('.dev'); if (!row) return;
+      opts.list()[+row.dataset.i][e.target.dataset.k] = e.target.value; opts.calc();
+    });
+    box.addEventListener('click', function (e) {
+      if (!e.target.classList.contains('del')) return;
+      opts.list().splice(+e.target.closest('.dev').dataset.i, 1); render(); opts.calc();
+    });
+    $(opts.add).addEventListener('click', function () {
+      var blank = { name: '', qty: 1 }; blank[opts.key] = '';
+      opts.list().push(blank); render(); opts.calc();
+      var el = $(opts.box + '-n-' + (opts.list().length - 1)); if (el) el.focus();
+    });
+    return render;
+  }
+
+  /* ---------- PoE budget (cctv) ---------- */
+  function poe($) {
+    var P = S.pe, DEF = DEFAULTS.pe;
+    var isExample = function () { return JSON.stringify(P) === JSON.stringify(DEF); };
+    $('pe-port').innerHTML = C.POE_PORTS.map(function (p) { return '<option value="' + p.id + '">' + esc(p.label) + '</option>'; }).join('');
+    ['budget', 'port', 'mode'].forEach(function (k) {
+      var el = $('pe-' + k); el.value = P[k];
+      el.addEventListener('input', function () { P[k] = el.value; calc(); });
+    });
+    var render = rowList($, { box: 'pe-devices', add: 'pe-add', key: 'w', nameLabel: 'Camera', valLabel: 'Max W', list: function () { return P.devices; }, calc: function () { calc(); } });
+    $('pe-reset').addEventListener('click', function () {
+      S.pe = P = JSON.parse(JSON.stringify(DEF));
+      ['budget', 'port', 'mode'].forEach(function (k) { $('pe-' + k).value = P[k]; });
+      render(); calc();
+    });
+    function calc() {
+      save();
+      $('pe-example').hidden = !isExample();
+      $('pe-reset').hidden = isExample();
+      try {
+        if (P.budget === '') throw new Error('Enter the switch PoE budget');
+        var devs = P.devices.map(function (d) { return { qty: d.qty || 0, watts: d.w || 0 }; });
+        var r = C.poeBudget(devs, P.budget, P.port, P.mode);
+        $('pe-w').innerHTML = f(r.portW, 1) + '<small>W</small>';
+        $('pe-sub').textContent = 'of ' + f(r.budgetW, 0) + ' W budget (' + f(r.loadPct, 0) + '%) · ' + r.ports + ' ports · plan to ' + f(r.limitW, 0) + ' W';
+        var flags = r.overBudget ? '<span class="pill bad">Over ' + (C.POE_LOAD_LIMIT * 100) + '% of budget</span>' : '<span class="pill ok">Within ' + (C.POE_LOAD_LIMIT * 100) + '% of budget</span>';
+        if (r.overPort) flags += ' <span class="pill bad">' + r.overPort + ' need a bigger port</span>';
+        if (r.tooBig) flags += ' <span class="pill bad">' + r.tooBig + ' over 802.3bt</span>';
+        var tips = [];
+        if (r.overBudget) tips.push('Needs a switch budget of at least ' + f(r.minBudgetW, 0) + ' W, or split the cameras across switches.');
+        if (r.overPort) tips.push('Cameras marked red need a higher PoE port type than ' + r.port.label + ', an injector, or a separate supply.');
+        if (r.tooBig) tips.push('Over 71.3 W needs a separate power supply (often 24 VAC).');
+        if (tips.length) flags += '<p class="sub" style="margin:8px 0 0">' + tips.join(' ') + '</p>';
+        $('pe-flag').innerHTML = flags;
+        $('pe-totals').innerHTML = '<span>Cameras ' + f(r.deviceW, 1) + ' W</span><span>At the ports ' + f(r.portW, 1) + ' W</span>';
+        $('pe-rows').innerHTML = r.rows.map(function (row, i) {
+          var d = P.devices[i];
+          return '<tr><td style="white-space:normal">' + esc(d.name || 'Camera') + (Number(d.qty) !== 1 ? ' × ' + esc(d.qty) : '') + '</td><td>' + f(row.watts, 1) + '</td>' +
+            '<td class="' + (row.portOk ? 'ok' : 'bad') + '">' + (row.cls ? row.cls + ' (' + row.std + ')' : 'Over Class 8') + '</td>' +
+            '<td>' + (row.portW !== null ? f(row.portW, 1) : '–') + '</td></tr>';
+        }).join('');
+        $('pe-math').textContent =
+          'Port W   ' + (r.mode === 'class' ? 'class port watts per camera' : 'camera W × port W ÷ device W') + '\n' +
+          'Total    sum of qty × port W     = ' + f(r.portW, 1) + ' W\n' +
+          'Plan to  ' + f(r.budgetW, 0) + ' W × ' + C.POE_LOAD_LIMIT + '            = ' + f(r.limitW, 1) + ' W\n' +
+          'Budget   ' + f(r.portW, 1) + ' ÷ ' + C.POE_LOAD_LIMIT + ' = ' + f(r.minBudgetW, 1) + ' W needed → ' + (r.overBudget ? 'too small' : 'OK');
+      } catch (err) {
+        $('pe-w').textContent = '–'; $('pe-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('pe-flag').innerHTML = ''; $('pe-math').textContent = ''; $('pe-totals').innerHTML = ''; $('pe-rows').innerHTML = '';
+      }
+    }
+    render(); calc();
+  }
+
+  /* ---------- video storage (cctv) ---------- */
+  function storageCalc($) {
+    var P = S.st, DEF = DEFAULTS.st;
+    var isExample = function () { return JSON.stringify(P) === JSON.stringify(DEF); };
+    $('st-raid').innerHTML = Object.keys(C.RAID).map(function (k) { return '<option value="' + k + '">' + esc(C.RAID[k].label) + '</option>'; }).join('');
+    ['hours', 'pct', 'days', 'drive', 'raid'].forEach(function (k) {
+      var el = $('st-' + k); el.value = P[k];
+      el.addEventListener('input', function () { P[k] = el.value; calc(); });
+    });
+    var render = rowList($, { box: 'st-groups', add: 'st-add', key: 'mbps', nameLabel: 'Cameras', valLabel: 'Mbps each', list: function () { return P.groups; }, calc: function () { calc(); } });
+    $('st-reset').addEventListener('click', function () {
+      S.st = P = JSON.parse(JSON.stringify(DEF));
+      ['hours', 'pct', 'days', 'drive', 'raid'].forEach(function (k) { $('st-' + k).value = P[k]; });
+      render(); calc();
+    });
+    function calc() {
+      save();
+      $('st-example').hidden = !isExample();
+      $('st-reset').hidden = isExample();
+      try {
+        ['hours', 'pct', 'days'].forEach(function (k) { if (P[k] === '') throw new Error('Fill in the recording fields'); });
+        var groups = P.groups.map(function (g) { return { qty: g.qty || 0, mbps: g.mbps || 0 }; });
+        var r = C.storage(groups, P.hours, P.pct, P.days, P.drive, P.raid);
+        $('st-tb').innerHTML = f(r.requiredTb, 1) + '<small>TB</small>';
+        $('st-sub').textContent = f(r.tb, 2) + ' TB before headroom · ' + f(r.gbPerDay, 1) + ' GB per day · ' + f(r.mbps, 1) + ' Mbps in';
+        $('st-flag').innerHTML = r.drives ? '<span class="pill ok">' + r.drives + ' × ' + f(r.driveTb, 0) + ' TB, ' + esc(C.RAID[r.raid].label) + '</span><p class="sub" style="margin:8px 0 0">' + f(r.usableTb, 0) + ' TB usable. Check the recorder has ' + r.drives + ' bays and takes ' + f(r.driveTb, 0) + ' TB drives, and that its incoming bandwidth is over ' + f(r.mbps, 0) + ' Mbps.</p>' : '';
+        $('st-totals').innerHTML = '<span>Total ' + f(r.mbps, 1) + ' Mbps</span>';
+        $('st-math').textContent =
+          'Per day  ' + f(r.mbps, 1) + ' Mbps × 3600 × ' + P.hours + ' h × ' + P.pct + '% ÷ 8 ÷ 1000 = ' + f(r.gbPerDay, 1) + ' GB\n' +
+          'Keep     ' + f(r.gbPerDay, 1) + ' GB × ' + P.days + ' days ÷ 1000   = ' + f(r.tb, 2) + ' TB\n' +
+          'Headroom × ' + r.margin + '                        = ' + f(r.requiredTb, 2) + ' TB' +
+          (r.drives ? '\nDrives   ' + r.drives + ' × ' + f(r.driveTb, 0) + ' TB ' + C.RAID[r.raid].label + ' = ' + f(r.usableTb, 0) + ' TB usable' : '');
+      } catch (err) {
+        $('st-tb').textContent = '–'; $('st-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('st-flag').innerHTML = ''; $('st-math').textContent = ''; $('st-totals').innerHTML = '';
+      }
+    }
+    render(); calc();
+  }
+
+  /* ---------- field of view (cctv) ---------- */
+  function fov($) {
+    var P = S.fv;
+    var isExample = function () { return JSON.stringify(P) === JSON.stringify(DEFAULTS.fv); };
+    ['px', 'mode', 'hfov', 'focal', 'sensor', 'dist'].forEach(function (k) {
+      var el = $('fv-' + k); el.value = P[k];
+      el.addEventListener('input', function () { P[k] = el.value; calc(); });
+    });
+    function calc() {
+      save();
+      $('fv-example').hidden = !isExample();
+      var focal = P.mode === 'focal';
+      $('fv-hfov-l').hidden = focal; $('fv-focal-l').hidden = !focal; $('fv-sensor-l').hidden = !focal;
+      try {
+        var need = focal ? ['px', 'focal', 'sensor', 'dist'] : ['px', 'hfov', 'dist'];
+        need.forEach(function (k) { if (P[k] === '') throw new Error('Fill in every field'); });
+        var hfov = focal ? C.hfovFromFocal(P.focal, P.sensor) : Number(P.hfov);
+        var r = C.fieldOfView(P.px, hfov, P.dist);
+        $('fv-ppf').innerHTML = (isFinite(r.ppf) ? f(r.ppf, 0) : '–') + '<small>px/ft</small>';
+        $('fv-sub').textContent = 'Scene ' + f(r.widthFt, 1) + ' ft wide at ' + P.dist + ' ft · ' + f(r.ppm, 0) + ' px/m · HFOV ' + f(r.hfov, 1) + '°';
+        $('fv-flag').innerHTML = r.level ? '<span class="pill ' + (r.level.id === 'identify' ? 'ok' : 'warn') + '">' + r.level.label + '</span>' : '<span class="pill bad">Below detect</span>';
+        $('fv-rows').innerHTML = r.levels.map(function (L) {
+          return '<tr' + (r.level && L.id === r.level.id ? ' class="pick"' : '') + '><td>' + L.label + '</td><td>' + f(L.ppf, 0) + ' px/ft</td>' +
+            '<td class="' + (L.ok ? 'ok' : 'bad') + '">' + (L.ok ? 'Yes' : 'No') + '</td><td>' + f(L.maxFt, 0) + ' ft</td></tr>';
+        }).join('');
+        $('fv-math').textContent =
+          (focal ? 'HFOV   2 × atan(' + P.sensor + ' ÷ (2 × ' + P.focal + ')) = ' + f(r.hfov, 1) + '°\n' : '') +
+          'Width  2 × ' + P.dist + ' ft × tan(' + f(r.hfov / 2, 1) + '°) = ' + f(r.widthFt, 2) + ' ft\n' +
+          'px/ft  ' + P.px + ' ÷ ' + f(r.widthFt, 2) + ' ft      = ' + f(r.ppf, 1) + '\n' +
+          'px/m   ' + f(r.ppf, 1) + ' × 3.281        = ' + f(r.ppm, 0);
+      } catch (err) {
+        $('fv-ppf').textContent = '–'; $('fv-sub').innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+        $('fv-flag').innerHTML = ''; $('fv-math').textContent = ''; $('fv-rows').innerHTML = '';
+      }
+    }
+    calc();
+  }
+
+  window.SLVCalcUI = { CALCS: CALCS, mount: mount };
+})();
