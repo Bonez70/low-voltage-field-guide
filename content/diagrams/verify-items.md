@@ -64,8 +64,10 @@ The "as drawn" items cover the drawing itself: look at the diagram in the review
 **Proposed:** access power supply + and − to the delayed egress maglock, with the fire alarm relay on the supply's FA input so an alarm drops lock power; the access controller relay (C and NO) on the lock's bypass input for a valid card; a rearm keyswitch at the door on the lock's reset input; the lock's alarm relay (C and NC, closed when idle) to an external alarm panel zone with the EOL at the lock.
 **Source:** delayed egress maglock and power supply instructions; follows the signed-off access items de-timing, de-release, and fa-release.
 **Cite:** Manufacturer instructions
+**Status:** signed off by David 2026-10-10
 
 ### dg-de-ext-alarm: External alarm adds to the local alarm
 **Proposed:** the delayed egress lock's alarm output can fault an external alarm panel zone when a release starts, but that's in addition to the required local audible signal at the door, never a replacement for it.
 **Source:** IBC Ch. 10 and NFPA 101 7.2.1.6.1 require the local audible signal; the external report is customer choice.
 **Cite:** IBC Ch. 10; NFPA 101 7.2.1.6.1
+**Status:** signed off by David 2026-10-10

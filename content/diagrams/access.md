@@ -131,7 +131,7 @@ One door's low-voltage inputs on a generic controller: a Wiegand reader on the r
 **Drawing:** maglock-delayed-egress
 **Related:** Lesson 8.5, Lesson 4.3, Lesson 6.4, Reference: *Delayed egress*, Reference: *Fire alarm release*, Guide 10
 
-A delayed egress maglock with its own timer and local alarm. The access power supply feeds it, and the fire alarm relay opens the supply's fire alarm input so the lock loses power and releases at once. The access controller's relay, used as a dry contact on the bypass input, lets a valid card exit without starting the delay. A keyswitch at the door rearms it after a release. Its alarm relay (C to NC, closed when idle) is wired to a zone on an external alarm panel, with the EOL resistor at the lock. [VERIFY:dg-delayed-egress]
+A delayed egress maglock with its own timer and local alarm. The access power supply feeds it, and the fire alarm relay opens the supply's fire alarm input so the lock loses power and releases at once. The access controller's relay, used as a dry contact on the bypass input, lets a valid card exit without starting the delay. A keyswitch at the door rearms it after a release. Its alarm relay (C to NC, closed when idle) is wired to a zone on an external alarm panel, with the EOL resistor at the lock. [SRC:dg-delayed-egress]
 
 ### How it works
 
@@ -139,7 +139,7 @@ A delayed egress maglock with its own timer and local alarm. The access power su
 - **Rearm:** only manually, at the door, with the keyswitch. [SRC:de-timing]
 - **Immediate release:** on sprinkler or fire detection activation, on loss of power, and from the fire command center where there is one. [SRC:de-release]
 - **Valid card:** the controller closes the bypass input, and the door unlocks for the unlock time with no delay and no alarm.
-- **External alarm:** the lock's alarm relay opens when a release starts, faulting the panel zone so the panel can sound or report it. It's in addition to the lock's own local alarm at the door, never a replacement for it. [VERIFY:dg-de-ext-alarm]
+- **External alarm:** the lock's alarm relay opens when a release starts, faulting the panel zone so the panel can sound or report it. It's in addition to the lock's own local alarm at the door, never a replacement for it. [SRC:dg-de-ext-alarm]
 
 ### Good to know
 
