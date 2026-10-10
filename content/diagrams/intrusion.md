@@ -8,7 +8,7 @@ Generic, brand-neutral panel wiring. Every panel names its terminals a little di
 **Drawing:** panel-power-bus
 **Related:** Lesson 4.5, Lesson 4.6, Lesson 6.4, Lesson 6.5, Reference: *Battery standby formula*, Guide 4, Guide 5, Guide 6, Guide 9
 
-The power side of a generic panel: the plug-in transformer on AC, the battery on BAT, the siren on BELL, a powered device on AUX, a keypad on the 4-wire data bus, and earth ground. Terminal names differ by brand, but every panel has these same connections. [VERIFY:dg-panel-power]
+The power side of a generic panel: the plug-in transformer on AC, the battery on BAT, the siren on BELL, a powered device on AUX, a keypad on the 4-wire data bus, and earth ground. Terminal names differ by brand, but every panel has these same connections. [SRC:dg-panel-power]
 
 ### How it works
 
@@ -39,7 +39,7 @@ The power side of a generic panel: the plug-in transformer on AC, the battery on
 **Drawing:** zones-eol
 **Related:** Lesson 4.1, Lesson 4.2, Lesson 4.3, Lesson 3.2, Reference: *Zone wiring at a glance*, Reference: *Meter readings on a zone*, Reference: *Common EOL resistor values*, Guide 1, Guide 2, Guide 10
 
-Four common zone hookups on a generic panel. Z1: normally closed contacts in series, EOL resistor in series at the last device. Z2: normally open devices in parallel, EOL resistor across the loop at the last device. Z3: double EOL, one resistor in series with the loop and one across the contact. Z4: a 4-wire motion detector, its alarm and tamper contacts in series with the EOL at the detector, powered from AUX. [VERIFY:dg-zones]
+Four common zone hookups on a generic panel. Z1: normally closed contacts in series, EOL resistor in series at the last device. Z2: normally open devices in parallel, EOL resistor across the loop at the last device. Z3: double EOL, one resistor in series with the loop and one across the contact. Z4: a 4-wire motion detector, its alarm and tamper contacts in series with the EOL at the detector, powered from AUX. [SRC:dg-zones]
 
 ### How it works
 
