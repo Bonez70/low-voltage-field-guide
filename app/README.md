@@ -36,3 +36,9 @@ Field tip boxes written as `> **Field tip (David to add):** topic` show as a das
 ## Hosting
 
 Any static host over HTTPS (GitHub Pages, Netlify, Cloudflare Pages). Serve the `app/` folder as the site root. Offline and "Add to Home Screen" need HTTPS. Test locally with any static server on `localhost`.
+
+## Wiring diagrams
+
+Generic, brand-neutral wiring diagrams live in `content/diagrams/`: one Markdown file per system (`access.md`, `intrusion.md`) with a `## Diagram: Title` section per diagram, and a drawing for each in `drawings/<id>.js`. Drawings use `app/diagram-kit.js` (boxes with terminals, orthogonal wires, contacts, resistors, diodes); the SVG and the connection table are generated at build time, and colors come from `app.css` so they read in light and dark mode.
+
+A diagram's `**Related:**` line puts a "Wiring diagram" link under those lessons, cards, and guides. A diagram with any `[VERIFY:key]` tag stays off the live app (only `--drafts` previews show it); its items are in `content/diagrams/verify-items.md`, and `node app/verify-sheet.js diagrams` writes the sign-off sheet. Diagram notes can reuse a pack's signed-off `[SRC:key]` values.

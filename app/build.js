@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const verify = require('./verify-sheet.js');
+const kit = require('./diagram-kit.js');
 
 const APP = __dirname;
 const CONTENT = path.join(APP, '..', 'content');
@@ -188,6 +189,46 @@ function splitH2(md) {
 
 const slug = s => s.toLowerCase().replace(/^card:\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+/* ---------------- Wiring diagrams ---------------- */
+
+// content/diagrams/<pack>.md: "## Diagram: Title" sections, each naming a drawing in content/diagrams/drawings/.
+// A diagram with [VERIFY] tags is a draft: it ships only in a --drafts preview until its items are signed off.
+const DIAGRAMS = path.join(CONTENT, 'diagrams');
+const dgCheck = fs.existsSync(DIAGRAMS) ? verify.check('diagrams') : null;
+if (dgCheck && dgCheck.unknown.length) throw new Error(`diagrams: tags with no verify item: ${dgCheck.unknown.join(', ')}`);
+
+function buildDiagrams(cfg, ctx) {
+  const f = path.join(DIAGRAMS, cfg.id + '.md');
+  if (!fs.existsSync(f)) return { diagrams: [], search: [] };
+  const R = makeRenderer(Object.assign({}, ctx, {
+    verify: verify.numbers('diagrams'), cites: Object.assign({}, verify.cites(cfg.id), verify.cites('diagrams'))
+  }));
+  const search = [];
+  const diagrams = splitH2(fs.readFileSync(f, 'utf8')).sections.filter(s => /^Diagram:/.test(s.heading)).map(s => {
+    const title = s.heading.replace(/^Diagram:\s*/, '');
+    const id = (s.body.match(/^\*\*Drawing:\*\*\s*([a-z0-9-]+)/m) || [])[1];
+    if (!id) throw new Error(`${cfg.id} diagram "${title}" has no **Drawing:** line`);
+    const related = (s.body.match(/^\*\*Related:\*\*\s*(.*)$/m) || [])[1] || '';
+    const body = s.body.replace(/^\*\*(Drawing|Related):\*\*.*$/gm, '').trim();
+    const drawing = require(path.join(DIAGRAMS, 'drawings', id + '.js'))(kit);
+    const draft = /\[VERIFY:/.test(s.body);
+    const rel = {
+      lessons: [...related.matchAll(/\bLesson (\d+\.\d+)/g)].map(m => m[1]).filter(l => ctx.lessons.has(l)),
+      cards: [...related.matchAll(/Reference: \*([^*]+)\*/g)].map(m => (ctx.cards.find(c => c.title.toLowerCase() === m[1].toLowerCase()) || {}).id).filter(Boolean),
+      guides: [...related.matchAll(/\bGuides? (\d+)/g)].map(m => Number(m[1]))
+    };
+    const swatch = c => `<span class="swatch" style="background:var(--wr-${c.key})"></span>`;
+    const table = drawing.conns.length ? '<h3>Connections</h3><div class="scroll"><table class="wd-conn"><thead><tr><th>From</th><th>To</th><th>Wire</th></tr></thead><tbody>' +
+      drawing.conns.map(c => `<tr><td>${esc(c.a)}</td><td>${esc(c.b)}</td><td>${swatch(c)}${esc(c.color)}${c.dash ? ' (dashed)' : ''}` +
+        (c.note ? `<br><small>${esc(c.note)}</small>` : '') + '</td></tr>').join('') + '</tbody></table></div>' : '';
+    let html = R.render(body) + table;
+    if (draft) html = `<p class="draft-note"><strong>Draft for review.</strong> This diagram stays off the live app until its Verify # items on the wiring diagram verify sheet are signed off.</p>` + html;
+    search.push({ kind: 'Diagram', title, where: 'Wiring diagram', href: `diagrams/${id}`, text: plain(body) + ' ' + drawing.conns.map(c => c.a + ' ' + c.b).join(' '), dg: id });
+    return { id, title, svg: drawing.svg, html, relatedHtml: related ? R.inline(related) : '', rel, draft };
+  });
+  return { diagrams, search };
+}
+
 /* ---------------- Pack build ---------------- */
 
 function buildPack(cfg) {
@@ -271,6 +312,8 @@ function buildPack(cfg) {
     return { num: Number(gm[1]), title: gm[2], symptomHtml: sym ? R.inline(sym[1].charAt(0).toUpperCase() + sym[1].slice(1)) : '', html: R.render(body) };
   });
 
+  const dg = buildDiagrams(cfg, ctx);
+
   if (cfg.draft) {
     // Every page of a draft pack says so.
     const note = `<p class="draft-note"><strong>Draft for review.</strong> Values marked Verify # are waiting on sign-off (${vc.pending.length} of ${vc.items.length} items left).</p>`;
@@ -284,9 +327,21 @@ function buildPack(cfg) {
     learn: { modules },
     reference: { introHtml: R.render(refSrc.head), cards },
     troubleshoot: { introHtml: R.render(tsSrc.head), guides },
-    search
+    diagrams: dg.diagrams,
+    search, dgSearch: dg.search
   };
 }
+
+// What ships: live builds leave out draft diagrams; a --drafts preview keeps them.
+function packOut(p, drafts) {
+  const o = Object.assign({}, p);
+  o.diagrams = p.diagrams.filter(d => drafts || !d.draft);
+  const ids = new Set(o.diagrams.map(d => d.id));
+  o.search = p.search.concat(p.dgSearch.filter(x => ids.has(x.dg)));
+  delete o.dgSearch;
+  return o;
+}
+const packJs = (p, drafts) => '(window.SLV_PACKS = window.SLV_PACKS || []).push(' + JSON.stringify(packOut(p, drafts)).replace(/<\/script/gi, '<\\/script') + ');'
 
 /* ---------------- Write outputs ---------------- */
 
@@ -299,8 +354,8 @@ const packFiles = [];
 built.forEach(p => {
   const f = `packs/${p.id}.js`;
   fs.writeFileSync(path.join(APP, f),
-    '/* Generated by build.js from content/' + p.id + '/. Do not edit; edit the Markdown and rebuild. */\n' +
-    '(window.SLV_PACKS = window.SLV_PACKS || []).push(' + JSON.stringify(p) + ');\n');
+    '/* Generated by build.js from content/' + p.id + '/ and content/diagrams/. Do not edit; edit the Markdown and rebuild. */\n' +
+    packJs(p, false) + '\n');
   packFiles.push(f);
 });
 fs.writeFileSync(path.join(APP, 'packs/index.js'),
@@ -320,6 +375,7 @@ fs.writeFileSync(path.join(APP, 'sw.js'),
 
 console.log('Built ' + all.map(p => (p.draft ? '[draft, not published] ' : '') + `${p.id}: ${p.learn.modules.length} modules, ${p.learn.modules.reduce((n, m) => n + m.lessons.length, 0)} lessons, ` +
   `${p.reference.cards.length} cards, ${p.troubleshoot.guides.length} guides, ${p.openTips} field tips open` +
+  (p.diagrams.length ? `, ${p.diagrams.length} diagrams (${p.diagrams.filter(d => d.draft).length} draft)` : '') +
   (p.verifyOpen ? `, ${p.verifyOpen} verify items open` : '')).join('; ') + '. Cache version ' + version + '.');
 
 // Single-file preview: same app, everything inline, no service worker or manifest.
@@ -334,10 +390,12 @@ if (pi > 0) {
     .replace(/<link rel="stylesheet" href="app.css">/, '<style>\n' + fs.readFileSync(path.join(APP, 'app.css'), 'utf8') + '\n</style>');
   let body = html.match(/<body[^>]*>([\s\S]*?)<\/body>/)[1];
   body = body.replace(/<script src="([^"]+)"><\/script>/g, (m, f) => {
+    const live = WITH_DRAFTS && built.find(p => f === `packs/${p.id}.js`);
+    if (live) return '<script>\n' + packJs(live, true) + '\n</script>'; // with its draft diagrams
     if (f !== 'packs/index.js' || !WITH_DRAFTS) return inlineJs(f);
     // Preview with drafts: draft packs load as real packs instead of "coming soon".
     return '<script>\nwindow.SLV_UPCOMING = ' + JSON.stringify(UPCOMING) + ';\n' +
-      drafts.map(p => '(window.SLV_PACKS = window.SLV_PACKS || []).push(' + JSON.stringify(p).replace(/<\/script/gi, '<\\/script') + ');').join('\n') + '\n</script>';
+      drafts.map(p => packJs(p, true)).join('\n') + '\n</script>';
   });
   fs.writeFileSync(out, head.trim() + '\n' + body.trim() + '\n');
   console.log('Preview written to ' + out);
